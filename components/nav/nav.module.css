@@ -1,0 +1,11 @@
+.navWrapper {
+  padding: 12px 20px;
+}
+
+.navContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1000px;
+  margin: auto;
+}
