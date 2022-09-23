@@ -19,6 +19,7 @@ enum Status {
   SUBSCRIPTION_ACTIVE
   SUBSCRIPTION_CANCELLED
   TRIAL_IN_PROGRESS
+  NEW_ACCOUNT
 }
 
 model User {
@@ -29,8 +30,9 @@ model User {
   name          String?
   password      String
   paymentStatus PaymentStatus @default(PAID)
-  status        Status        @default(TRIAL_IN_PROGRESS)
+  status        Status        @default(NEW_ACCOUNT)
   trialUsed     Boolean       @default(false)
+  emailToken    String?
   passwords     Password[]
   cards         Card[]
   files         File[]

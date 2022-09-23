@@ -14,15 +14,44 @@ import {
 import NextLink from "next/link";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import axios from "axios";
+import { useRouter } from "next/router";
 
 const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+
   const {
     register,
     handleSubmit,
     watch,
     formState: { errors },
   } = useForm();
+
+  const submit = async (data) => {
+    const { email, password, confirmPassword } = data;
+    if (password !== confirmPassword) {
+      // show error message
+      return;
+    }
+
+    setIsLoading(true);
+
+    const res = await axios.post("/api/signup", {
+      email,
+      confirmPassword,
+      password,
+    });
+
+    if (res.data.error) {
+      // show error message
+      return;
+    }
+
+    // redirect to email verification
+    router.push(`/verify?email=${email}`);
+  };
 
   return (
     <div className={styles.wrapper}>
@@ -62,7 +91,14 @@ const Signup = () => {
             marginBottom={30}
             type={showPassword ? "text" : "password"}
           />
-          <Button appearance="primary" width="100%" size="large">
+          <Button
+            appearance="primary"
+            width="100%"
+            size="large"
+            isLoading={isLoading}
+            disabled={isLoading}
+            onClick={submit}
+          >
             Create account
           </Button>
           <div className={styles.accountText}>
