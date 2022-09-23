@@ -1,5 +1,6 @@
 .navWrapper {
   padding: 12px 20px;
+  position: relative;
 }
 
 .navContainer {
@@ -8,4 +9,15 @@
   align-items: center;
   max-width: 1000px;
   margin: auto;
+}
+
+.titleContainer {
+  display: flex;
+  align-items: center;
+}
+
+.navLinks {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
