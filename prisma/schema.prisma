@@ -27,12 +27,13 @@ model User {
   createdAt     DateTime      @default(now())
   stripeId      String?
   email         String        @unique
+  emailToken    String?
+  emailVerified Boolean       @default(false)
   name          String?
   password      String
   paymentStatus PaymentStatus @default(PAID)
   status        Status        @default(NEW_ACCOUNT)
   trialUsed     Boolean       @default(false)
-  emailToken    String?
   passwords     Password[]
   cards         Card[]
   files         File[]

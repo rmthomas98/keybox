@@ -58,8 +58,8 @@ const handler = async (req, res) => {
     const msg = {
       from: '"KeyBox" <rmthomas1998@gmail.com>',
       to: email.trim(),
-      subject: "Verify your email",
-      html: `<p>Dear Valued Customer,</p><p>Thank you for creating an account with KeyBox!</p><p>Please copy the following code and enter it into the prompt on our website to verify your email:</p><p style="font-size: 20px; font-weight: 600;">${emailToken}</p><p>Thank you,</p><p>The Low KeyBox Team</p>`,
+      subject: "Email Verification",
+      html: `<p>Dear Valued Customer,</p><p>Thank you for creating an account with KeyBox!</p><p>Please copy the following code and enter it into the prompt on our website to verify your email:</p><p style="font-size: 20px; font-weight: 600;">${emailToken}</p><p>Regards,</p><p>The KeyBox Team</p>`,
     };
 
     await transporter.sendMail(msg);

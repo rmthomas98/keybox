@@ -9,6 +9,7 @@ function MyApp({ Component, pageProps }) {
     "/signup",
     "/forgot-password",
     "/reset-password",
+    "/verify",
   ];
 
   return (

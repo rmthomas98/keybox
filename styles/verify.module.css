@@ -10,23 +10,9 @@
   align-items: center;
 }
 
-.eyeIcon {
-  position: absolute;
-  right: 12px;
-  top: 35px;
-  cursor: pointer;
-  transition: 200ms;
-}
-
-.eyeIcon:hover {
-  color: #3366FF;
-}
-
-.accountText {
+.btnContainer {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 20px;
+  justify-content: flex-end;
 }
 
 .errorText {
@@ -34,4 +20,9 @@
   bottom: -20px;
   pointer-events: none;
   transition: 200ms;
+}
+
+.resend {
+  display: flex;
+  justify-content: center;
 }

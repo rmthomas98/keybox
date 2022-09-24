@@ -14,6 +14,7 @@
     "bcryptjs": "^2.4.3",
     "evergreen-ui": "^6.10.3",
     "next": "12.3.1",
+    "next-auth": "^4.10.3",
     "nodemailer": "^6.7.8",
     "prisma": "^4.3.1",
     "react": "18.2.0",
