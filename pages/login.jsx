@@ -8,6 +8,9 @@ import {
   Text,
   toaster,
   Checkbox,
+  Small,
+  EyeOffIcon,
+  EyeOpenIcon,
 } from "evergreen-ui";
 import Image from "next/image";
 import NextLink from "next/link";
@@ -15,16 +18,39 @@ import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import { useState } from "react";
+import { signIn, getSession } from "next-auth/react";
 
 const Login = () => {
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
+
+  const submit = async (data) => {
+    setIsLoading(true);
+    toaster.closeAll();
+
+    const options = {
+      email: data.email,
+      password: data.password,
+      redirect: false,
+    };
+
+    const res = await signIn("credentials", options);
+
+    if (res?.error) {
+      setIsLoading(false);
+      toaster.danger(res.error);
+      return;
+    }
+
+    router.push("/app");
+  };
 
   return (
     <div className={styles.wrapper}>
@@ -42,28 +68,60 @@ const Login = () => {
           background="tint2"
           className={styles.animate}
         >
-          <form>
+          <form onSubmit={handleSubmit(submit)}>
             <Heading size={700} marginBottom={20} textAlign="center">
               Log in to your account
             </Heading>
-            <TextInputField
-              label="Email"
-              placeholder="Email"
-              marginBottom={30}
-            />
+            <div style={{ position: "relative" }}>
+              <TextInputField
+                label="Email"
+                placeholder="Email"
+                marginBottom={30}
+                {...register("email", { required: true })}
+              />
+              <Text
+                className={styles.errorText}
+                style={{
+                  opacity: errors.email ? 1 : 0,
+                }}
+              >
+                <Small color="#D14343">Please enter your email</Small>
+              </Text>
+            </div>
             <div style={{ position: "relative" }}>
               <TextInputField
                 label="Password"
                 placeholder="Password"
-                marginBottom={20}
+                marginBottom={12}
+                type={showPassword ? "text" : "password"}
+                {...register("password", { required: true })}
               />
+              <Text
+                className={styles.errorText}
+                style={{
+                  opacity: errors.password ? 1 : 0,
+                }}
+              >
+                <Small color="#D14343">Please enter your password</Small>
+              </Text>
+              {showPassword ? (
+                <EyeOffIcon
+                  className={styles.eyeIcon}
+                  onClick={() => setShowPassword(false)}
+                />
+              ) : (
+                <EyeOpenIcon
+                  className={styles.eyeIcon}
+                  onClick={() => setShowPassword(true)}
+                />
+              )}
             </div>
             <div className={styles.actionsContainer}>
-              <Checkbox
-                label="Remember me"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-              />
+              {/*<Checkbox*/}
+              {/*  label="Remember me"*/}
+              {/*  checked={rememberMe}*/}
+              {/*  onChange={(e) => setRememberMe(e.target.checked)}*/}
+              {/*/>*/}
               <NextLink href="/forgot-password" passHref>
                 <Link
                   size={300}
@@ -78,7 +136,9 @@ const Login = () => {
               appearance="primary"
               width="100%"
               size="large"
-              marginTop={20}
+              marginTop={12}
+              isLoading={isLoading}
+              disabled={isLoading}
             >
               Log in
             </Button>
@@ -95,6 +155,20 @@ const Login = () => {
       </div>
     </div>
   );
+};
+
+export const getServerSideProps = async (ctx) => {
+  const session = await getSession(ctx);
+
+  if (session) {
+    return {
+      redirect: {
+        destination: "/app",
+        permanent: false,
+      },
+    };
+  }
+  return { props: {} };
 };
 
 export default Login;

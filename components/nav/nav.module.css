@@ -1,6 +1,7 @@
 .navWrapper {
   padding: 12px 20px;
   position: relative;
+  border-bottom: 1px solid #E6E8F0;
 }
 
 .navContainer {

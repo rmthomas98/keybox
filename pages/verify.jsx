@@ -133,12 +133,21 @@ const Verify = ({ email }) => {
 export const getServerSideProps = async (context) => {
   const { email } = context.query;
 
+  if (!email) {
+    return {
+      redirect: {
+        destination: "/app",
+        permanent: false,
+      },
+    };
+  }
+
   const user = await prisma.user.findUnique({ where: { email } });
 
   if (!user) {
     return {
       redirect: {
-        destination: "/signup",
+        destination: "/app",
         permanent: false,
       },
     };
@@ -156,7 +165,7 @@ export const getServerSideProps = async (context) => {
   if (!email) {
     return {
       redirect: {
-        destination: "/signup",
+        destination: "/login",
         permanent: false,
       },
     };

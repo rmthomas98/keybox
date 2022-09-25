@@ -19,13 +19,32 @@
 
 .actionsContainer {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   height: 20px;
 }
 
 .animate {
   animation: fadeInUp 0.5s ease-in-out;
+}
+
+.errorText {
+  position: absolute;
+  bottom: -20px;
+  pointer-events: none;
+  transition: 200ms;
+}
+
+.eyeIcon {
+  position: absolute;
+  right: 12px;
+  top: 35px;
+  cursor: pointer;
+  transition: 200ms;
+}
+
+.eyeIcon:hover {
+  color: #3366FF;
 }
 
 

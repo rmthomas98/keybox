@@ -1,8 +1,9 @@
 import "../styles/globals.css";
 import { Nav } from "../components/nav/nav";
 import { useRouter } from "next/router";
+import { SessionProvider } from "next-auth/react";
 
-function MyApp({ Component, pageProps }) {
+function MyApp({ Component, pageProps: { session, ...pageProps } }) {
   const router = useRouter();
   const noNavRoutes = [
     "/login",
@@ -14,8 +15,10 @@ function MyApp({ Component, pageProps }) {
 
   return (
     <>
-      {!noNavRoutes.includes(router.pathname) && <Nav />}
-      <Component {...pageProps} />
+      <SessionProvider session={session}>
+        {!noNavRoutes.includes(router.pathname) && <Nav />}
+        <Component {...pageProps} />
+      </SessionProvider>
     </>
   );
 }
