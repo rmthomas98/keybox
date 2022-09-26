@@ -16,6 +16,7 @@ a {
 
 .app-wrapper {
   display: flex;
+  position: relative;
 }
 
 .app-container {

@@ -37,29 +37,31 @@ export const Sidebar = () => {
           <Link>
             <div className={styles.titleContainer}>
               <Image src="/images/logo.svg" height={30} width={30} />
-              <Heading size={700} fontWeight={700} marginLeft={10}>
-                KeyBox
+              <Heading size={100} fontWeight={700} marginLeft={10} color="#000">
+                KEYBOX
               </Heading>
             </div>
           </Link>
         </NextLink>
-        <Tablist marginTop={30}>
-          {tabs.map((tab) => {
-            return (
-              <NextLink href={tab.pathname}>
-                <a style={{ color: "inherit" }}>
-                  <Tab
-                    direction="vertical"
-                    key={tab.pathname}
-                    isSelected={router.pathname === tab.pathname}
-                  >
-                    {tab.label}
-                  </Tab>
-                </a>
-              </NextLink>
-            );
-          })}
-        </Tablist>
+        <div className={styles.tabContainer}>
+          <Tablist>
+            {tabs.map((tab) => {
+              return (
+                <NextLink href={tab.pathname}>
+                  <a style={{ color: "inherit" }}>
+                    <Tab
+                      direction="vertical"
+                      key={tab.pathname}
+                      isSelected={router.pathname === tab.pathname}
+                    >
+                      {tab.label}
+                    </Tab>
+                  </a>
+                </NextLink>
+              );
+            })}
+          </Tablist>
+        </div>
       </div>
     </div>
   );

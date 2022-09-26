@@ -1,14 +1,29 @@
 .wrapper {
   width: 260px;
-  padding: 20px;
-  padding-top: 12px;
-  height: calc(100vh - 57px);
+  height: 100vh;
   /*border-right: 1px solid #E6E8F0;*/
   /*background: #FAFBFF;*/
-  background: #F9FAFC;
+  /*background: #F9FAFC;*/
+  position: sticky;
+  top: 0;
+}
+
+.container {
+  height: calc(100vh - 57px);
 }
 
 .titleContainer {
   display: flex;
   align-items: center;
+  padding: 12px 20px;
+  height: 57px;
+  /*background: #F9FAFC;*/
+  border-bottom: 1px solid #E6E8F0;
+}
+
+.tabContainer {
+  padding: 20px;
+  height: 100%;
+  border-right: 1px solid #E6E8F0;
+  overflow: auto;
 }

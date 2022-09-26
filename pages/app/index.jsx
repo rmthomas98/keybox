@@ -10,15 +10,13 @@ const AppHome = ({ passwords }) => {
         <Heading size={600} fontWeight={700}>
           Passwords
         </Heading>
-        <Button appearance="primary" iconBefore={AddIcon}>
-          New password
-        </Button>
+        <Button appearance="primary">New password</Button>
       </div>
       {passwords.length === 0 && (
         <Alert
           marginTop={20}
           intent="info"
-          title='No passwords on file. Start adding passwords by clicking the "New password" button.'
+          title="No passwords on file. Get started by adding your first password!"
         />
       )}
       {passwords.length > 0 && (

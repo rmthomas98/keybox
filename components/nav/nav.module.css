@@ -1,10 +1,14 @@
 .navWrapper {
   padding: 12px 20px;
-  position: relative;
-  /*border-bottom: 1px solid #E6E8F0;*/
+  /*position: relative;*/
+  border-bottom: 1px solid #E6E8F0;
   /*background: #FAFBFF;*/
   /*background: #fff;*/
-  background: #F9FAFC;
+  /*background: #F9FAFC;*/
+  position: sticky;
+  top: 0;
+  z-index: 9;
+  background: #fff;
 }
 
 .navContainer {
