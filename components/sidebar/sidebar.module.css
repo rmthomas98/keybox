@@ -1,0 +1,14 @@
+.wrapper {
+  width: 260px;
+  padding: 20px;
+  padding-top: 12px;
+  height: calc(100vh - 57px);
+  /*border-right: 1px solid #E6E8F0;*/
+  /*background: #FAFBFF;*/
+  background: #F9FAFC;
+}
+
+.titleContainer {
+  display: flex;
+  align-items: center;
+}

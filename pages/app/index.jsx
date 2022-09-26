@@ -1,9 +1,35 @@
 import styles from "../../styles/appHome.module.css";
+import { Heading, Button, AddIcon, Table, Alert } from "evergreen-ui";
 import { getSession } from "next-auth/react";
 // import prisma from "../../lib/prisma";
 
-const AppHome = () => {
-  return <div>app</div>;
+const AppHome = ({ passwords }) => {
+  return (
+    <div>
+      <div className={styles.navContainer}>
+        <Heading size={600} fontWeight={700}>
+          Passwords
+        </Heading>
+        <Button appearance="primary" iconBefore={AddIcon}>
+          New password
+        </Button>
+      </div>
+      {passwords.length === 0 && (
+        <Alert
+          marginTop={20}
+          intent="info"
+          title='No passwords on file. Start adding passwords by clicking the "New password" button.'
+        />
+      )}
+      {passwords.length > 0 && (
+        <Table marginTop={30}>
+          <Table.Head>
+            <Table.SearchHeaderCell />
+          </Table.Head>
+        </Table>
+      )}
+    </div>
+  );
 };
 
 export const getServerSideProps = async (ctx) => {
@@ -19,7 +45,11 @@ export const getServerSideProps = async (ctx) => {
   }
 
   const { id } = session;
-  const user = await prisma.user.findUnique({ where: { id } });
+  const user = await prisma.user.findUnique({
+    where: { id },
+    include: { passwords: true },
+  });
+  const { passwords } = user;
 
   if (!user.emailVerified) {
     return {
@@ -42,7 +72,7 @@ export const getServerSideProps = async (ctx) => {
     };
   }
 
-  return { props: {} };
+  return { props: { passwords } };
 };
 
 export default AppHome;

@@ -13,3 +13,21 @@ body {
 a {
   text-decoration: none;
 }
+
+.app-wrapper {
+  display: flex;
+}
+
+.app-container {
+  width: 100%;
+}
+
+.app-content-wrapper {
+  width: 100%;
+  padding: 20px;
+}
+
+.app-content {
+  margin: auto;
+  max-width: 1000px;
+}

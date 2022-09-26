@@ -7,7 +7,6 @@ import {
   Link,
   Text,
   toaster,
-  Checkbox,
   Small,
   EyeOffIcon,
   EyeOpenIcon,
@@ -17,11 +16,10 @@ import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { signIn, getSession } from "next-auth/react";
 
-const Login = () => {
-  const [rememberMe, setRememberMe] = useState(true);
+const Login = ({ newAccount }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
@@ -51,6 +49,10 @@ const Login = () => {
 
     router.push("/app");
   };
+
+  useEffect(() => {
+    if (newAccount) toaster.success("Account created! You can now log in.");
+  }, []);
 
   return (
     <div className={styles.wrapper}>
@@ -117,11 +119,6 @@ const Login = () => {
               )}
             </div>
             <div className={styles.actionsContainer}>
-              {/*<Checkbox*/}
-              {/*  label="Remember me"*/}
-              {/*  checked={rememberMe}*/}
-              {/*  onChange={(e) => setRememberMe(e.target.checked)}*/}
-              {/*/>*/}
               <NextLink href="/forgot-password" passHref>
                 <Link
                   size={300}
@@ -168,7 +165,10 @@ export const getServerSideProps = async (ctx) => {
       },
     };
   }
-  return { props: {} };
+
+  const newAccount = ctx.query?.new;
+
+  return { props: { newAccount: !!newAccount } };
 };
 
 export default Login;

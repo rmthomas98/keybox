@@ -20,6 +20,7 @@ import { useState } from "react";
 import { getSession } from "next-auth/react";
 import prisma from "../../lib/prisma";
 import { Trial } from "../../components/dialogs/trial";
+import { Premium } from "../../components/dialogs/premium";
 
 const ChoosePlan = ({ status }) => {
   const [trialDialog, setTrialDialog] = useState(false);
@@ -149,6 +150,7 @@ const ChoosePlan = ({ status }) => {
         </div>
       </div>
       <Trial isOpen={trialDialog} setIsOpen={setTrialDialog} />
+      <Premium isOpen={premiumDialog} setIsOpen={setPremiumDialog} />
     </div>
   );
 };

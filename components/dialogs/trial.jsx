@@ -20,7 +20,7 @@ export const Trial = ({ isOpen, setIsOpen }) => {
       return;
     }
 
-    await router.push("/app");
+    await router.push("/app/new-trial");
   };
 
   return (

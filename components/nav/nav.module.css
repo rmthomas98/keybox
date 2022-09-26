@@ -1,14 +1,16 @@
 .navWrapper {
   padding: 12px 20px;
   position: relative;
-  border-bottom: 1px solid #E6E8F0;
+  /*border-bottom: 1px solid #E6E8F0;*/
+  /*background: #FAFBFF;*/
+  /*background: #fff;*/
+  background: #F9FAFC;
 }
 
 .navContainer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: 1000px;
   margin: auto;
 }
 
