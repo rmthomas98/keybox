@@ -14,8 +14,10 @@ import { getSession } from "next-auth/react";
 import { useState } from "react";
 import { NewCredentials } from "../../components/dialogs/newCredentials";
 
-const AppHome = ({ credentials, status }) => {
+const AppHome = ({ stringifiedCreds, status }) => {
   const [newPasswordShow, setNewPasswordShow] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
+  const credentials = JSON.parse(stringifiedCreds);
 
   return (
     <div>
@@ -41,8 +43,31 @@ const AppHome = ({ credentials, status }) => {
       {credentials.length > 0 && (
         <Table marginTop={30}>
           <Table.Head>
-            <Table.SearchHeaderCell />
+            <Table.SearchHeaderCell
+              value={searchValue}
+              placeholder="Search name..."
+              onChange={(value) => setSearchValue(value)}
+            />
+            <Table.TextHeaderCell>Account</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Password</Table.TextHeaderCell>
           </Table.Head>
+          <Table.VirtualBody height={300}>
+            {credentials
+              .filter((cred) =>
+                !searchValue
+                  ? cred
+                  : cred.name.toLowerCase().includes(searchValue.toLowerCase())
+              )
+              .map((credential) => (
+                <Table.Row key={credential.id} isSelectable>
+                  <Table.TextCell>{credential.name}</Table.TextCell>
+                  <Table.TextCell>
+                    {credential.account ? credential.account : "N/A"}
+                  </Table.TextCell>
+                  <Table.TextCell>{credential.password}</Table.TextCell>
+                </Table.Row>
+              ))}
+          </Table.VirtualBody>
         </Table>
       )}
       <NewCredentials
@@ -94,7 +119,12 @@ export const getServerSideProps = async (ctx) => {
     };
   }
 
-  return { props: { credentials, status: user.status } };
+  return {
+    props: {
+      stringifiedCreds: JSON.stringify(credentials),
+      status: user.status,
+    },
+  };
 };
 
 export default AppHome;

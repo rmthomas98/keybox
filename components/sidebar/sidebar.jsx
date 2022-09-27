@@ -36,9 +36,14 @@ export const Sidebar = () => {
         <NextLink href="/app" passHref>
           <Link>
             <div className={styles.titleContainer}>
-              <Image src="/images/logo.svg" height={30} width={30} />
-              <Heading size={100} fontWeight={700} marginLeft={10} color="#000">
-                AUTHBANK
+              <Image src="/images/logo.svg" height={25} width={25} />
+              <Heading
+                size={100}
+                fontWeight={700}
+                marginLeft={10}
+                color="#101840"
+              >
+                DARKPINE
               </Heading>
             </div>
           </Link>

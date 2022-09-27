@@ -49,7 +49,7 @@ export const Nav = () => {
               <div className={styles.titleContainer}>
                 <Image src="/images/logo.svg" height={30} width={30} />
                 <Heading size={700} fontWeight={700} marginLeft={10}>
-                  KeyBox
+                  DARKPINE
                 </Heading>
               </div>
             </Link>
@@ -61,7 +61,7 @@ export const Nav = () => {
               <div className={styles.titleContainer}>
                 <Image src="/images/logo.svg" height={30} width={30} />
                 <Heading size={700} fontWeight={700} marginLeft={10}>
-                  KeyBox
+                  DARKPINE
                 </Heading>
               </div>
             </Link>

@@ -16,6 +16,7 @@
     "axios": "^0.27.2",
     "bcryptjs": "^2.4.3",
     "evergreen-ui": "^6.10.3",
+    "generate-password": "^1.7.0",
     "next": "12.3.1",
     "next-auth": "^4.10.3",
     "nodemailer": "^6.7.8",
