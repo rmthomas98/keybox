@@ -10,7 +10,7 @@ export const Sidebar = () => {
   const tabs = [
     {
       pathname: "/app",
-      label: "Passwords",
+      label: "Credentials",
     },
     {
       pathname: "/app/cards",
@@ -38,7 +38,7 @@ export const Sidebar = () => {
             <div className={styles.titleContainer}>
               <Image src="/images/logo.svg" height={30} width={30} />
               <Heading size={100} fontWeight={700} marginLeft={10} color="#000">
-                KEYBOX
+                AUTHBANK
               </Heading>
             </div>
           </Link>
@@ -47,11 +47,10 @@ export const Sidebar = () => {
           <Tablist>
             {tabs.map((tab) => {
               return (
-                <NextLink href={tab.pathname}>
+                <NextLink href={tab.pathname} key={tab.pathname}>
                   <a style={{ color: "inherit" }}>
                     <Tab
                       direction="vertical"
-                      key={tab.pathname}
                       isSelected={router.pathname === tab.pathname}
                     >
                       {tab.label}

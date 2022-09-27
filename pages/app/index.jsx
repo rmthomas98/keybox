@@ -1,31 +1,55 @@
 import styles from "../../styles/appHome.module.css";
-import { Heading, Button, AddIcon, Table, Alert } from "evergreen-ui";
+import {
+  Heading,
+  Button,
+  AddIcon,
+  Table,
+  Alert,
+  SmallPlusIcon,
+  Small,
+  PlusIcon,
+} from "evergreen-ui";
 import { getSession } from "next-auth/react";
 // import prisma from "../../lib/prisma";
+import { useState } from "react";
+import { NewCredentials } from "../../components/dialogs/newCredentials";
 
-const AppHome = ({ passwords }) => {
+const AppHome = ({ credentials, status }) => {
+  const [newPasswordShow, setNewPasswordShow] = useState(false);
+
   return (
     <div>
       <div className={styles.navContainer}>
         <Heading size={600} fontWeight={700}>
-          Passwords
+          Credentials
         </Heading>
-        <Button appearance="primary">New password</Button>
+        <Button
+          appearance="primary"
+          onClick={() => setNewPasswordShow(true)}
+          iconBefore={PlusIcon}
+        >
+          Add credentials
+        </Button>
       </div>
-      {passwords.length === 0 && (
+      {credentials.length === 0 && (
         <Alert
           marginTop={20}
           intent="info"
-          title="No passwords on file. Get started by adding your first password!"
+          title="No credentials on file. Get started by adding your first credentials!"
         />
       )}
-      {passwords.length > 0 && (
+      {credentials.length > 0 && (
         <Table marginTop={30}>
           <Table.Head>
             <Table.SearchHeaderCell />
           </Table.Head>
         </Table>
       )}
+      <NewCredentials
+        show={newPasswordShow}
+        setShow={setNewPasswordShow}
+        status={status}
+      />
     </div>
   );
 };
@@ -45,9 +69,9 @@ export const getServerSideProps = async (ctx) => {
   const { id } = session;
   const user = await prisma.user.findUnique({
     where: { id },
-    include: { passwords: true },
+    include: { credentials: true },
   });
-  const { passwords } = user;
+  const { credentials } = user;
 
   if (!user.emailVerified) {
     return {
@@ -70,7 +94,7 @@ export const getServerSideProps = async (ctx) => {
     };
   }
 
-  return { props: { passwords } };
+  return { props: { credentials, status: user.status } };
 };
 
 export default AppHome;

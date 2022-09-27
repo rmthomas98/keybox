@@ -34,16 +34,17 @@ model User {
   paymentStatus PaymentStatus @default(PAID)
   status        Status        @default(NEW_ACCOUNT)
   trialUsed     Boolean       @default(false)
-  passwords     Password[]
+  credentials   Credential[]
   cards         Card[]
   files         File[]
 }
 
-model Password {
+model Credential {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   name      String?
+  account   String?
   password  String
   user      User     @relation(fields: [userId], references: [id])
   userId    String
