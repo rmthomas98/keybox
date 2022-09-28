@@ -10,6 +10,7 @@ import {
   EyeOpenIcon,
   EyeOffIcon,
   toaster,
+  Paragraph,
 } from "evergreen-ui";
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -168,9 +169,15 @@ export const NewCredentials = ({ show, setShow, status }) => {
         </Text>
         <Tooltip
           content={
-            status !== "TRIAL_IN_PROGRESS"
-              ? "We will generate a unique 15 character password for you."
-              : "Upgrade to premium in order to gain access to this feature."
+            status !== "TRIAL_IN_PROGRESS" ? (
+              <Paragraph textAlign="center" color="#fff">
+                We will generate a unique 15 character password for you.
+              </Paragraph>
+            ) : (
+              <Paragraph textAlign="center" color="#fff">
+                Upgrade to premium in order to gain access to this feature.
+              </Paragraph>
+            )
           }
         >
           <InfoSignIcon size={14} color="muted" />

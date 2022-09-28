@@ -30,7 +30,10 @@ const handler = async (req, res) => {
     if (generatePassword) {
       generatedPassword = generator.generate({
         length: 15,
-        strict: true,
+        numbers: true,
+        symbols: true,
+        lowercase: true,
+        uppercase: true,
       });
     }
 

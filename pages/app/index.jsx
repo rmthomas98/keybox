@@ -13,11 +13,20 @@ import { getSession } from "next-auth/react";
 // import prisma from "../../lib/prisma";
 import { useState } from "react";
 import { NewCredentials } from "../../components/dialogs/newCredentials";
+import { CredentialsView } from "../../components/dialogs/credentialsView";
+import { format } from "date-fns";
 
 const AppHome = ({ stringifiedCreds, status }) => {
   const [newPasswordShow, setNewPasswordShow] = useState(false);
+  const [credentialsViewShow, setCredentialsViewShow] = useState(false);
+  const [selectedCredentials, setSelectedCredentials] = useState(null);
   const [searchValue, setSearchValue] = useState("");
   const credentials = JSON.parse(stringifiedCreds);
+
+  const handleClick = (credentials) => {
+    setSelectedCredentials(credentials);
+    setCredentialsViewShow(true);
+  };
 
   return (
     <div>
@@ -42,16 +51,18 @@ const AppHome = ({ stringifiedCreds, status }) => {
       )}
       {credentials.length > 0 && (
         <Table marginTop={30}>
-          <Table.Head>
+          <Table.Head height={50}>
             <Table.SearchHeaderCell
+              minWidth={130}
               value={searchValue}
-              placeholder="Search name..."
+              placeholder="Search account..."
               onChange={(value) => setSearchValue(value)}
             />
-            <Table.TextHeaderCell>Account</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Password</Table.TextHeaderCell>
+            {/*<Table.TextHeaderCell>Name</Table.TextHeaderCell>*/}
+            <Table.TextHeaderCell>Username</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Created</Table.TextHeaderCell>
           </Table.Head>
-          <Table.VirtualBody height={300}>
+          <Table.Body height={500}>
             {credentials
               .filter((cred) =>
                 !searchValue
@@ -59,21 +70,32 @@ const AppHome = ({ stringifiedCreds, status }) => {
                   : cred.name.toLowerCase().includes(searchValue.toLowerCase())
               )
               .map((credential) => (
-                <Table.Row key={credential.id} isSelectable>
+                <Table.Row
+                  key={credential.id}
+                  isSelectable
+                  height={40}
+                  onSelect={() => handleClick(credential)}
+                >
                   <Table.TextCell>{credential.name}</Table.TextCell>
+                  <Table.TextCell>{credential?.account}</Table.TextCell>
                   <Table.TextCell>
-                    {credential.account ? credential.account : "N/A"}
+                    {format(new Date(credential.createdAt), "MM/dd/yyyy")}
                   </Table.TextCell>
-                  <Table.TextCell>{credential.password}</Table.TextCell>
                 </Table.Row>
               ))}
-          </Table.VirtualBody>
+          </Table.Body>
         </Table>
       )}
       <NewCredentials
         show={newPasswordShow}
         setShow={setNewPasswordShow}
         status={status}
+      />
+      <CredentialsView
+        show={credentialsViewShow}
+        setShow={setCredentialsViewShow}
+        credentials={selectedCredentials}
+        setCredentials={setSelectedCredentials}
       />
     </div>
   );
@@ -96,7 +118,7 @@ export const getServerSideProps = async (ctx) => {
     where: { id },
     include: { credentials: true },
   });
-  const { credentials } = user;
+  let { credentials } = user;
 
   if (!user.emailVerified) {
     return {
@@ -118,6 +140,28 @@ export const getServerSideProps = async (ctx) => {
       },
     };
   }
+
+  const aes256 = require("aes256");
+
+  credentials = credentials.map((cred) => {
+    const decryptedPassword = aes256.decrypt(
+      process.env.ENCRYPTION_KEY,
+      cred.password
+    );
+
+    const passwordLength = decryptedPassword.length;
+
+    return {
+      id: cred.id,
+      createdAt: cred.createdAt,
+      updatedAt: cred.updatedAt,
+      name: cred.name,
+      account: cred.account,
+      decryptedPassword: decryptedPassword,
+      encryptedPassword: cred.password,
+      hiddenPassword: `${decryptedPassword.slice(0, passwordLength / 3)}****`,
+    };
+  });
 
   return {
     props: {
