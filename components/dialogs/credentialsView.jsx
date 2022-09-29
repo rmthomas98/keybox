@@ -15,6 +15,7 @@ import {
   Paragraph,
   Small,
   toaster,
+  TextInputField,
 } from "evergreen-ui";
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
@@ -125,6 +126,12 @@ export const CredentialsView = ({
           </Popover>
         </div>
       </div>
+      <TextInputField
+        label="Username / Email"
+        value={credentials.account}
+        marginTop={20}
+        disabled
+      />
     </Dialog>
   );
 };

@@ -62,7 +62,7 @@ const AppHome = ({ stringifiedCreds, status }) => {
             <Table.TextHeaderCell>Username</Table.TextHeaderCell>
             <Table.TextHeaderCell>Created</Table.TextHeaderCell>
           </Table.Head>
-          <Table.Body height={500}>
+          <Table.Body height={400}>
             {credentials
               .filter((cred) =>
                 !searchValue
