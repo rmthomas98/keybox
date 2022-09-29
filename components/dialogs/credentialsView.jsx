@@ -16,6 +16,9 @@ import {
   Small,
   toaster,
   TextInputField,
+  EyeOpenIcon,
+  EyeOffIcon,
+  ResetIcon,
 } from "evergreen-ui";
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
@@ -31,9 +34,19 @@ export const CredentialsView = ({
   setCredentials,
 }) => {
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const router = useRouter();
 
   if (!credentials) return null;
+
+  const handleClose = () => {
+    setShow(false);
+    setCredentials(null);
+    setShowPassword(false);
+    setIsDeleting(false);
+    setIsEditing(false);
+  };
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -47,22 +60,20 @@ export const CredentialsView = ({
       return;
     }
 
-    const handleClose = () => {
-      setShow(false);
-      setCredentials(null);
-      setIsDeleting(false);
-    };
-
     toaster.success(res.data.message);
     await router.replace(router.asPath);
     handleClose();
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
   };
 
   return (
     <Dialog
       title={credentials.name}
       isShown={show}
-      onCloseComplete={() => setShow(false)}
+      onCloseComplete={handleClose}
       cancelLabel="Close"
       confirmLabel="Save Changes"
       isConfirmDisabled={true}
@@ -72,6 +83,8 @@ export const CredentialsView = ({
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          borderBottom: "1px solid #E6E8F0",
+          paddingBottom: 12,
         }}
       >
         <Heading size={100} fontWeight={700}>
@@ -79,7 +92,11 @@ export const CredentialsView = ({
         </Heading>
         <div style={{ display: "flex", alignItems: "center" }}>
           <Tooltip position={Position.BOTTOM} content="Edit">
-            <IconButton icon={EditIcon} marginRight={8} />
+            <IconButton
+              icon={EditIcon}
+              marginRight={8}
+              onClick={() => setIsEditing((prev) => !prev)}
+            />
           </Tooltip>
           <Popover
             content={({ close }) => (
@@ -89,8 +106,8 @@ export const CredentialsView = ({
                 </Heading>
                 <Paragraph>
                   <Small>
-                    Are you sure you want to delete these credentials?<br></br>{" "}
-                    This action cannot be undone.
+                    Are you sure you want to delete these credentials?
+                    <br></br> This action cannot be undone.
                   </Small>
                 </Paragraph>
                 <div
@@ -126,12 +143,38 @@ export const CredentialsView = ({
           </Popover>
         </div>
       </div>
-      <TextInputField
-        label="Username / Email"
-        value={credentials.account}
-        marginTop={20}
-        disabled
-      />
+      <div style={{ display: "flex", alignItems: "center", marginTop: 15 }}>
+        <Badge color="green" marginRight={10}>
+          User / Email
+        </Badge>
+        <Paragraph>{credentials.account}</Paragraph>
+      </div>
+      <Badge color="purple">Password</Badge>
+      {/*<TextInputField*/}
+      {/*  label="Username / Email"*/}
+      {/*  value={credentials.account}*/}
+      {/*  marginTop={20}*/}
+      {/*  disabled={!isEditing}*/}
+      {/*/>*/}
+      {/*<div style={{ position: "relative" }}>*/}
+      {/*  <TextInputField*/}
+      {/*    label="Password"*/}
+      {/*    type={showPassword ? "text" : "password"}*/}
+      {/*    value={credentials.decryptedPassword}*/}
+      {/*    disabled={!isEditing}*/}
+      {/*  />*/}
+      {/*  {showPassword ? (*/}
+      {/*    <EyeOffIcon*/}
+      {/*      className="eye-icon"*/}
+      {/*      onClick={() => setShowPassword(false)}*/}
+      {/*    />*/}
+      {/*  ) : (*/}
+      {/*    <EyeOpenIcon*/}
+      {/*      className="eye-icon"*/}
+      {/*      onClick={() => setShowPassword(true)}*/}
+      {/*    />*/}
+      {/*  )}*/}
+      {/*</div>*/}
     </Dialog>
   );
 };

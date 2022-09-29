@@ -32,3 +32,15 @@ a {
   margin: auto;
   max-width: 1000px;
 }
+
+.eye-icon {
+  position: absolute;
+  right: 12px;
+  top: 35px;
+  cursor: pointer;
+  transition: 200ms;
+}
+
+.eye-icon:hover {
+  color: #3366FF;
+}
