@@ -16,9 +16,13 @@ import {
   Small,
   toaster,
   TextInputField,
+  TextInput,
   EyeOpenIcon,
   EyeOffIcon,
   ResetIcon,
+  ClipboardIcon,
+  BanCircleIcon,
+  EraserIcon,
 } from "evergreen-ui";
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
@@ -38,7 +42,11 @@ export const CredentialsView = ({
   const [isEditing, setIsEditing] = useState(false);
   const router = useRouter();
 
+  const { control, handleSubmit, errors } = useForm({});
+
   if (!credentials) return null;
+
+  navigator.clipboard.writeText("Hello, world!");
 
   const handleClose = () => {
     setShow(false);
@@ -69,9 +77,25 @@ export const CredentialsView = ({
     setIsEditing(false);
   };
 
+  const handleCopyPassword = async () => {
+    await toaster.closeAll();
+    navigator.clipboard.writeText(credentials.decryptedPassword);
+    toaster.success("Password copied to clipboard");
+  };
+
+  const handleCopyUsername = async () => {
+    await toaster.closeAll();
+    navigator.clipboard.writeText(credentials.account);
+    toaster.success("Username copied to clipboard");
+  };
+
+  const handleReset = () => {
+    setIsEditing(false);
+  };
+
   return (
     <Dialog
-      title={credentials.name}
+      title={"Credentials"}
       isShown={show}
       onCloseComplete={handleClose}
       cancelLabel="Close"
@@ -85,17 +109,36 @@ export const CredentialsView = ({
           justifyContent: "space-between",
           borderBottom: "1px solid #E6E8F0",
           paddingBottom: 12,
+          marginBottom: 12,
         }}
       >
-        <Heading size={100} fontWeight={700}>
-          created {format(new Date(credentials.createdAt), "MMMM dd, yyyy")}
-        </Heading>
+        <div>
+          <Heading size={500} marginBottom={4}>
+            {credentials.name}{" "}
+            <Badge
+              color="purple"
+              opacity={isEditing ? 1 : 0}
+              transform={isEditing ? "scale(1)" : "scale(0.75)"}
+              pointerEvents={"none"}
+              transition={"300ms"}
+            >
+              Editing
+            </Badge>
+          </Heading>
+          <Heading size={100} fontWeight={700}>
+            created {format(new Date(credentials.createdAt), "MMMM dd, yyyy")}
+          </Heading>
+        </div>
         <div style={{ display: "flex", alignItems: "center" }}>
-          <Tooltip position={Position.BOTTOM} content="Edit">
+          <Tooltip
+            position={Position.BOTTOM}
+            content={isEditing ? "Cancel" : "Edit credentials"}
+          >
             <IconButton
-              icon={EditIcon}
-              marginRight={8}
+              icon={isEditing ? EraserIcon : EditIcon}
+              marginRight={6}
               onClick={() => setIsEditing((prev) => !prev)}
+              intent={isEditing ? "danger" : "none"}
             />
           </Tooltip>
           <Popover
@@ -135,46 +178,92 @@ export const CredentialsView = ({
             position={Position.BOTTOM}
           >
             <Tooltip
-              content={<Text color="#F9DADA">Delete</Text>}
+              content={<Text color="#EE9191">Delete</Text>}
               position={Position.BOTTOM}
             >
-              <IconButton icon={TrashIcon} intent="danger" />
+              <IconButton
+                icon={TrashIcon}
+                intent="danger"
+                disabled={isEditing}
+              />
             </Tooltip>
           </Popover>
         </div>
       </div>
-      <div style={{ display: "flex", alignItems: "center", marginTop: 15 }}>
-        <Badge color="green" marginRight={10}>
-          User / Email
-        </Badge>
-        <Paragraph>{credentials.account}</Paragraph>
-      </div>
-      <Badge color="purple">Password</Badge>
-      {/*<TextInputField*/}
-      {/*  label="Username / Email"*/}
-      {/*  value={credentials.account}*/}
-      {/*  marginTop={20}*/}
-      {/*  disabled={!isEditing}*/}
-      {/*/>*/}
-      {/*<div style={{ position: "relative" }}>*/}
-      {/*  <TextInputField*/}
-      {/*    label="Password"*/}
-      {/*    type={showPassword ? "text" : "password"}*/}
-      {/*    value={credentials.decryptedPassword}*/}
-      {/*    disabled={!isEditing}*/}
-      {/*  />*/}
-      {/*  {showPassword ? (*/}
-      {/*    <EyeOffIcon*/}
-      {/*      className="eye-icon"*/}
-      {/*      onClick={() => setShowPassword(false)}*/}
-      {/*    />*/}
-      {/*  ) : (*/}
-      {/*    <EyeOpenIcon*/}
-      {/*      className="eye-icon"*/}
-      {/*      onClick={() => setShowPassword(true)}*/}
-      {/*    />*/}
-      {/*  )}*/}
+      {/*<div style={{ marginTop: 15, display: "flex", flexDirection: "column" }}>*/}
+      {/*  <Badge color="green" width={"fit-content"}>*/}
+      {/*    Username / Email*/}
+      {/*  </Badge>*/}
+      {/*  <TextInput value={credentials.account} marginTop={10} width="100%" />*/}
+      {/*  /!*<Paragraph>{credentials.decryptedPassword}</Paragraph>*!/*/}
       {/*</div>*/}
+      {/*<div style={{ marginTop: 15, display: "flex", flexDirection: "column" }}>*/}
+      {/*  <Badge color="blue" width={"fit-content"}>*/}
+      {/*    Password*/}
+      {/*  </Badge>*/}
+      {/*  <TextInput*/}
+      {/*    value={credentials.decryptedPassword}*/}
+      {/*    marginTop={10}*/}
+      {/*    width="100%"*/}
+      {/*  />*/}
+      {/*  /!*<Paragraph>{credentials.decryptedPassword}</Paragraph>*!/*/}
+      {/*</div>*/}
+      {isEditing && (
+        <div
+          style={{
+            position: "relative",
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          <TextInputField
+            label="Account Name"
+            value={credentials.name}
+            disabled={!isEditing}
+            width={"100%"}
+          />
+        </div>
+      )}
+      <div
+        style={{ position: "relative", display: "flex", alignItems: "center" }}
+      >
+        <TextInputField
+          label="Username / Email"
+          value={credentials.account}
+          disabled={!isEditing}
+          width={"100%"}
+          marginRight={6}
+        />
+        <Tooltip content="Copy">
+          <IconButton icon={ClipboardIcon} onClick={handleCopyUsername} />
+        </Tooltip>
+      </div>
+      <div
+        style={{ position: "relative", display: "flex", alignItems: "center" }}
+      >
+        <TextInputField
+          label="Password"
+          type={showPassword ? "text" : "password"}
+          value={credentials.decryptedPassword}
+          disabled={!isEditing}
+          width={"100%"}
+          marginRight={6}
+        />
+        <Tooltip content="Copy">
+          <IconButton icon={ClipboardIcon} onClick={handleCopyPassword} />
+        </Tooltip>
+        {showPassword ? (
+          <EyeOffIcon
+            className="eye-icon-creds"
+            onClick={() => setShowPassword(false)}
+          />
+        ) : (
+          <EyeOpenIcon
+            className="eye-icon-creds"
+            onClick={() => setShowPassword(true)}
+          />
+        )}
+      </div>
     </Dialog>
   );
 };

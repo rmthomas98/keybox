@@ -33,14 +33,14 @@ a {
   max-width: 1000px;
 }
 
-.eye-icon {
+.eye-icon-creds {
   position: absolute;
-  right: 12px;
+  right: 50px;
   top: 35px;
   cursor: pointer;
   transition: 200ms;
 }
 
-.eye-icon:hover {
+.eye-icon-creds:hover {
   color: #3366FF;
 }
