@@ -24,7 +24,7 @@ import {
   BanCircleIcon,
   EraserIcon,
 } from "evergreen-ui";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { getSession } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -40,13 +40,16 @@ export const CredentialsView = ({
   const [isDeleting, setIsDeleting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isConfirmDisabled, setIsConfirmDisabled] = useState(true);
   const router = useRouter();
 
-  const { control, handleSubmit, errors } = useForm({});
-
-  if (!credentials) return null;
-
-  navigator.clipboard.writeText("Hello, world!");
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    watch,
+  } = useForm();
 
   const handleClose = () => {
     setShow(false);
@@ -54,6 +57,8 @@ export const CredentialsView = ({
     setShowPassword(false);
     setIsDeleting(false);
     setIsEditing(false);
+    setIsConfirmDisabled(true);
+    reset();
   };
 
   const handleDelete = async () => {
@@ -73,10 +78,6 @@ export const CredentialsView = ({
     handleClose();
   };
 
-  const handleCancelEdit = () => {
-    setIsEditing(false);
-  };
-
   const handleCopyPassword = async () => {
     await toaster.closeAll();
     navigator.clipboard.writeText(credentials.decryptedPassword);
@@ -91,7 +92,22 @@ export const CredentialsView = ({
 
   const handleReset = () => {
     setIsEditing(false);
+    setIsConfirmDisabled(true);
+    reset();
   };
+
+  const submit = async (data) => {
+    console.log(data);
+  };
+
+  useEffect(() => {
+    const name = watch("name");
+    if (name !== credentials?.name) {
+      setIsConfirmDisabled(false);
+    }
+  }, [watch("name")]);
+
+  if (!credentials) return null;
 
   return (
     <Dialog
@@ -100,7 +116,8 @@ export const CredentialsView = ({
       onCloseComplete={handleClose}
       cancelLabel="Close"
       confirmLabel="Save Changes"
-      isConfirmDisabled={true}
+      isConfirmDisabled={isConfirmDisabled}
+      onConfirm={handleSubmit(submit)}
     >
       <div
         style={{
@@ -137,7 +154,7 @@ export const CredentialsView = ({
             <IconButton
               icon={isEditing ? EraserIcon : EditIcon}
               marginRight={6}
-              onClick={() => setIsEditing((prev) => !prev)}
+              onClick={() => (isEditing ? handleReset() : setIsEditing(true))}
               intent={isEditing ? "danger" : "none"}
             />
           </Tooltip>
@@ -190,24 +207,6 @@ export const CredentialsView = ({
           </Popover>
         </div>
       </div>
-      {/*<div style={{ marginTop: 15, display: "flex", flexDirection: "column" }}>*/}
-      {/*  <Badge color="green" width={"fit-content"}>*/}
-      {/*    Username / Email*/}
-      {/*  </Badge>*/}
-      {/*  <TextInput value={credentials.account} marginTop={10} width="100%" />*/}
-      {/*  /!*<Paragraph>{credentials.decryptedPassword}</Paragraph>*!/*/}
-      {/*</div>*/}
-      {/*<div style={{ marginTop: 15, display: "flex", flexDirection: "column" }}>*/}
-      {/*  <Badge color="blue" width={"fit-content"}>*/}
-      {/*    Password*/}
-      {/*  </Badge>*/}
-      {/*  <TextInput*/}
-      {/*    value={credentials.decryptedPassword}*/}
-      {/*    marginTop={10}*/}
-      {/*    width="100%"*/}
-      {/*  />*/}
-      {/*  /!*<Paragraph>{credentials.decryptedPassword}</Paragraph>*!/*/}
-      {/*</div>*/}
       {isEditing && (
         <div
           style={{
@@ -216,11 +215,21 @@ export const CredentialsView = ({
             alignItems: "center",
           }}
         >
-          <TextInputField
-            label="Account Name"
-            value={credentials.name}
-            disabled={!isEditing}
-            width={"100%"}
+          <Controller
+            control={control}
+            name="name"
+            rules={{ required: true }}
+            defaultValue={credentials.name}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInputField
+                label="Account Name"
+                value={value}
+                disabled={!isEditing}
+                width={"100%"}
+                onChange={onChange}
+                onBlur={onBlur}
+              />
+            )}
           />
         </div>
       )}
