@@ -25,6 +25,10 @@ export const Sidebar = () => {
       label: "Files",
     },
     {
+      pathname: "/app/crypto",
+      label: "Crypto",
+    },
+    {
       pathname: "/app/secrets",
       label: "Secrets",
     },

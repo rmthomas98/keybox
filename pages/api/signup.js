@@ -16,7 +16,7 @@ const handler = async (req, res) => {
 
     // check if email already exists
     const doesEmailExist = await prisma.user.findUnique({
-      where: { email: email.trim() },
+      where: { email: email.trim().toLowerCase() },
     });
 
     if (doesEmailExist) {
@@ -29,7 +29,7 @@ const handler = async (req, res) => {
 
     // Create customer in stripe
     const customer = await stripe.customers.create({
-      email: email.trim(),
+      email: email.trim().toLowerCase(),
     });
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -38,7 +38,7 @@ const handler = async (req, res) => {
     // create user in db
     const user = await prisma.user.create({
       data: {
-        email: email.trim(),
+        email: email.trim().toLowerCase(),
         stripeId: customer.id,
         password: hashedPassword,
         emailToken,
@@ -57,7 +57,7 @@ const handler = async (req, res) => {
 
     const msg = {
       from: '"KeyBox" <rmthomas1998@gmail.com>',
-      to: email.trim(),
+      to: email.trim().toLowerCase(),
       subject: "Email Verification",
       html: `<p>Dear Valued Customer,</p><p>Thank you for creating an account with KeyBox!</p><p>Please copy the following code and enter it into the prompt on our website to verify your email:</p><p style="font-size: 20px; font-weight: 600;">${emailToken}</p><p>Regards,</p><p>The KeyBox Team</p>`,
     };

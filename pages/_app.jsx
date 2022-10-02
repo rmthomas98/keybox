@@ -3,6 +3,7 @@ import { Nav } from "../components/nav/nav";
 import { useRouter } from "next/router";
 import { SessionProvider } from "next-auth/react";
 import { Sidebar } from "../components/sidebar/sidebar";
+import NextNProgress from "nextjs-progressbar";
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }) {
   const router = useRouter();
@@ -31,6 +32,9 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
 
   return (
     <>
+      {router.pathname.includes("/app") && (
+        <NextNProgress color="#3366FF" height={2} startPosition={0} />
+      )}
       <SessionProvider session={session}>
         {checkRoute() && (
           <div>

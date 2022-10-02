@@ -46,23 +46,23 @@ model Credential {
   name      String?
   account   String?
   password  String?
+  website   String?
   user      User     @relation(fields: [userId], references: [id])
   userId    String
 }
 
 model Card {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  name      String?
-  brand     String?
-  number    String?
-  expMonth  String?
-  expYear   String?
-  cvc       String?
-  zip       String?
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  identifier String?
+  name       String?
+  number     String?
+  exp        String?
+  cvc        String?
+  zip        String?
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String
 }
 
 model File {

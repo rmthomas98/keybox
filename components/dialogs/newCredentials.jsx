@@ -35,6 +35,7 @@ export const NewCredentials = ({ show, setShow, status }) => {
     defaultValues: {
       name: "",
       account: "",
+      website: "",
     },
   });
 
@@ -54,6 +55,10 @@ export const NewCredentials = ({ show, setShow, status }) => {
 
   const submit = async (data) => {
     toaster.closeAll();
+    // if (!genPass && !password) {
+    //   toaster.danger("Please enter a password");
+    //   return;
+    // }
     setIsLoading(true);
     const session = await getSession();
     const { id } = session;
@@ -64,6 +69,7 @@ export const NewCredentials = ({ show, setShow, status }) => {
       account: data.account,
       password: password,
       generatePassword: genPass,
+      website: data.website,
     };
 
     const res = await axios.post("/api/credentials/new", { options });
@@ -83,7 +89,7 @@ export const NewCredentials = ({ show, setShow, status }) => {
   return (
     <Dialog
       isShown={show}
-      title="Add new credentials"
+      title="Add New Credentials"
       onCloseComplete={handleClose}
       onConfirm={handleSubmit(submit)}
       shouldCloseOnOverlayClick={false}
@@ -112,6 +118,22 @@ export const NewCredentials = ({ show, setShow, status }) => {
           </Text>
         )}
       </div>
+      <Controller
+        control={control}
+        name="website"
+        render={({ field: { onChange, onBlur, value } }) => (
+          <TextInputField
+            label="Website"
+            placeholder="https://google.com"
+            autoComplete="off"
+            type="text"
+            value={value}
+            onChange={onChange}
+            onBlur={onBlur}
+          />
+        )}
+      />
+
       <div style={{ position: "relative" }}>
         <Controller
           control={control}

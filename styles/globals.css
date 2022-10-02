@@ -35,7 +35,6 @@ a {
 
 .eye-icon-creds {
   position: absolute;
-  right: 50px;
   top: 35px;
   cursor: pointer;
   transition: 200ms;

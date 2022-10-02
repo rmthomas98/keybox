@@ -5,7 +5,8 @@ const generator = require("generate-password");
 
 const handler = async (req, res) => {
   try {
-    const { id, name, account, password, generatePassword } = req.body.options;
+    const { id, name, account, password, generatePassword, website } =
+      req.body.options;
     let generatedPassword;
 
     // get user from db along with existing credentials
@@ -37,19 +38,24 @@ const handler = async (req, res) => {
       });
     }
 
-    // encrypt password
-    const key = process.env.ENCRYPTION_KEY;
-    const encryptedPassword = aes256.encrypt(
-      key,
-      generatedPassword ? generatedPassword : password
-    );
+    let encryptedPassword;
+
+    if (password || generatedPassword) {
+      // encrypt password
+      const key = process.env.ENCRYPTION_KEY;
+      encryptedPassword = aes256.encrypt(
+        key,
+        generatedPassword ? generatedPassword : password
+      );
+    }
 
     // insert into db
     await prisma.credential.create({
       data: {
         name,
         account,
-        password: encryptedPassword,
+        password: encryptedPassword ? encryptedPassword : undefined,
+        website,
         userId: id,
       },
     });

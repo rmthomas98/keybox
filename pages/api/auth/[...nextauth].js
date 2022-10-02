@@ -13,7 +13,9 @@ export default NextAuth({
       name: "credentials",
       async authorize(credentials) {
         const { email, password } = credentials;
-        const user = await prisma.user.findUnique({ where: { email } });
+        const user = await prisma.user.findUnique({
+          where: { email: email.trim().toLowerCase() },
+        });
         if (!user) throw new Error("No user found found with that email");
         const isValid = await bcrypt.compare(password, user.password);
         if (!isValid) throw new Error("Invalid password");

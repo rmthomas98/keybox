@@ -13,7 +13,6 @@ import {
   Card,
   Button,
   Paragraph,
-  Small,
   toaster,
   TextInputField,
   TextInput,
@@ -23,6 +22,10 @@ import {
   ClipboardIcon,
   BanCircleIcon,
   EraserIcon,
+  LinkIcon,
+  Link,
+  LightningIcon,
+  Small,
 } from "evergreen-ui";
 import { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
@@ -30,18 +33,29 @@ import { getSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import axios from "axios";
 import { format } from "date-fns";
+import generator from "generate-password";
 
 export const CredentialsView = ({
   show,
   setShow,
   credentials,
   setCredentials,
+  status,
 }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isConfirmDisabled, setIsConfirmDisabled] = useState(true);
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    if (!show) return;
+    setPassword(
+      credentials.decryptedPassword ? credentials.decryptedPassword : ""
+    );
+  }, [show]);
 
   const {
     control,
@@ -58,6 +72,7 @@ export const CredentialsView = ({
     setIsDeleting(false);
     setIsEditing(false);
     setIsConfirmDisabled(true);
+    setIsLoading(false);
     reset();
   };
 
@@ -92,20 +107,94 @@ export const CredentialsView = ({
 
   const handleReset = () => {
     setIsEditing(false);
+    setIsLoading(false);
     setIsConfirmDisabled(true);
+    setPassword(credentials.decryptedPassword);
     reset();
   };
 
   const submit = async (data) => {
-    console.log(data);
+    setIsLoading(true);
+    const session = await getSession();
+    const { id: userId } = session;
+    const { id } = credentials;
+    const { name, account, website } = data;
+
+    const nameChange = name !== credentials.name;
+
+    const options = {
+      id,
+      userId,
+      name,
+      nameChange,
+      account,
+      website,
+      password,
+    };
+
+    const res = await axios.post("/api/credentials/edit", { options });
+
+    if (res.data.error) {
+      setIsLoading(false);
+      toaster.danger(res.data.message);
+      return;
+    }
+
+    router.replace(router.asPath);
+    toaster.success(res.data.message);
+    setIsLoading(false);
+    setIsEditing(false);
+    setIsConfirmDisabled(true);
   };
 
+  // check if changes are made
   useEffect(() => {
     const name = watch("name");
-    if (name !== credentials?.name) {
-      setIsConfirmDisabled(false);
+    const account = watch("account");
+    const website = watch("website");
+
+    if (isEditing) {
+      if (name !== credentials.name) {
+        setIsConfirmDisabled(false);
+      } else if (password !== credentials.decryptedPassword) {
+        setIsConfirmDisabled(false);
+      } else if (account !== credentials.account) {
+        setIsConfirmDisabled(false);
+      } else if (website !== credentials.website) {
+        setIsConfirmDisabled(false);
+      } else {
+        setIsConfirmDisabled(true);
+      }
+    } else {
+      setIsConfirmDisabled(true);
     }
-  }, [watch("name")]);
+  }, [watch("name"), watch("account"), watch("website"), password]);
+
+  // create a clickable link to the website
+  const getClickableLink = (url) => {
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+      return url;
+    } else {
+      return `https://${url}`;
+    }
+  };
+
+  // generate a random password
+  const generatePassword = () => {
+    if (status === "TRIAL_IN_PROGRESS") {
+      toaster.danger("You cannot generate a password in trial mode");
+      return;
+    }
+    const generatedPassword = generator.generate({
+      length: 15,
+      number: true,
+      symbols: true,
+      lowercase: true,
+      uppercase: true,
+    });
+
+    setPassword(generatedPassword);
+  };
 
   if (!credentials) return null;
 
@@ -118,6 +207,8 @@ export const CredentialsView = ({
       confirmLabel="Save Changes"
       isConfirmDisabled={isConfirmDisabled}
       onConfirm={handleSubmit(submit)}
+      shouldCloseOnOverlayClick={false}
+      isConfirmLoading={isLoading}
     >
       <div
         style={{
@@ -131,7 +222,27 @@ export const CredentialsView = ({
       >
         <div>
           <Heading size={500} marginBottom={4}>
-            {credentials.name}{" "}
+            {credentials.name}
+            {credentials.website ? "" : " "}
+            {credentials.website && (
+              <Tooltip
+                content={getClickableLink(credentials.website)}
+                position={Position.BOTTOM}
+              >
+                <Link
+                  href={getClickableLink(credentials.website)}
+                  target="_blank"
+                >
+                  <LinkIcon
+                    size={12}
+                    marginRight={6}
+                    marginLeft={6}
+                    position={"relative"}
+                    top={1}
+                  />
+                </Link>
+              </Tooltip>
+            )}
             <Badge
               color="purple"
               opacity={isEditing ? 1 : 0}
@@ -139,7 +250,7 @@ export const CredentialsView = ({
               pointerEvents={"none"}
               transition={"300ms"}
             >
-              Editing
+              Edit mode
             </Badge>
           </Heading>
           <Heading size={100} fontWeight={700}>
@@ -152,7 +263,7 @@ export const CredentialsView = ({
             content={isEditing ? "Cancel" : "Edit credentials"}
           >
             <IconButton
-              icon={isEditing ? EraserIcon : EditIcon}
+              icon={isEditing ? BanCircleIcon : EditIcon}
               marginRight={6}
               onClick={() => (isEditing ? handleReset() : setIsEditing(true))}
               intent={isEditing ? "danger" : "none"}
@@ -208,40 +319,73 @@ export const CredentialsView = ({
         </div>
       </div>
       {isEditing && (
-        <div
-          style={{
-            position: "relative",
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
+        <>
+          <div
+            style={{
+              position: "relative",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <Controller
+              control={control}
+              name="name"
+              rules={{ required: true }}
+              defaultValue={credentials.name}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInputField
+                  label="Account Name"
+                  value={value}
+                  disabled={!isEditing}
+                  width={"100%"}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                />
+              )}
+            />
+            {errors.name && (
+              <Text color="#D14343" position="absolute" bottom="5px">
+                <Small>Please enter a name</Small>
+              </Text>
+            )}
+          </div>
           <Controller
             control={control}
-            name="name"
-            rules={{ required: true }}
-            defaultValue={credentials.name}
+            name="website"
+            defaultValue={credentials.website ? credentials.website : ""}
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInputField
-                label="Account Name"
-                value={value}
+                label="Website"
                 disabled={!isEditing}
                 width={"100%"}
+                marginRight={6}
                 onChange={onChange}
                 onBlur={onBlur}
+                value={value}
               />
             )}
           />
-        </div>
+        </>
       )}
+
       <div
         style={{ position: "relative", display: "flex", alignItems: "center" }}
       >
-        <TextInputField
-          label="Username / Email"
-          value={credentials.account}
-          disabled={!isEditing}
-          width={"100%"}
-          marginRight={6}
+        <Controller
+          control={control}
+          name="account"
+          defaultValue={credentials.account ? credentials.account : ""}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInputField
+              label="Username / Email"
+              disabled={!isEditing}
+              width={"100%"}
+              marginRight={6}
+              onChange={onChange}
+              onBlur={onBlur}
+              value={value}
+            />
+          )}
         />
         <Tooltip content="Copy">
           <IconButton icon={ClipboardIcon} onClick={handleCopyUsername} />
@@ -253,11 +397,22 @@ export const CredentialsView = ({
         <TextInputField
           label="Password"
           type={showPassword ? "text" : "password"}
-          value={credentials.decryptedPassword}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           disabled={!isEditing}
           width={"100%"}
           marginRight={6}
         />
+        {isEditing && status !== "TRIAL_IN_PROGRESS" && (
+          <Tooltip content="Generate new password">
+            <IconButton
+              icon={LightningIcon}
+              marginRight={6}
+              onClick={generatePassword}
+              disabled={status === "TRIAL_IN_PROGRESS"}
+            />
+          </Tooltip>
+        )}
         <Tooltip content="Copy">
           <IconButton icon={ClipboardIcon} onClick={handleCopyPassword} />
         </Tooltip>
@@ -265,11 +420,13 @@ export const CredentialsView = ({
           <EyeOffIcon
             className="eye-icon-creds"
             onClick={() => setShowPassword(false)}
+            right={isEditing && status !== "TRIAL_IN_PROGRESS" ? 86 : 50}
           />
         ) : (
           <EyeOpenIcon
             className="eye-icon-creds"
             onClick={() => setShowPassword(true)}
+            right={isEditing && status !== "TRIAL_IN_PROGRESS" ? 86 : 50}
           />
         )}
       </div>

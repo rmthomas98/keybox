@@ -8,13 +8,13 @@ import {
   SmallPlusIcon,
   Small,
   PlusIcon,
+  ShieldIcon,
 } from "evergreen-ui";
 import { getSession } from "next-auth/react";
 // import prisma from "../../lib/prisma";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NewCredentials } from "../../components/dialogs/newCredentials";
 import { CredentialsView } from "../../components/dialogs/credentialsView";
-import { format } from "date-fns";
 
 const AppHome = ({ stringifiedCreds, status }) => {
   const [newPasswordShow, setNewPasswordShow] = useState(false);
@@ -28,10 +28,18 @@ const AppHome = ({ stringifiedCreds, status }) => {
     setCredentialsViewShow(true);
   };
 
+  useEffect(() => {
+    const newSelectedCredentials = credentials.find(
+      (cred) => cred.id === selectedCredentials?.id
+    );
+    setSelectedCredentials(newSelectedCredentials);
+  }, [stringifiedCreds]);
+
   return (
     <div>
       <div className={styles.navContainer}>
-        <Heading size={600} fontWeight={700}>
+        <Heading size={600} fontWeight={700} display="flex" alignItems="center">
+          <ShieldIcon marginRight={6} />
           Credentials
         </Heading>
         <Button
@@ -60,9 +68,9 @@ const AppHome = ({ stringifiedCreds, status }) => {
             />
             {/*<Table.TextHeaderCell>Name</Table.TextHeaderCell>*/}
             <Table.TextHeaderCell>Username</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Created</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Website</Table.TextHeaderCell>
           </Table.Head>
-          <Table.Body height={400}>
+          <Table.Body height="100%" maxHeight={400}>
             {credentials
               .filter((cred) =>
                 !searchValue
@@ -78,9 +86,7 @@ const AppHome = ({ stringifiedCreds, status }) => {
                 >
                   <Table.TextCell>{credential.name}</Table.TextCell>
                   <Table.TextCell>{credential?.account}</Table.TextCell>
-                  <Table.TextCell>
-                    {format(new Date(credential.createdAt), "MM/dd/yyyy")}
-                  </Table.TextCell>
+                  <Table.TextCell>{credential.website}</Table.TextCell>
                 </Table.Row>
               ))}
           </Table.Body>
@@ -96,6 +102,7 @@ const AppHome = ({ stringifiedCreds, status }) => {
         setShow={setCredentialsViewShow}
         credentials={selectedCredentials}
         setCredentials={setSelectedCredentials}
+        status={status}
       />
     </div>
   );
@@ -144,10 +151,16 @@ export const getServerSideProps = async (ctx) => {
   const aes256 = require("aes256");
 
   credentials = credentials.map((cred) => {
-    const decryptedPassword = aes256.decrypt(
-      process.env.ENCRYPTION_KEY,
-      cred.password
-    );
+    let decryptedPassword;
+    if (!cred.password) {
+      decryptedPassword = "";
+    }
+    if (cred.password) {
+      decryptedPassword = aes256.decrypt(
+        process.env.ENCRYPTION_KEY,
+        cred.password
+      );
+    }
 
     const passwordLength = decryptedPassword.length;
 
@@ -157,7 +170,8 @@ export const getServerSideProps = async (ctx) => {
       updatedAt: cred.updatedAt,
       name: cred.name,
       account: cred.account,
-      decryptedPassword: decryptedPassword,
+      website: cred.website,
+      decryptedPassword,
       encryptedPassword: cred.password,
       hiddenPassword: `${decryptedPassword.slice(0, passwordLength / 3)}****`,
     };
