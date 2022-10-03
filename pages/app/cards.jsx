@@ -108,6 +108,7 @@ const Cards = ({ stringifiedCards }) => {
         isShown={cardViewShow}
         setIsShown={setCardViewShow}
         card={selectedCard}
+        setCard={setSelectedCard}
       />
     </div>
   );

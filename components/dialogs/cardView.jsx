@@ -20,27 +20,87 @@ import {
   Button,
   Text,
 } from "evergreen-ui";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import axios from "axios";
 import { getSession } from "next-auth/react";
 import { format } from "date-fns";
-import Image from "next/image";
 
-export const CardView = ({ isShown, setIsShown, card }) => {
+const months = [
+  "01",
+  "02",
+  "03",
+  "04",
+  "05",
+  "06",
+  "07",
+  "08",
+  "09",
+  "10",
+  "11",
+  "12",
+];
+
+const getYears = () => {
+  const currentYear = new Date().getFullYear();
+  const years = [];
+  for (let i = 0; i < 16; i++) {
+    years.push((currentYear + i).toString());
+  }
+  return years;
+};
+
+export const CardView = ({ isShown, setIsShown, card, setCard }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isConfirmDisabled, setIsConfirmDisabled] = useState(false);
+  const [type, setType] = useState(null);
+  const [brand, setBrand] = useState(null);
+  const [month, setMonth] = useState(card?.exp ? card.exp.split("/")[0] : null);
+  const [year, setYear] = useState(card?.exp ? card.exp.split("/")[2] : null);
+  const years = getYears();
+
+  console.log(brand, type);
+
+  useEffect(() => {
+    if (!isShown) return;
+    setBrand(card.brand ? card.brand : null);
+    setType(card.type ? card.type : null);
+  }, [isShown]);
+
+  const {
+    handleSubmit,
+    control,
+    reset,
+    watch,
+    formState: { errors },
+  } = useForm();
 
   const handleClose = () => {
     setIsShown(false);
     setIsEditing(false);
+    setCard(null);
+    setIsDeleting(false);
+    setIsLoading(false);
+    setIsConfirmDisabled(true);
+    setType(null);
+    setBrand(null);
+    setMonth(null);
+    setYear(null);
   };
 
   const handleDelete = async () => {
     setIsDeleting(true);
     toaster.closeAll();
-    const res = await axios.post("/api/cards/delete", {});
+    const res = await axios.post("/api/cards/delete", { id: card.id });
+    if (res.data.error) {
+      setIsDeleting(false);
+      toaster.danger(res.data.message);
+      return;
+    }
+
+    handleClose();
   };
 
   if (!card) return null;
@@ -58,7 +118,11 @@ export const CardView = ({ isShown, setIsShown, card }) => {
             }`
           : "Card"
       }
+      shouldCloseOnOverlayClick={false}
+      confirmLabel="Save changes"
       onCloseComplete={handleClose}
+      cancelLabel="Close"
+      isConfirmDisabled={isConfirmDisabled}
     >
       <div
         style={{
@@ -111,13 +175,14 @@ export const CardView = ({ isShown, setIsShown, card }) => {
           </Heading>
         </div>
         <div style={{ display: "flex" }}>
-          <Button
-            iconBefore={EditIcon}
-            onClick={() => setIsEditing((prev) => !prev)}
-            marginRight={6}
-          >
-            Edit
-          </Button>
+          <Tooltip content={isEditing ? "Cancel" : "Edit"}>
+            <IconButton
+              icon={isEditing ? ResetIcon : EditIcon}
+              intent={isEditing ? "danger" : "none"}
+              onClick={() => setIsEditing((prev) => !prev)}
+              marginRight={6}
+            />
+          </Tooltip>
           <Popover
             content={({ close }) => (
               <Card padding={20}>
@@ -166,6 +231,22 @@ export const CardView = ({ isShown, setIsShown, card }) => {
             </Tooltip>
           </Popover>
         </div>
+      </div>
+      <div style={{ position: "relative" }}>
+        <Controller
+          control={control}
+          name="identifier"
+          rules={{ required: true }}
+          defaultValue={card ? card.identifier : ""}
+          render={({ field: { onChange, value, onBlur } }) => (
+            <TextInputField
+              label="Card Identifier"
+              value={value}
+              onChange={onChange}
+              onBlur={onBlur}
+            />
+          )}
+        />
       </div>
     </Dialog>
   );

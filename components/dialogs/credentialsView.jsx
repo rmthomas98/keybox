@@ -260,7 +260,7 @@ export const CredentialsView = ({
         <div style={{ display: "flex", alignItems: "center" }}>
           <Tooltip
             position={Position.BOTTOM}
-            content={isEditing ? "Cancel" : "Edit credentials"}
+            content={isEditing ? "Cancel" : "Edit"}
           >
             <IconButton
               icon={isEditing ? ResetIcon : EditIcon}

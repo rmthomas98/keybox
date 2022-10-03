@@ -77,7 +77,7 @@ const getExpYears = () => {
   const currentYear = new Date().getFullYear();
   const years = [];
   for (let i = 0; i < 16; i++) {
-    years.push(currentYear + i);
+    years.push((currentYear + i).toString());
   }
   return years;
 };
@@ -114,6 +114,8 @@ export const NewCard = ({ isShown, setIsShown, setCards }) => {
 
     if (expYear && expMonth) {
       data.exp = `${expMonth}/01/${expYear}`;
+    } else {
+      data.exp = null;
     }
 
     const { id } = session;

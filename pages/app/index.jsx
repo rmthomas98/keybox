@@ -106,10 +106,10 @@ const AppHome = ({ stringifiedCreds, status }) => {
                   .toLowerCase()
                   .includes(searchValue.toLowerCase().trim()) ||
                 cred.account
-                  .toLowerCase()
+                  ?.toLowerCase()
                   .includes(searchValue.toLowerCase().trim()) ||
                 cred.website
-                  .toLowerCase()
+                  ?.toLowerCase()
                   .includes(searchValue.toLowerCase().trim())
             ).length === 0 && (
               <Table.Row height={40}>
