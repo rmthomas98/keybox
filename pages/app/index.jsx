@@ -9,9 +9,10 @@ import {
   Small,
   PlusIcon,
   ShieldIcon,
+  Text,
 } from "evergreen-ui";
 import { getSession } from "next-auth/react";
-// import prisma from "../../lib/prisma";
+import prisma from "../../lib/prisma";
 import { useEffect, useState } from "react";
 import { NewCredentials } from "../../components/dialogs/newCredentials";
 import { CredentialsView } from "../../components/dialogs/credentialsView";
@@ -59,7 +60,7 @@ const AppHome = ({ stringifiedCreds, status }) => {
       )}
       {credentials.length > 0 && (
         <Table marginTop={30}>
-          <Table.Head height={50}>
+          <Table.Head height={40}>
             <Table.SearchHeaderCell
               minWidth={130}
               value={searchValue}
@@ -75,7 +76,15 @@ const AppHome = ({ stringifiedCreds, status }) => {
               .filter((cred) =>
                 !searchValue
                   ? cred
-                  : cred.name.toLowerCase().includes(searchValue.toLowerCase())
+                  : cred.name
+                      .toLowerCase()
+                      .includes(searchValue.toLowerCase().trim()) ||
+                    cred.account
+                      ?.toLowerCase()
+                      .includes(searchValue.toLowerCase().trim()) ||
+                    cred.website
+                      ?.toLowerCase()
+                      .includes(searchValue.toLowerCase().trim())
               )
               .map((credential) => (
                 <Table.Row
@@ -90,6 +99,29 @@ const AppHome = ({ stringifiedCreds, status }) => {
                 </Table.Row>
               ))}
           </Table.Body>
+          {searchValue &&
+            credentials.filter(
+              (cred) =>
+                cred.name
+                  .toLowerCase()
+                  .includes(searchValue.toLowerCase().trim()) ||
+                cred.account
+                  .toLowerCase()
+                  .includes(searchValue.toLowerCase().trim()) ||
+                cred.website
+                  .toLowerCase()
+                  .includes(searchValue.toLowerCase().trim())
+            ).length === 0 && (
+              <Table.Row height={40}>
+                <Table.TextCell textAlign="center" width="100%">
+                  <Text color="#D14343">
+                    <Small>
+                      No results found for <b>{searchValue}</b>
+                    </Small>
+                  </Text>
+                </Table.TextCell>
+              </Table.Row>
+            )}
         </Table>
       )}
       <NewCredentials
@@ -143,6 +175,15 @@ export const getServerSideProps = async (ctx) => {
     return {
       redirect: {
         destination: "/app/choose-plan",
+        permanent: false,
+      },
+    };
+  }
+
+  if (user.paymentStatus === "FAILED") {
+    return {
+      redirect: {
+        destination: "/app/subscription",
         permanent: false,
       },
     };

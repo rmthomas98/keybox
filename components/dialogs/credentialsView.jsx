@@ -18,7 +18,6 @@ import {
   TextInput,
   EyeOpenIcon,
   EyeOffIcon,
-  ResetIcon,
   ClipboardIcon,
   BanCircleIcon,
   EraserIcon,
@@ -26,6 +25,7 @@ import {
   Link,
   LightningIcon,
   Small,
+  ResetIcon,
 } from "evergreen-ui";
 import { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
@@ -263,7 +263,7 @@ export const CredentialsView = ({
             content={isEditing ? "Cancel" : "Edit credentials"}
           >
             <IconButton
-              icon={isEditing ? BanCircleIcon : EditIcon}
+              icon={isEditing ? ResetIcon : EditIcon}
               marginRight={6}
               onClick={() => (isEditing ? handleReset() : setIsEditing(true))}
               intent={isEditing ? "danger" : "none"}
@@ -303,7 +303,7 @@ export const CredentialsView = ({
                 </div>
               </Card>
             )}
-            position={Position.BOTTOM}
+            position={Position.BOTTOM_RIGHT}
           >
             <Tooltip
               content={<Text color="#EE9191">Delete</Text>}

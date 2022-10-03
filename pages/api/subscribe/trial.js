@@ -1,8 +1,15 @@
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 import prisma from "../../../lib/prisma";
+import { getToken } from "next-auth/jwt";
 
 const handler = async (req, res) => {
   try {
+    // authenticate user
+    const token = await getToken({ req });
+    if (!token) {
+      return res.json({ error: true, message: "Not authorized" });
+    }
+
     const { id } = req.body;
     const priceId = "price_1LldZsIjvIl5h3pN1j3cMKH3";
 

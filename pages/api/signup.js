@@ -4,6 +4,7 @@ import prisma from "../../lib/prisma";
 const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
+import { getToken } from "next-auth/jwt";
 
 const handler = async (req, res) => {
   try {

@@ -12,11 +12,9 @@ const handler = async (req, res) => {
 
     const {id} = req.body;
 
-    // delete credentials from db
-    await prisma.credential.delete({where: {id}});
+    await prisma.card.delete({where: {id}});
 
-    // return success to front end
-    res.json({error: false, message: "Successfully deleted credentials!"});
+    res.json({error: false, message: "Card deleted successfully!"});
   } catch {
     res.json({error: true, message: "Something went wrong"});
   }

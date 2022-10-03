@@ -51,17 +51,34 @@ model Credential {
   userId    String
 }
 
+enum CardType {
+  CREDIT
+  DEBIT
+  PREPAID
+  OTHER
+}
+
+enum CardBrand {
+  VISA
+  MASTERCARD
+  AMEX
+  DISCOVER
+  OTHER
+}
+
 model Card {
-  id         String   @id @default(cuid())
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id         String     @id @default(cuid())
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
   identifier String?
+  type       CardType?
+  brand      CardBrand?
   name       String?
   number     String?
   exp        String?
   cvc        String?
   zip        String?
-  user       User     @relation(fields: [userId], references: [id])
+  user       User       @relation(fields: [userId], references: [id])
   userId     String
 }
 

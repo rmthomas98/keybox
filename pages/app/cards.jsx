@@ -6,15 +6,27 @@ import {
   Alert,
   Table,
   CreditCardIcon,
+  Badge,
+  Text,
+  Small,
 } from "evergreen-ui";
-import prisma from "../../lib/prisma";
 import { getSession } from "next-auth/react";
+import prisma from "../../lib/prisma";
 import { useState } from "react";
 import { NewCard } from "../../components/dialogs/newCard";
+import { CardView } from "../../components/dialogs/cardView";
 
 const Cards = ({ stringifiedCards }) => {
   const [newCardShow, setNewCardShow] = useState(false);
   const [cards, setCards] = useState(JSON.parse(stringifiedCards));
+  const [searchValue, setSearchValue] = useState("");
+  const [selectedCard, setSelectedCard] = useState(null);
+  const [cardViewShow, setCardViewShow] = useState(false);
+
+  const handleCardClick = (card) => {
+    setSelectedCard(card);
+    setCardViewShow(true);
+  };
 
   return (
     <div>
@@ -38,17 +50,64 @@ const Cards = ({ stringifiedCards }) => {
         />
       )}
       {cards.length > 0 && (
-        <Table margin={30}>
-          <Table.Head height={50}>
-            <Table.SearchHeaderCell minWidth={130} />
+        <Table marginTop={30}>
+          <Table.Head height={40}>
+            <Table.SearchHeaderCell
+              minWidth={130}
+              onChange={(value) => setSearchValue(value)}
+            />
             <Table.TextHeaderCell>Last 4</Table.TextHeaderCell>
+            <Table.TextHeaderCell>type</Table.TextHeaderCell>
           </Table.Head>
+          <Table.Body height="100%" maxHeight={400}>
+            {cards
+              .filter((card) =>
+                !searchValue
+                  ? card
+                  : card.identifier
+                      .toLowerCase()
+                      .includes(searchValue.toLowerCase().trim())
+              )
+              .map((card) => (
+                <Table.Row
+                  key={card.id}
+                  isSelectable
+                  height={40}
+                  onSelect={() => handleCardClick(card)}
+                >
+                  <Table.TextCell>{card.identifier}</Table.TextCell>
+                  <Table.TextCell>{card.number?.slice(-4)}</Table.TextCell>
+                  <Table.TextCell>{card.type}</Table.TextCell>
+                </Table.Row>
+              ))}
+            {searchValue &&
+              cards.filter((card) =>
+                card.identifier
+                  .toLowerCase()
+                  .includes(searchValue.toLowerCase().trim())
+              ).length === 0 && (
+                <Table.Row height={40}>
+                  <Table.TextCell textAlign="center" width="100%">
+                    <Text color="#D14343">
+                      <Small>
+                        No results found for <b>{searchValue}</b>
+                      </Small>
+                    </Text>
+                  </Table.TextCell>
+                </Table.Row>
+              )}
+          </Table.Body>
         </Table>
       )}
       <NewCard
         isShown={newCardShow}
         setIsShown={setNewCardShow}
         setCards={setCards}
+      />
+      <CardView
+        isShown={cardViewShow}
+        setIsShown={setCardViewShow}
+        card={selectedCard}
       />
     </div>
   );
@@ -66,10 +125,69 @@ export const getServerSideProps = async (ctx) => {
     };
   }
 
+  const aes256 = require("aes256");
+
   const { id } = session;
-  const { cards } = await prisma.user.findUnique({
+  const user = await prisma.user.findUnique({
     where: { id },
     include: { cards: true },
+  });
+
+  if (!user.emailVerified) {
+    return {
+      redirect: {
+        destination: `/verify?email=${user.email}`,
+        permanent: false,
+      },
+    };
+  }
+
+  if (
+    user.status === "NEW_ACCOUNT" ||
+    user.status === "SUBSCRIPTION_CANCELED"
+  ) {
+    return {
+      redirect: {
+        destination: "/app/choose-plan",
+        permanent: false,
+      },
+    };
+  }
+
+  if (user.paymentStatus === "FAILED") {
+    return {
+      redirect: {
+        destination: "/app/subscription",
+        permanent: false,
+      },
+    };
+  }
+
+  let { cards } = user;
+  const key = process.env.ENCRYPTION_KEY;
+  cards = cards.map((card) => {
+    const { id, createdAt, identifier, type, brand } = card;
+    let { name, number, exp, cvc, zip } = card;
+
+    // decrypt card info
+    name = name ? aes256.decrypt(key, name) : "";
+    number = number ? aes256.decrypt(key, number) : "";
+    exp = exp ? aes256.decrypt(key, exp) : "";
+    cvc = cvc ? aes256.decrypt(key, cvc) : "";
+    zip = zip ? aes256.decrypt(key, zip) : "";
+
+    return {
+      id,
+      createdAt,
+      identifier,
+      type,
+      brand,
+      name,
+      number,
+      exp,
+      cvc,
+      zip,
+    };
   });
 
   return { props: { stringifiedCards: JSON.stringify(cards) } };
