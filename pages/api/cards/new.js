@@ -1,24 +1,23 @@
 import prisma from "../../../lib/prisma";
-import {getToken} from "next-auth/jwt";
+import { getToken } from "next-auth/jwt";
 
 const aes256 = require("aes256");
 
 const handler = async (req, res) => {
   try {
-
     // authenticate user
-    const token = await getToken({req});
+    const token = await getToken({ req });
     if (!token) {
-      return res.json({error: true, message: "Not authorized"});
+      return res.json({ error: true, message: "Not authorized" });
     }
 
-    const {id, identifier, type, brand} = req.body.options;
-    let {name, number, exp, cvc, zip} = req.body.options;
+    const { id, identifier, type, brand } = req.body.options;
+    let { name, number, exp, cvc, zip } = req.body.options;
 
     // get user from db along with existing cards
-    const {cards} = await prisma.user.findUnique({
-      where: {id},
-      include: {cards: true},
+    const { cards } = await prisma.user.findUnique({
+      where: { id },
+      include: { cards: true },
     });
 
     // check if identifier is already taken
@@ -58,9 +57,9 @@ const handler = async (req, res) => {
     });
 
     // get updated cards
-    let {cards: updatedCards} = await prisma.user.findUnique({
-      where: {id: id},
-      include: {cards: true},
+    let { cards: updatedCards } = await prisma.user.findUnique({
+      where: { id: id },
+      include: { cards: true },
     });
 
     // decrypt card details
@@ -71,7 +70,7 @@ const handler = async (req, res) => {
       card.cvc = card.cvc ? aes256.decrypt(key, card.cvc) : undefined;
       card.zip = card.zip ? aes256.decrypt(key, card.zip) : undefined;
       return card;
-    })
+    });
 
     res.json({
       error: false,
@@ -79,7 +78,7 @@ const handler = async (req, res) => {
       cards: updatedCards,
     });
   } catch {
-    res.json({error: true, message: "Something went wrong"});
+    res.json({ error: true, message: "Something went wrong" });
   }
 };
 

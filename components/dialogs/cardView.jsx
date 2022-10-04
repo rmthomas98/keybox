@@ -19,12 +19,55 @@ import {
   Small,
   Button,
   Text,
+  CaretDownIcon,
 } from "evergreen-ui";
 import { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import axios from "axios";
 import { getSession } from "next-auth/react";
 import { format } from "date-fns";
+
+const types = [
+  {
+    label: "Credit",
+    value: "CREDIT",
+  },
+  {
+    label: "Debit",
+    value: "DEBIT",
+  },
+  {
+    label: "Prepaid",
+    value: "PREPAID",
+  },
+  {
+    label: "Other",
+    value: "OTHER",
+  },
+];
+
+const brands = [
+  {
+    label: "Visa",
+    value: "VISA",
+  },
+  {
+    label: "Mastercard",
+    value: "MASTERCARD",
+  },
+  {
+    label: "American Express",
+    value: "AMEX",
+  },
+  {
+    label: "Discover",
+    value: "DISCOVER",
+  },
+  {
+    label: "Other",
+    value: "OTHER",
+  },
+];
 
 const months = [
   "01",
@@ -57,17 +100,9 @@ export const CardView = ({ isShown, setIsShown, card, setCard }) => {
   const [isConfirmDisabled, setIsConfirmDisabled] = useState(false);
   const [type, setType] = useState(null);
   const [brand, setBrand] = useState(null);
-  const [month, setMonth] = useState(card?.exp ? card.exp.split("/")[0] : null);
-  const [year, setYear] = useState(card?.exp ? card.exp.split("/")[2] : null);
+  const [month, setMonth] = useState(null);
+  const [year, setYear] = useState(null);
   const years = getYears();
-
-  console.log(brand, type);
-
-  useEffect(() => {
-    if (!isShown) return;
-    setBrand(card.brand ? card.brand : null);
-    setType(card.type ? card.type : null);
-  }, [isShown]);
 
   const {
     handleSubmit,
@@ -88,7 +123,24 @@ export const CardView = ({ isShown, setIsShown, card, setCard }) => {
     setBrand(null);
     setMonth(null);
     setYear(null);
+    reset();
   };
+
+  useEffect(() => {
+    if (!isShown) return;
+    setBrand(card.brand ? card.brand : null);
+    setType(card.type ? card.type : null);
+    const expMonth = card.exp ? card.exp.split("/")[0] : null;
+    const expYear = card.exp ? card.exp.split("/")[2] : null;
+    if (expMonth && expYear) {
+      setMonth(expMonth);
+      setYear(expYear);
+    }
+
+    return () => {
+      handleClose();
+    };
+  }, [isShown]);
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -103,13 +155,15 @@ export const CardView = ({ isShown, setIsShown, card, setCard }) => {
     handleClose();
   };
 
+  console.log(type);
+
   if (!card) return null;
 
   return (
     <Dialog
       isShown={isShown}
       title={
-        card?.brand
+        card.brand
           ? `${
               card.brand === "AMEX"
                 ? "American Express"
@@ -232,21 +286,95 @@ export const CardView = ({ isShown, setIsShown, card, setCard }) => {
           </Popover>
         </div>
       </div>
-      <div style={{ position: "relative" }}>
+      {isEditing && (
+        <div style={{ position: "relative" }}>
+          <Controller
+            control={control}
+            name="identifier"
+            rules={{ required: true }}
+            defaultValue={card.identifier}
+            render={({ field: { onChange, value, onBlur } }) => (
+              <TextInputField
+                label="Card Identifier"
+                value={value}
+                onChange={onChange}
+                onBlur={onBlur}
+              />
+            )}
+          />
+        </div>
+      )}
+      <div style={{ display: "flex" }}>
         <Controller
           control={control}
-          name="identifier"
-          rules={{ required: true }}
-          defaultValue={card ? card.identifier : ""}
+          name="name"
+          defaultValue={card.name}
           render={({ field: { onChange, value, onBlur } }) => (
             <TextInputField
-              label="Card Identifier"
-              value={value}
               onChange={onChange}
+              value={value}
               onBlur={onBlur}
+              label="Account Holder"
+              placeholder="Account Holder"
+              width="100%"
+              marginRight={14}
+              disabled={!isEditing}
             />
           )}
         />
+        <div>
+          <Heading size={400} marginBottom={8}>
+            Type
+          </Heading>
+          <SelectMenu
+            options={types}
+            position={Position.BOTTOM_RIGHT}
+            selected={type}
+            onSelect={(type) => setType(type.value)}
+            hasFilter={false}
+            title="Card Type"
+          >
+            <Button iconAfter={CaretDownIcon} disabled={!isEditing}>
+              {type ? type : "Card Type"}
+            </Button>
+          </SelectMenu>
+        </div>
+      </div>
+      <div style={{ display: "flex" }}>
+        <Controller
+          control={control}
+          name="number"
+          defaultValue={card.number}
+          render={({ field: { onChange, value, onBlur } }) => (
+            <TextInputField
+              value={value}
+              onChange={onChange}
+              onBlur={onBlur}
+              label="Card Number"
+              width="100%"
+              placeholder="1234 5678 9012 3456"
+              disabled={!isEditing}
+              marginRight={14}
+            />
+          )}
+        />
+        <div>
+          <Heading size={400} marginBottom={8}>
+            Brand
+          </Heading>
+          <SelectMenu
+            options={brands}
+            onSelect={(brand) => setBrand(brand.value)}
+            selected={brand}
+            hasFilter={false}
+            title="Card Brand"
+            position={Position.BOTTOM_RIGHT}
+          >
+            <Button disabled={!isEditing} iconAfter={CaretDownIcon}>
+              {brand ? brand : "Card Brand"}
+            </Button>
+          </SelectMenu>
+        </div>
       </div>
     </Dialog>
   );
