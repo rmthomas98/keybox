@@ -257,6 +257,7 @@ export const NewCard = ({ isShown, setIsShown, setCards }) => {
             position={Position.BOTTOM_LEFT}
             options={months.map((month) => ({ label: month, value: month }))}
             onSelect={(item) => setExpMonth(item.value)}
+            selected={expMonth}
           >
             <Button iconAfter={CaretDownIcon} width={76}>
               {expMonth ? expMonth : "Month"}
@@ -271,8 +272,9 @@ export const NewCard = ({ isShown, setIsShown, setCards }) => {
             title="Year"
             hasFilter={false}
             position={Position.BOTTOM_LEFT}
-            options={years.map((month) => ({ label: month, value: month }))}
+            options={years.map((year) => ({ label: year, value: year }))}
             onSelect={(item) => setExpYear(item.value)}
+            selected={expYear}
           >
             <Button iconAfter={CaretDownIcon} width={76}>
               {expYear ? expYear : "Year"}

@@ -20,6 +20,7 @@ import {
   Button,
   Text,
   CaretDownIcon,
+  ClipboardIcon,
 } from "evergreen-ui";
 import { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
@@ -97,7 +98,7 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isConfirmDisabled, setIsConfirmDisabled] = useState(false);
+  const [isConfirmDisabled, setIsConfirmDisabled] = useState(true);
   const [type, setType] = useState(null);
   const [brand, setBrand] = useState(null);
   const [month, setMonth] = useState(null);
@@ -112,6 +113,60 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
     formState: { errors },
   } = useForm();
 
+  // Watch for changes in values to enable save button
+  useEffect(() => {
+    if (!isShown) return;
+
+    const identifier = watch("identifier");
+    const name = watch("name");
+    const number = watch("number");
+    const cvc = watch("cvc");
+    const zip = watch("zip");
+
+    if (isEditing) {
+      if (identifier !== card?.identifier) {
+        setIsConfirmDisabled(false);
+      } else if (name !== card?.name) {
+        setIsConfirmDisabled(false);
+      } else if (number !== card?.number) {
+        setIsConfirmDisabled(false);
+      } else if (cvc !== card?.cvc) {
+        setIsConfirmDisabled(false);
+      } else if (zip !== card?.zip) {
+        setIsConfirmDisabled(false);
+      } else {
+        setIsConfirmDisabled(true);
+      }
+    } else {
+      setIsConfirmDisabled(true);
+    }
+
+    return () => setIsConfirmDisabled(true);
+  }, [
+    watch("identifier"),
+    watch("name"),
+    watch("number"),
+    watch("cvc"),
+    watch("zip"),
+  ]);
+
+  // Reset from cancel editing
+  const handleReset = () => {
+    setIsEditing(false);
+    setIsLoading(false);
+    setIsConfirmDisabled(true);
+    setBrand(card.brand ? card.brand : null);
+    setType(card.type ? card.type : null);
+    const expMonth = card.exp ? card.exp.split("/")[0] : null;
+    const expYear = card.exp ? card.exp.split("/")[2] : null;
+    if (expMonth && expYear) {
+      setMonth(expMonth);
+      setYear(expYear);
+    }
+    reset();
+  };
+
+  // Reset all values on modal close
   const handleClose = () => {
     setIsShown(false);
     setIsEditing(false);
@@ -126,6 +181,7 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
     reset();
   };
 
+  // populates data into fields on open
   useEffect(() => {
     if (!isShown) return;
     setBrand(card.brand ? card.brand : null);
@@ -142,15 +198,25 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
     };
   }, [isShown]);
 
+  // Copy card number to clipboard
+  const handleCopyNumber = async () => {
+    await toaster.closeAll();
+    navigator.clipboard.writeText(card.number);
+    toaster.success("Card number copied to clipboard");
+  };
+
+  // Deletes the card
   const handleDelete = async () => {
     setIsDeleting(true);
     toaster.closeAll();
     const session = await getSession();
     const { id } = session;
+
     const res = await axios.post("/api/cards/delete", {
       id: card.id,
       userId: id,
     });
+
     if (res.data.error) {
       setIsDeleting(false);
       toaster.danger(res.data.message);
@@ -162,7 +228,44 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
     handleClose();
   };
 
-  console.log(type);
+  // Function to update any changes
+  const submit = async (data) => {
+    setIsLoading(true);
+    await toaster.closeAll();
+    const session = await getSession();
+    const { id } = session;
+
+    data["userId"] = id;
+    data["cardId"] = card.id;
+    data["type"] = type;
+    data["brand"] = brand;
+
+    if (month && year) {
+      data["exp"] = `${month}/01/${year}`;
+    } else {
+      data["exp"] = null;
+    }
+
+    if (data.identifier !== card.identifier) {
+      data["identifierChange"] = true;
+    }
+
+    const res = await axios.post("/api/cards/edit", data);
+
+    if (res.data.error) {
+      setIsLoading(false);
+      toaster.danger(res.data.message);
+      return;
+    }
+
+    toaster.success(res.data.message);
+    setCard();
+    setCard(res.data.card);
+    setCards(res.data.cards);
+    setIsLoading(false);
+    setIsConfirmDisabled(true);
+    setIsEditing(false);
+  };
 
   if (!card) return null;
 
@@ -184,6 +287,8 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
       onCloseComplete={handleClose}
       cancelLabel="Close"
       isConfirmDisabled={isConfirmDisabled}
+      onConfirm={handleSubmit(submit)}
+      isConfirmLoading={isLoading}
     >
       <div
         style={{
@@ -240,7 +345,7 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
             <IconButton
               icon={isEditing ? ResetIcon : EditIcon}
               intent={isEditing ? "danger" : "none"}
-              onClick={() => setIsEditing((prev) => !prev)}
+              onClick={isEditing ? handleReset : () => setIsEditing(true)}
               marginRight={6}
             />
           </Tooltip>
@@ -309,6 +414,11 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
               />
             )}
           />
+          {errors.identifier && (
+            <Text color="#D14343" position="absolute" bottom="-20px">
+              <Small>Please enter an identifier</Small>
+            </Text>
+          )}
         </div>
       )}
       <div style={{ display: "flex" }}>
@@ -361,10 +471,18 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
               width="100%"
               placeholder="1234 5678 9012 3456"
               disabled={!isEditing}
-              marginRight={14}
+              marginRight={10}
             />
           )}
         />
+        <Tooltip content="Copy Number">
+          <IconButton
+            icon={ClipboardIcon}
+            marginY={"auto"}
+            marginRight={8}
+            onClick={handleCopyNumber}
+          />
+        </Tooltip>
         <div>
           <Heading size={400} marginBottom={8}>
             Brand
@@ -394,6 +512,7 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
             position={Position.BOTTOM_LEFT}
             options={months.map((month) => ({ label: month, value: month }))}
             onSelect={(item) => setMonth(item.value)}
+            selected={month}
           >
             <Button iconAfter={CaretDownIcon} width={76} disabled={!isEditing}>
               {month ? month : "Month"}
@@ -408,8 +527,9 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
             title="Year"
             hasFilter={false}
             position={Position.BOTTOM_LEFT}
-            options={years.map((month) => ({ label: month, value: month }))}
+            options={years.map((year) => ({ label: year, value: year }))}
             onSelect={(item) => setYear(item.value)}
+            selected={year}
           >
             <Button iconAfter={CaretDownIcon} width={76} disabled={!isEditing}>
               {year ? year : "Year"}

@@ -23,7 +23,8 @@ const handler = async (req, res) => {
 
     // check if identifier is already taken
     const isIdentifierTaken = cards.filter(
-      (card) => card.identifier.toLowerCase() === identifier.toLowerCase()
+      (card) =>
+        card.identifier.toLowerCase() === identifier.toLowerCase().trim()
     );
 
     // if identifier is taken, return error
@@ -45,8 +46,8 @@ const handler = async (req, res) => {
     // insert into db
     await prisma.card.create({
       data: {
-        identifier,
-        type: type === "AMEX" ? "AMERICAN_EXPRESS" : type,
+        identifier: identifier.trim(),
+        type,
         brand,
         name,
         number,
