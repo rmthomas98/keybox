@@ -93,7 +93,7 @@ const getYears = () => {
   return years;
 };
 
-export const CardView = ({ isShown, setIsShown, card, setCard }) => {
+export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -145,13 +145,20 @@ export const CardView = ({ isShown, setIsShown, card, setCard }) => {
   const handleDelete = async () => {
     setIsDeleting(true);
     toaster.closeAll();
-    const res = await axios.post("/api/cards/delete", { id: card.id });
+    const session = await getSession();
+    const { id } = session;
+    const res = await axios.post("/api/cards/delete", {
+      id: card.id,
+      userId: id,
+    });
     if (res.data.error) {
       setIsDeleting(false);
       toaster.danger(res.data.message);
       return;
     }
 
+    toaster.success("Card deleted successfully");
+    setCards(res.data.cards);
     handleClose();
   };
 
@@ -225,7 +232,7 @@ export const CardView = ({ isShown, setIsShown, card, setCard }) => {
             {card.exp && "Expires"}{" "}
             {card.exp
               ? format(new Date(card.exp), "MMMM yyyy")
-              : "No Expiration date"}
+              : "No Expiration date set"}
           </Heading>
         </div>
         <div style={{ display: "flex" }}>
@@ -375,6 +382,71 @@ export const CardView = ({ isShown, setIsShown, card, setCard }) => {
             </Button>
           </SelectMenu>
         </div>
+      </div>
+      <div style={{ display: "flex" }}>
+        <div style={{ marginRight: 14 }}>
+          <Heading size={400} marginBottom={8}>
+            Exp Month
+          </Heading>
+          <SelectMenu
+            title="Month"
+            hasFilter={false}
+            position={Position.BOTTOM_LEFT}
+            options={months.map((month) => ({ label: month, value: month }))}
+            onSelect={(item) => setMonth(item.value)}
+          >
+            <Button iconAfter={CaretDownIcon} width={76} disabled={!isEditing}>
+              {month ? month : "Month"}
+            </Button>
+          </SelectMenu>
+        </div>
+        <div style={{ marginRight: 14 }}>
+          <Heading size={400} marginBottom={8}>
+            Exp Year
+          </Heading>
+          <SelectMenu
+            title="Year"
+            hasFilter={false}
+            position={Position.BOTTOM_LEFT}
+            options={years.map((month) => ({ label: month, value: month }))}
+            onSelect={(item) => setYear(item.value)}
+          >
+            <Button iconAfter={CaretDownIcon} width={76} disabled={!isEditing}>
+              {year ? year : "Year"}
+            </Button>
+          </SelectMenu>
+        </div>
+        <Controller
+          control={control}
+          name="cvc"
+          defaultValue={card.cvc ? card.cvc : ""}
+          render={({ field: { onChange, value, onBlur } }) => (
+            <TextInputField
+              label="CVC"
+              marginRight={14}
+              placeholder="123"
+              onChange={onChange}
+              value={value}
+              onBlur={onBlur}
+              disabled={!isEditing}
+            />
+          )}
+        />
+        <Controller
+          control={control}
+          name="zip"
+          defaultValue={card.zip ? card.zip : ""}
+          render={({ field: { onChange, value, onBlur } }) => (
+            <TextInputField
+              label="Zip"
+              placeholder="12345"
+              onChange={onChange}
+              value={value}
+              onBlur={onBlur}
+              disabled={!isEditing}
+            />
+          )}
+        />
       </div>
     </Dialog>
   );

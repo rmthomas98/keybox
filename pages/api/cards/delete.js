@@ -1,22 +1,37 @@
 import prisma from "../../../lib/prisma";
-import {getToken} from "next-auth/jwt";
+import { decryptCards } from "../../../helpers/decryptCards";
+import { getToken } from "next-auth/jwt";
+
+const aes256 = require("aes256");
 
 const handler = async (req, res) => {
   try {
-
     // authenticate user
-    const token = await getToken({req});
+    const token = await getToken({ req });
     if (!token) {
-      return res.json({error: true, message: "Not authorized"});
+      return res.json({ error: true, message: "Not authorized" });
     }
 
-    const {id} = req.body;
+    const { id, userId } = req.body;
 
-    await prisma.card.delete({where: {id}});
+    await prisma.card.delete({ where: { id } });
 
-    res.json({error: false, message: "Card deleted successfully!"});
+    // get updated cards
+    let { cards: updatedCards } = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { cards: true },
+    });
+
+    // decrypt card details
+    updatedCards = decryptCards(updatedCards);
+
+    res.json({
+      error: false,
+      message: "Card deleted successfully!",
+      cards: updatedCards,
+    });
   } catch {
-    res.json({error: true, message: "Something went wrong"});
+    res.json({ error: true, message: "Something went wrong" });
   }
 };
 

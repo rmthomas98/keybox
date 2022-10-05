@@ -15,6 +15,7 @@ import prisma from "../../lib/prisma";
 import { useState } from "react";
 import { NewCard } from "../../components/dialogs/newCard";
 import { CardView } from "../../components/dialogs/cardView";
+import { decryptCards } from "../../helpers/decryptCards";
 
 const Cards = ({ stringifiedCards }) => {
   const [newCardShow, setNewCardShow] = useState(false);
@@ -109,6 +110,7 @@ const Cards = ({ stringifiedCards }) => {
         setIsShown={setCardViewShow}
         card={selectedCard}
         setCard={setSelectedCard}
+        setCards={setCards}
       />
     </div>
   );
@@ -165,31 +167,7 @@ export const getServerSideProps = async (ctx) => {
   }
 
   let { cards } = user;
-  const key = process.env.ENCRYPTION_KEY;
-  cards = cards.map((card) => {
-    const { id, createdAt, identifier, type, brand } = card;
-    let { name, number, exp, cvc, zip } = card;
-
-    // decrypt card info
-    name = name ? aes256.decrypt(key, name) : "";
-    number = number ? aes256.decrypt(key, number) : "";
-    exp = exp ? aes256.decrypt(key, exp) : "";
-    cvc = cvc ? aes256.decrypt(key, cvc) : "";
-    zip = zip ? aes256.decrypt(key, zip) : "";
-
-    return {
-      id,
-      createdAt,
-      identifier,
-      type,
-      brand,
-      name,
-      number,
-      exp,
-      cvc,
-      zip,
-    };
-  });
+  cards = decryptCards(cards);
 
   return { props: { stringifiedCards: JSON.stringify(cards) } };
 };

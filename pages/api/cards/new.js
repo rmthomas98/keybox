@@ -1,5 +1,6 @@
 import prisma from "../../../lib/prisma";
 import { getToken } from "next-auth/jwt";
+import { decryptCards } from "../../../helpers/decryptCards";
 
 const aes256 = require("aes256");
 
@@ -63,14 +64,7 @@ const handler = async (req, res) => {
     });
 
     // decrypt card details
-    updatedCards = updatedCards.map((card) => {
-      card.name = card.name ? aes256.decrypt(key, card.name) : undefined;
-      card.number = card.number ? aes256.decrypt(key, card.number) : undefined;
-      card.exp = card.exp ? aes256.decrypt(key, card.exp) : undefined;
-      card.cvc = card.cvc ? aes256.decrypt(key, card.cvc) : undefined;
-      card.zip = card.zip ? aes256.decrypt(key, card.zip) : undefined;
-      return card;
-    });
+    updatedCards = decryptCards(updatedCards);
 
     res.json({
       error: false,
