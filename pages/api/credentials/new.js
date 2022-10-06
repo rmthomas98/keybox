@@ -3,6 +3,7 @@ import { getToken } from "next-auth/jwt";
 
 const aes256 = require("aes256");
 const generator = require("generate-password");
+import { decryptCredentials } from "../../../helpers/decryptCredentials";
 
 const handler = async (req, res) => {
   try {
@@ -68,8 +69,15 @@ const handler = async (req, res) => {
       },
     });
 
+    // get updated credentials
+    const updatedCredentials = await decryptCredentials(id);
+
     // return success to front end
-    res.json({ error: false, message: "success" });
+    res.json({
+      error: false,
+      message: "success",
+      credentials: updatedCredentials,
+    });
   } catch {
     res.json({ error: true, message: "Something went wrong" });
   }

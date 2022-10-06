@@ -7,8 +7,6 @@ import {
   SelectMenu,
   Tooltip,
   Position,
-  Link,
-  LinkIcon,
   Badge,
   EditIcon,
   ResetIcon,
@@ -23,11 +21,9 @@ import {
   ClipboardIcon,
 } from "evergreen-ui";
 import { useState, useEffect } from "react";
-import { useForm, Controller } from "react-hook-form";
 import axios from "axios";
 import { getSession } from "next-auth/react";
 import { format } from "date-fns";
-import { useRouter } from "next/router";
 
 const types = [
   {
@@ -106,26 +102,22 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
   const [year, setYear] = useState(null);
   const years = getYears();
 
-  const {
-    handleSubmit,
-    control,
-    reset,
-    watch,
-    formState: { errors },
-  } = useForm();
+  // Input values
+  const [identifier, setIdentifier] = useState("");
+  const [name, setName] = useState("");
+  const [number, setNumber] = useState("");
+  const [cvc, setCvc] = useState("");
+  const [zip, setZip] = useState("");
+  const [showFormError, setShowFormError] = useState(false);
 
   // Watch for changes in values to enable save button
   useEffect(() => {
     if (!isShown) return;
 
-    const identifier = watch("identifier");
-    const name = watch("name");
-    const number = watch("number");
-    const cvc = watch("cvc");
-    const zip = watch("zip");
-
     const expMonth = card.exp ? card.exp.split("/")[0] : null;
     const expYear = card.exp ? card.exp.split("/")[2] : null;
+    const currExp = `${expMonth}/01/${expYear}`;
+    const newExp = `${month}/01/${year}`;
 
     if (isEditing) {
       if (identifier !== card?.identifier) {
@@ -142,6 +134,8 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
         setIsConfirmDisabled(false);
       } else if (brand !== card.brand) {
         setIsConfirmDisabled(false);
+      } else if (currExp !== newExp) {
+        setIsConfirmDisabled(false);
       } else {
         setIsConfirmDisabled(true);
       }
@@ -150,15 +144,7 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
     }
 
     return () => setIsConfirmDisabled(true);
-  }, [
-    watch("identifier"),
-    watch("name"),
-    watch("number"),
-    watch("cvc"),
-    watch("zip"),
-    type,
-    brand,
-  ]);
+  }, [identifier, name, number, cvc, zip, type, brand, month, year]);
 
   // Reset from cancel editing
   const handleReset = () => {
@@ -173,7 +159,11 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
       setMonth(expMonth);
       setYear(expYear);
     }
-    reset({ ...card });
+    setIdentifier(card.identifier || "");
+    setName(card.name || "");
+    setNumber(card.number || "");
+    setCvc(card.cvc || "");
+    setZip(card.zip || "");
   };
 
   // Reset all values on modal close
@@ -188,12 +178,16 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
     setBrand(null);
     setMonth(null);
     setYear(null);
-    reset();
+    setIdentifier("");
+    setName("");
+    setNumber("");
+    setCvc("");
+    setZip("");
   };
 
   // populates data into fields on open
   useEffect(() => {
-    if (!isShown) return;
+    if (!isShown || !card) return;
     setBrand(card.brand ? card.brand : null);
     setType(card.type ? card.type : null);
     const expMonth = card.exp ? card.exp.split("/")[0] : null;
@@ -202,6 +196,12 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
       setMonth(expMonth);
       setYear(expYear);
     }
+
+    setIdentifier(card.identifier || "");
+    setName(card.name || "");
+    setNumber(card.number || "");
+    setCvc(card.cvc || "");
+    setZip(card.zip || "");
   }, [isShown, card]);
 
   // Copy card number to clipboard
@@ -235,16 +235,25 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
   };
 
   // Function to update any changes
-  const submit = async (data) => {
+  const submit = async () => {
+    if (!identifier) return setShowFormError(true);
+
     setIsLoading(true);
     await toaster.closeAll();
     const session = await getSession();
     const { id } = session;
 
-    data["userId"] = id;
-    data["cardId"] = card.id;
-    data["type"] = type;
-    data["brand"] = brand;
+    const data = {
+      userId: id,
+      cardId: card.id,
+      type,
+      brand,
+      identifier,
+      name,
+      number,
+      cvc,
+      zip,
+    };
 
     if (month && year) {
       data["exp"] = `${month}/01/${year}`;
@@ -267,12 +276,16 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
     toaster.success(res.data.message);
     setCard(res.data.card);
     setCards(res.data.cards);
-    setIsLoading(false);
-    setIsConfirmDisabled(true);
-    setIsEditing(false);
+    handleReset();
   };
 
-  useEffect(() => {}, [card]);
+  useEffect(() => {
+    if (!identifier) {
+      setShowFormError(true);
+    } else {
+      setShowFormError(false);
+    }
+  }, [identifier]);
 
   if (!card) return null;
 
@@ -294,7 +307,7 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
       onCloseComplete={handleClose}
       cancelLabel="Close"
       isConfirmDisabled={isConfirmDisabled}
-      onConfirm={handleSubmit(submit)}
+      onConfirm={submit}
       isConfirmLoading={isLoading}
     >
       <div
@@ -407,21 +420,13 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
       </div>
       {isEditing && (
         <div style={{ position: "relative" }}>
-          <Controller
-            control={control}
-            name="identifier"
-            rules={{ required: true }}
-            defaultValue={card.identifier}
-            render={({ field: { onChange, value, onBlur } }) => (
-              <TextInputField
-                label="Card Identifier"
-                value={value}
-                onChange={onChange}
-                onBlur={onBlur}
-              />
-            )}
+          <TextInputField
+            label="Card Identifier"
+            value={identifier}
+            onChange={(e) => setIdentifier(e.target.value)}
+            placeholder="Identifier"
           />
-          {errors.identifier && (
+          {showFormError && (
             <Text color="#D14343" position="absolute" bottom="-20px">
               <Small>Please enter an identifier</Small>
             </Text>
@@ -429,23 +434,16 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
         </div>
       )}
       <div style={{ display: "flex" }}>
-        <Controller
-          control={control}
-          name="name"
-          defaultValue={card.name ? card.name : ""}
-          render={({ field: { onChange, value, onBlur } }) => (
-            <TextInputField
-              onChange={onChange}
-              value={value}
-              onBlur={onBlur}
-              label="Account Holder"
-              placeholder="Account Holder"
-              width="100%"
-              marginRight={14}
-              disabled={!isEditing}
-            />
-          )}
+        <TextInputField
+          label="Account Holder"
+          placeholder="Account Holder"
+          width="100%"
+          marginRight={14}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          disabled={!isEditing}
         />
+
         <div>
           <Heading size={400} marginBottom={8}>
             Type
@@ -465,22 +463,14 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
         </div>
       </div>
       <div style={{ display: "flex" }}>
-        <Controller
-          control={control}
-          name="number"
-          defaultValue={card.number ? card.number : ""}
-          render={({ field: { onChange, value, onBlur } }) => (
-            <TextInputField
-              value={value}
-              onChange={onChange}
-              onBlur={onBlur}
-              label="Card Number"
-              width="100%"
-              placeholder="1234 5678 9012 3456"
-              disabled={!isEditing}
-              marginRight={10}
-            />
-          )}
+        <TextInputField
+          value={number}
+          onChange={(e) => setNumber(e.target.value)}
+          label="Card Number"
+          width="100%"
+          placeholder="1234 5678 9012 3456"
+          disabled={!isEditing}
+          marginRight={10}
         />
         <Tooltip content="Copy Number">
           <IconButton
@@ -543,36 +533,20 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
             </Button>
           </SelectMenu>
         </div>
-        <Controller
-          control={control}
-          name="cvc"
-          defaultValue={card.cvc ? card.cvc : ""}
-          render={({ field: { onChange, value, onBlur } }) => (
-            <TextInputField
-              label="CVC"
-              marginRight={14}
-              placeholder="123"
-              onChange={onChange}
-              value={value}
-              onBlur={onBlur}
-              disabled={!isEditing}
-            />
-          )}
+        <TextInputField
+          label="CVC"
+          marginRight={14}
+          placeholder="123"
+          onChange={(e) => setCvc(e.target.value)}
+          value={cvc}
+          disabled={!isEditing}
         />
-        <Controller
-          control={control}
-          name="zip"
-          defaultValue={card.zip ? card.zip : ""}
-          render={({ field: { onChange, value, onBlur } }) => (
-            <TextInputField
-              label="Zip"
-              placeholder="12345"
-              onChange={onChange}
-              value={value}
-              onBlur={onBlur}
-              disabled={!isEditing}
-            />
-          )}
+        <TextInputField
+          label="Zip"
+          placeholder="12345"
+          onChange={(e) => setZip(e.target.value)}
+          value={zip}
+          disabled={!isEditing}
         />
       </div>
     </Dialog>

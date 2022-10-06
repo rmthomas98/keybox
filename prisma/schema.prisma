@@ -37,6 +37,7 @@ model User {
   credentials   Credential[]
   cards         Card[]
   files         File[]
+  banks         Bank[]
 }
 
 model Credential {
@@ -79,6 +80,33 @@ model Card {
   cvc        String?
   zip        String?
   user       User       @relation(fields: [userId], references: [id])
+  userId     String
+}
+
+enum BankType {
+  CHECKING
+  SAVINGS
+  OTHER
+}
+
+enum BankOwnership {
+  INDIVIDUAL
+  BUSINESS
+  JOINT
+  OTHER
+}
+
+model Bank {
+  id         String         @id @default(cuid())
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  identifier String?
+  type       BankType?
+  ownership  BankOwnership?
+  name       String?
+  account    String?
+  routing    String?
+  user       User           @relation(fields: [userId], references: [id])
   userId     String
 }
 

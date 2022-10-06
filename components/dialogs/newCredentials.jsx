@@ -18,7 +18,7 @@ import { useForm, Controller } from "react-hook-form";
 import { getSession } from "next-auth/react";
 import { useRouter } from "next/router";
 
-export const NewCredentials = ({ show, setShow, status }) => {
+export const NewCredentials = ({ show, setShow, status, setCredentials }) => {
   const [password, setPassword] = useState("");
   const [genPass, setGenPass] = useState(false);
   const [genPassDisabled, setGenPassDisabled] = useState(false);
@@ -82,8 +82,8 @@ export const NewCredentials = ({ show, setShow, status }) => {
 
     setIsLoading(false);
     toaster.success("Credentials added successfully!");
+    setCredentials(res.data.credentials);
     handleClose();
-    router.replace(router.asPath);
   };
 
   return (

@@ -41,29 +41,36 @@ export const CredentialsView = ({
   credentials,
   setCredentials,
   status,
+  setAllCredentials,
 }) => {
   const [isDeleting, setIsDeleting] = useState(false);
+
   const [showPassword, setShowPassword] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isConfirmDisabled, setIsConfirmDisabled] = useState(true);
+  const [name, setName] = useState("");
+  const [website, setWebsite] = useState("");
+  const [account, setAccount] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [formError, setFormError] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    if (!show) return;
-    setPassword(
-      credentials.decryptedPassword ? credentials.decryptedPassword : ""
-    );
-  }, [show]);
+    if (!name) {
+      setFormError(true);
+    } else {
+      setFormError(false);
+    }
+  }, [name]);
 
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-    reset,
-    watch,
-  } = useForm();
+  useEffect(() => {
+    if (!show || !credentials) return;
+    setName(credentials.name || "");
+    setWebsite(credentials.website || "");
+    setAccount(credentials.account || "");
+    setPassword(credentials.decryptedPassword || "");
+  }, [show]);
 
   const handleClose = () => {
     setShow(false);
@@ -73,7 +80,10 @@ export const CredentialsView = ({
     setIsEditing(false);
     setIsConfirmDisabled(true);
     setIsLoading(false);
-    reset();
+    setName("");
+    setWebsite("");
+    setAccount("");
+    setPassword("");
   };
 
   const handleDelete = async () => {
@@ -110,15 +120,20 @@ export const CredentialsView = ({
     setIsLoading(false);
     setIsConfirmDisabled(true);
     setPassword(credentials.decryptedPassword);
-    reset({ ...credentials });
+    setName(credentials.name || "");
+    setWebsite(credentials.website || "");
+    setAccount(credentials.account || "");
+    setPassword(credentials.decryptedPassword || "");
   };
 
-  const submit = async (data) => {
+  const submit = async () => {
+    if (!name) return setFormError(true);
+
     setIsLoading(true);
+    await toaster.closeAll();
     const session = await getSession();
     const { id: userId } = session;
     const { id } = credentials;
-    const { name, account, website } = data;
 
     const nameChange = name !== credentials.name;
 
@@ -140,8 +155,9 @@ export const CredentialsView = ({
       return;
     }
 
-    router.replace(router.asPath);
     toaster.success(res.data.message);
+    setCredentials(res.data.credential);
+    setAllCredentials(res.data.credentials);
     setIsLoading(false);
     setIsEditing(false);
     setIsConfirmDisabled(true);
@@ -149,10 +165,7 @@ export const CredentialsView = ({
 
   // check if changes are made
   useEffect(() => {
-    const name = watch("name");
-    const account = watch("account");
-    const website = watch("website");
-
+    if (!show) return;
     if (isEditing) {
       if (name !== credentials.name) {
         setIsConfirmDisabled(false);
@@ -168,7 +181,7 @@ export const CredentialsView = ({
     } else {
       setIsConfirmDisabled(true);
     }
-  }, [watch("name"), watch("account"), watch("website"), password]);
+  }, [name, website, account, password]);
 
   // create a clickable link to the website
   const getClickableLink = (url) => {
@@ -206,7 +219,7 @@ export const CredentialsView = ({
       cancelLabel="Close"
       confirmLabel="Save Changes"
       isConfirmDisabled={isConfirmDisabled}
-      onConfirm={handleSubmit(submit)}
+      onConfirm={submit}
       shouldCloseOnOverlayClick={false}
       isConfirmLoading={isLoading}
     >
@@ -327,43 +340,26 @@ export const CredentialsView = ({
               alignItems: "center",
             }}
           >
-            <Controller
-              control={control}
-              name="name"
-              rules={{ required: true }}
-              defaultValue={credentials.name}
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInputField
-                  label="Account Name"
-                  value={value}
-                  disabled={!isEditing}
-                  width={"100%"}
-                  onChange={onChange}
-                  onBlur={onBlur}
-                />
-              )}
+            <TextInputField
+              label="Account Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              disabled={!isEditing}
+              width={"100%"}
             />
-            {errors.name && (
+            {formError && (
               <Text color="#D14343" position="absolute" bottom="5px">
                 <Small>Please enter a name</Small>
               </Text>
             )}
           </div>
-          <Controller
-            control={control}
-            name="website"
-            defaultValue={credentials.website ? credentials.website : ""}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInputField
-                label="Website"
-                disabled={!isEditing}
-                width={"100%"}
-                marginRight={6}
-                onChange={onChange}
-                onBlur={onBlur}
-                value={value}
-              />
-            )}
+          <TextInputField
+            label="Website"
+            disabled={!isEditing}
+            width={"100%"}
+            marginRight={6}
+            onChange={(e) => setWebsite(e.target.value)}
+            value={website}
           />
         </>
       )}
@@ -371,21 +367,13 @@ export const CredentialsView = ({
       <div
         style={{ position: "relative", display: "flex", alignItems: "center" }}
       >
-        <Controller
-          control={control}
-          name="account"
-          defaultValue={credentials.account ? credentials.account : ""}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInputField
-              label="Username / Email"
-              disabled={!isEditing}
-              width={"100%"}
-              marginRight={6}
-              onChange={onChange}
-              onBlur={onBlur}
-              value={value}
-            />
-          )}
+        <TextInputField
+          label="Username / Email"
+          disabled={!isEditing}
+          width={"100%"}
+          marginRight={6}
+          onChange={(e) => setAccount(e.target.value)}
+          value={account}
         />
         <Tooltip content="Copy">
           <IconButton icon={ClipboardIcon} onClick={handleCopyUsername} />

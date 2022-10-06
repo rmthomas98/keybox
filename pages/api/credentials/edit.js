@@ -1,24 +1,24 @@
 import prisma from "../../../lib/prisma";
-import {getToken} from "next-auth/jwt";
+import { getToken } from "next-auth/jwt";
 
 const aes256 = require("aes256");
+import { decryptCredentials } from "../../../helpers/decryptCredentials";
 
 const handler = async (req, res) => {
   try {
-
     // authenticate user
-    const token = await getToken({req});
+    const token = await getToken({ req });
     if (!token) {
-      return res.json({error: true, message: "Not authorized"});
+      return res.json({ error: true, message: "Not authorized" });
     }
 
-    const {id, userId, name, nameChange, account, website, password} =
+    const { id, userId, name, nameChange, account, website, password } =
       req.body.options;
 
     // get user from db along with existing credentials
-    const {credentials} = await prisma.user.findUnique({
-      where: {id: userId},
-      include: {credentials: true},
+    const { credentials } = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { credentials: true },
     });
 
     if (nameChange) {
@@ -45,7 +45,7 @@ const handler = async (req, res) => {
 
     // update credentials
     await prisma.credential.update({
-      where: {id},
+      where: { id },
       data: {
         name: name.trim(),
         account,
@@ -54,15 +54,34 @@ const handler = async (req, res) => {
       },
     });
 
-    // get updated credentials
-    let {credentials: updatedCredentials} = await prisma.credentials.findUnique({where: {id}});
+    // get updated credential and decrypt
+    const updatedCredential = await prisma.credential.findUnique({
+      where: { id },
+    });
+    if (updatedCredential.password) {
+      const key = process.env.ENCRYPTION_KEY;
+      const { password: encryptedPassword } = updatedCredential;
+      updatedCredential.decryptedPassword = aes256.decrypt(
+        key,
+        encryptedPassword
+      );
+      updatedCredential.encryptedPassword = encryptedPassword;
+    } else {
+      updatedCredential.decryptedPassword = "";
+      updatedCredential.encryptedPassword = updatedCredential.password;
+    }
 
-    // decrypt credentials
+    // get all credentials
+    const updatedCredentials = await decryptCredentials(userId);
 
-
-    res.json({error: false, message: "Credentials updated successfully"});
+    res.json({
+      error: false,
+      message: "Credentials updated successfully",
+      credential: updatedCredential,
+      credentials: updatedCredentials,
+    });
   } catch {
-    res.json({error: true, message: "Something went wrong"});
+    res.json({ error: true, message: "Something went wrong" });
   }
 };
 

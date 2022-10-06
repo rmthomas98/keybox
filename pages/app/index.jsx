@@ -16,25 +16,26 @@ import prisma from "../../lib/prisma";
 import { useEffect, useState } from "react";
 import { NewCredentials } from "../../components/dialogs/newCredentials";
 import { CredentialsView } from "../../components/dialogs/credentialsView";
+import { decryptCredentials } from "../../helpers/decryptCredentials";
 
 const AppHome = ({ stringifiedCreds, status }) => {
   const [newPasswordShow, setNewPasswordShow] = useState(false);
   const [credentialsViewShow, setCredentialsViewShow] = useState(false);
   const [selectedCredentials, setSelectedCredentials] = useState(null);
   const [searchValue, setSearchValue] = useState("");
-  const credentials = JSON.parse(stringifiedCreds);
+  const [credentials, setCredentials] = useState(JSON.parse(stringifiedCreds));
 
   const handleClick = (credentials) => {
     setSelectedCredentials(credentials);
     setCredentialsViewShow(true);
   };
 
-  useEffect(() => {
-    const newSelectedCredentials = credentials.find(
-      (cred) => cred.id === selectedCredentials?.id
-    );
-    setSelectedCredentials(newSelectedCredentials);
-  }, [stringifiedCreds]);
+  // useEffect(() => {
+  //   const newSelectedCredentials = credentials.find(
+  //     (cred) => cred.id === selectedCredentials?.id
+  //   );
+  //   setSelectedCredentials(newSelectedCredentials);
+  // }, [stringifiedCreds]);
 
   return (
     <div>
@@ -51,14 +52,14 @@ const AppHome = ({ stringifiedCreds, status }) => {
           Add credentials
         </Button>
       </div>
-      {credentials.length === 0 && (
+      {credentials?.length === 0 && (
         <Alert
           marginTop={20}
           intent="info"
           title="No credentials on file. Get started by adding your first credentials!"
         />
       )}
-      {credentials.length > 0 && (
+      {credentials?.length > 0 && (
         <Table marginTop={30}>
           <Table.Head height={40}>
             <Table.SearchHeaderCell
@@ -128,12 +129,14 @@ const AppHome = ({ stringifiedCreds, status }) => {
         show={newPasswordShow}
         setShow={setNewPasswordShow}
         status={status}
+        setCredentials={setCredentials}
       />
       <CredentialsView
         show={credentialsViewShow}
         setShow={setCredentialsViewShow}
         credentials={selectedCredentials}
         setCredentials={setSelectedCredentials}
+        setAllCredentials={setCredentials}
         status={status}
       />
     </div>
@@ -191,32 +194,7 @@ export const getServerSideProps = async (ctx) => {
 
   const aes256 = require("aes256");
 
-  credentials = credentials.map((cred) => {
-    let decryptedPassword;
-    if (!cred.password) {
-      decryptedPassword = "";
-    }
-    if (cred.password) {
-      decryptedPassword = aes256.decrypt(
-        process.env.ENCRYPTION_KEY,
-        cred.password
-      );
-    }
-
-    const passwordLength = decryptedPassword.length;
-
-    return {
-      id: cred.id,
-      createdAt: cred.createdAt,
-      updatedAt: cred.updatedAt,
-      name: cred.name,
-      account: cred.account,
-      website: cred.website,
-      decryptedPassword,
-      encryptedPassword: cred.password,
-      hiddenPassword: `${decryptedPassword.slice(0, passwordLength / 3)}****`,
-    };
-  });
+  credentials = await decryptCredentials(id);
 
   return {
     props: {
