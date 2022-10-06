@@ -50,9 +50,15 @@ const handler = async (req, res) => {
         name: name.trim(),
         account,
         website,
-        password: encryptedPassword ? encryptedPassword : undefined,
+        password: encryptedPassword ? encryptedPassword : null,
       },
     });
+
+    // get updated credentials
+    let {credentials: updatedCredentials} = await prisma.credentials.findUnique({where: {id}});
+
+    // decrypt credentials
+
 
     res.json({error: false, message: "Credentials updated successfully"});
   } catch {

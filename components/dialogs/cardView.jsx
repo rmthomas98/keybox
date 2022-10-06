@@ -27,6 +27,7 @@ import { useForm, Controller } from "react-hook-form";
 import axios from "axios";
 import { getSession } from "next-auth/react";
 import { format } from "date-fns";
+import { useRouter } from "next/router";
 
 const types = [
   {
@@ -123,6 +124,9 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
     const cvc = watch("cvc");
     const zip = watch("zip");
 
+    const expMonth = card.exp ? card.exp.split("/")[0] : null;
+    const expYear = card.exp ? card.exp.split("/")[2] : null;
+
     if (isEditing) {
       if (identifier !== card?.identifier) {
         setIsConfirmDisabled(false);
@@ -133,6 +137,10 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
       } else if (cvc !== card?.cvc) {
         setIsConfirmDisabled(false);
       } else if (zip !== card?.zip) {
+        setIsConfirmDisabled(false);
+      } else if (type !== card.type) {
+        setIsConfirmDisabled(false);
+      } else if (brand !== card.brand) {
         setIsConfirmDisabled(false);
       } else {
         setIsConfirmDisabled(true);
@@ -148,6 +156,8 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
     watch("number"),
     watch("cvc"),
     watch("zip"),
+    type,
+    brand,
   ]);
 
   // Reset from cancel editing
@@ -163,7 +173,7 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
       setMonth(expMonth);
       setYear(expYear);
     }
-    reset();
+    reset({ ...card });
   };
 
   // Reset all values on modal close
@@ -192,11 +202,7 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
       setMonth(expMonth);
       setYear(expYear);
     }
-
-    return () => {
-      handleClose();
-    };
-  }, [isShown]);
+  }, [isShown, card]);
 
   // Copy card number to clipboard
   const handleCopyNumber = async () => {
@@ -259,13 +265,14 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
     }
 
     toaster.success(res.data.message);
-    setCard();
     setCard(res.data.card);
     setCards(res.data.cards);
     setIsLoading(false);
     setIsConfirmDisabled(true);
     setIsEditing(false);
   };
+
+  useEffect(() => {}, [card]);
 
   if (!card) return null;
 
@@ -425,7 +432,7 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
         <Controller
           control={control}
           name="name"
-          defaultValue={card.name}
+          defaultValue={card.name ? card.name : ""}
           render={({ field: { onChange, value, onBlur } }) => (
             <TextInputField
               onChange={onChange}
@@ -461,7 +468,7 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
         <Controller
           control={control}
           name="number"
-          defaultValue={card.number}
+          defaultValue={card.number ? card.number : ""}
           render={({ field: { onChange, value, onBlur } }) => (
             <TextInputField
               value={value}

@@ -110,7 +110,7 @@ export const CredentialsView = ({
     setIsLoading(false);
     setIsConfirmDisabled(true);
     setPassword(credentials.decryptedPassword);
-    reset();
+    reset({ ...credentials });
   };
 
   const submit = async (data) => {

@@ -37,18 +37,18 @@ const handler = async (req, res) => {
 
     // encrypt card details
     const key = process.env.ENCRYPTION_KEY;
-    name = name ? aes256.encrypt(key, name) : undefined;
-    number = number ? aes256.encrypt(key, number) : undefined;
-    exp = exp ? aes256.encrypt(key, exp) : undefined;
-    cvc = cvc ? aes256.encrypt(key, cvc) : undefined;
-    zip = zip ? aes256.encrypt(key, zip) : undefined;
+    name = name ? aes256.encrypt(key, name) : null;
+    number = number ? aes256.encrypt(key, number) : null;
+    exp = exp ? aes256.encrypt(key, exp) : null;
+    cvc = cvc ? aes256.encrypt(key, cvc) : null;
+    zip = zip ? aes256.encrypt(key, zip) : null;
 
     // insert into db
     await prisma.card.create({
       data: {
         identifier: identifier.trim(),
-        type,
-        brand,
+        type: type ? type : null,
+        brand: brand ? brand : null,
         name,
         number,
         exp,
