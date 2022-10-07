@@ -128,8 +128,6 @@ export const getServerSideProps = async (ctx) => {
     };
   }
 
-  const aes256 = require("aes256");
-
   const { id } = session;
   const user = await prisma.user.findUnique({
     where: { id },

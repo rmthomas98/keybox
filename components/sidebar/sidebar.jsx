@@ -17,8 +17,8 @@ export const Sidebar = () => {
       label: "Cards",
     },
     {
-      pathname: "/app/bank-accounts",
-      label: "Bank Accounts",
+      pathname: "/app/banks",
+      label: "Banks",
     },
     {
       pathname: "/app/files",

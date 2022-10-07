@@ -192,8 +192,6 @@ export const getServerSideProps = async (ctx) => {
     };
   }
 
-  const aes256 = require("aes256");
-
   credentials = await decryptCredentials(id);
 
   return {
