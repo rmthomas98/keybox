@@ -6,7 +6,6 @@ import {
   Alert,
   Table,
   CreditCardIcon,
-  Badge,
   Text,
   Small,
 } from "evergreen-ui";
@@ -40,7 +39,7 @@ const Cards = ({ stringifiedCards }) => {
           iconBefore={PlusIcon}
           onClick={() => setNewCardShow(true)}
         >
-          New Card
+          Add card
         </Button>
       </div>
       {cards.length === 0 && (
