@@ -293,13 +293,11 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
     <Dialog
       isShown={isShown}
       title={
-        card.brand
+        card.type
           ? `${
-              card.brand === "AMEX"
-                ? "American Express"
-                : card.brand.charAt(0).toUpperCase() +
-                  card.brand.slice(1).toLowerCase()
-            }`
+              card.type.charAt(0).toUpperCase() +
+              card.type.slice(1).toLowerCase()
+            } Card`
           : "Card"
       }
       shouldCloseOnOverlayClick={false}

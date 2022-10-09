@@ -125,7 +125,7 @@ export const NewBank = ({ show, setShow, setBanks }) => {
         label="Account Holder"
         value={name}
         onChange={(e) => setName(e.target.value)}
-        placeholder="John Doe"
+        placeholder="Account Holder Name"
       />
       <div style={{ display: "flex" }}>
         <TextInputField

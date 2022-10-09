@@ -55,6 +55,7 @@ const Cards = ({ stringifiedCards }) => {
             <Table.SearchHeaderCell
               minWidth={130}
               onChange={(value) => setSearchValue(value)}
+              placeholder="Search cards..."
             />
             <Table.TextHeaderCell>Last 4</Table.TextHeaderCell>
             <Table.TextHeaderCell>type</Table.TextHeaderCell>

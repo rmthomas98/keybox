@@ -1,6 +1,7 @@
 import prisma from "../../../lib/prisma";
 import { getToken } from "next-auth/jwt";
 import { getUserData } from "../../../helpers/getUserData";
+import { decryptBanks } from "../../../helpers/decryptBanks";
 
 const aes256 = require("aes256");
 
@@ -51,10 +52,11 @@ const handler = async (req, res) => {
 
     // get updated banks
     const { banks: updatedBanks } = await getUserData(userId, { banks: true });
+    const banksWithDecryptedDetails = decryptBanks(updatedBanks);
 
     res.json({
       error: false,
-      banks: updatedBanks,
+      banks: banksWithDecryptedDetails,
       message: "Bank added successfully!",
     });
   } catch {
