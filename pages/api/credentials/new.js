@@ -17,6 +17,12 @@ const handler = async (req, res) => {
       req.body.options;
     let generatedPassword;
 
+    // check auth token against user id
+    if (token.id !== id) {
+      res.json({ error: true, message: "Not authorized" });
+      return;
+    }
+
     // get user from db along with existing credentials
     const user = await prisma.user.findUnique({
       where: { id },

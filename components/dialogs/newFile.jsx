@@ -86,6 +86,7 @@ export const NewFile = ({ show, setShow, setAllFolders }) => {
       confirmLabel="Upload"
       isConfirmDisabled={!isFormValid || !name || files.length === 0}
       isConfirmLoading={isLoading}
+      shouldCloseOnOverlayClick={false}
     >
       <div style={{ position: "relative" }}>
         <TextInputField

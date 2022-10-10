@@ -18,6 +18,12 @@ const handler = async (req, res) => {
       req.body;
     let { name, account, routing } = req.body;
 
+    // check user id against token
+    if (userId !== token.id) {
+      res.json({ error: true, message: "Not authorized" });
+      return;
+    }
+
     // check if identifier is changed and if it is already taken
     let { banks } = getUserData(userId, { banks: true });
     if (isIdentityChange) {

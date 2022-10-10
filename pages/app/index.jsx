@@ -61,11 +61,11 @@ const AppHome = ({ stringifiedCreds, status }) => {
       )}
       {credentials?.length > 0 && (
         <Table marginTop={30}>
-          <Table.Head height={40}>
+          <Table.Head height={40} paddingRight={0}>
             <Table.SearchHeaderCell
-              minWidth={130}
+              minWidth={50}
               value={searchValue}
-              placeholder="Search account..."
+              placeholder="Search..."
               onChange={(value) => setSearchValue(value)}
             />
             {/*<Table.TextHeaderCell>Name</Table.TextHeaderCell>*/}

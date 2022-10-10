@@ -26,11 +26,17 @@ export default NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
     jwt: ({ token, user }) => {
-      if (user) token.id = user.id;
+      if (user) {
+        token.id = user.id;
+        // token.apiToken = process.env.API_TOKEN;
+      }
       return token;
     },
     session: ({ token, session }) => {
-      if (token) session.id = token.id;
+      if (token) {
+        session.id = token.id;
+        // session.apiToken = token.apiToken;
+      }
       return session;
     },
   },

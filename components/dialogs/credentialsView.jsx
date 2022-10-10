@@ -89,8 +89,11 @@ export const CredentialsView = ({
   const handleDelete = async () => {
     setIsDeleting(true);
     toaster.closeAll();
+    const session = await getSession();
+    const { id } = session;
     const res = await axios.post("/api/credentials/delete", {
       id: credentials.id,
+      userId: id,
     });
     if (res.data.error) {
       setIsDeleting(false);
@@ -99,7 +102,7 @@ export const CredentialsView = ({
     }
 
     toaster.success(res.data.message);
-    await router.replace(router.asPath);
+    setAllCredentials(res.data.credentials);
     handleClose();
   };
 

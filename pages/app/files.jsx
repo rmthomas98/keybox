@@ -57,13 +57,10 @@ const Files = ({ stringifiedFolders, status }) => {
       )}
       {folders.length > 0 && (
         <Table marginTop={30}>
-          <Table.Head height={40}>
-            <Table.SearchHeaderCell
-              minWidth={130}
-              placeholder="Search folders..."
-            />
+          <Table.Head height={40} paddingRight={0}>
+            <Table.SearchHeaderCell minWidth={50} placeholder="Search..." />
             <Table.TextHeaderCell># Files</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Folder Size</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Size</Table.TextHeaderCell>
           </Table.Head>
           <Table.Body height="100%" maxHeight={400}>
             {folders.map((folder) => (
@@ -74,8 +71,12 @@ const Files = ({ stringifiedFolders, status }) => {
                 height={40}
               >
                 <Table.TextCell>{folder.name}</Table.TextCell>
-                <Table.TextCell>{folder.files.length}</Table.TextCell>
-                <Table.TextCell>{size(folder.size)}</Table.TextCell>
+                <Table.TextCell isNumber>
+                  {`${folder.files.length} ${
+                    folder.files.length > 1 ? "files" : "file"
+                  }`}
+                </Table.TextCell>
+                <Table.TextCell isNumber>{size(folder.size)}</Table.TextCell>
               </Table.Row>
             ))}
           </Table.Body>

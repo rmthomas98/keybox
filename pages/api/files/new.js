@@ -1,5 +1,5 @@
 import prisma from "../../../lib/prisma";
-import {getToken} from "next-auth/jwt";
+import { getToken } from "next-auth/jwt";
 
 const fs = require("fs");
 const aws = require("aws-sdk");
@@ -14,39 +14,38 @@ export const config = {
 const handler = async (req, res) => {
   try {
     // authenticate user
-    const token = await getToken({req});
+    const token = await getToken({ req });
     if (!token) {
-      res.json({error: true, message: "Not authorized"});
+      res.json({ error: true, message: "Not authorized" });
     }
-    const {id: tokenId} = token;
 
     const data = await new Promise((resolve, reject) => {
       const form = new formidable.IncomingForm();
       form.parse(req, (err, fields, files) => {
         if (err) reject(err);
-        resolve({fields, files});
+        resolve({ fields, files });
       });
     });
 
-    const {fields, files} = data;
-    const {userId, name} = fields;
+    const { fields, files } = data;
+    const { userId, name } = fields;
 
     // check data
     if (!fields || !files || !name || !userId) {
-      res.json({error: true, message: 'Invalid Data'})
+      res.json({ error: true, message: "Invalid Data" });
       return;
     }
 
     // check userId against token id
-    if (userId !== tokenId) {
-      res.json({error: true, message: "Not authorized"});
+    if (userId !== token.id) {
+      res.json({ error: true, message: "Not authorized" });
       return;
     }
 
     // create folder in database
     const user = await prisma.user.findUnique({
-      where: {id: userId},
-      include: {folders: true},
+      where: { id: userId },
+      include: { folders: true },
     });
 
     // check user subscription status
@@ -63,7 +62,7 @@ const handler = async (req, res) => {
       (folder) => folder.name.toLowerCase() === name.toLowerCase().trim()
     );
     if (folderNameExists.length > 0) {
-      return res.json({error: true, message: "Folder name already exists"});
+      return res.json({ error: true, message: "Folder name already exists" });
     }
 
     // create folder in database
@@ -87,7 +86,7 @@ const handler = async (req, res) => {
     // loop through files and upload to s3
     for (let i = 0; i < fileList.length; i++) {
       const file = fileList[i];
-      const {originalFilename, size, filepath, mimetype} = file;
+      const { originalFilename, size, filepath, mimetype } = file;
       const blob = fs.readFileSync(filepath);
 
       // create s3 params
@@ -116,14 +115,14 @@ const handler = async (req, res) => {
     // update folder with total file size
     const totalSize = fileList.reduce((acc, file) => acc + file.size, 0);
     await prisma.folder.update({
-      where: {id: folder.id},
-      data: {size: totalSize},
+      where: { id: folder.id },
+      data: { size: totalSize },
     });
 
     // get updated folders
     const updatedFolders = await prisma.folder.findMany({
-      where: {userId},
-      include: {files: true},
+      where: { userId },
+      include: { files: true },
     });
 
     res.json({

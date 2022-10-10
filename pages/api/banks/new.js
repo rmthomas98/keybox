@@ -16,6 +16,12 @@ const handler = async (req, res) => {
     const { userId, identifier, type, ownership } = req.body;
     let { name, account, routing } = req.body;
 
+    // check user id against token
+    if (userId !== token.id) {
+      res.json({ error: true, message: "Not authorized" });
+      return;
+    }
+
     // get user from db along with existing banks
     const { banks } = await getUserData(userId, { banks: true });
 

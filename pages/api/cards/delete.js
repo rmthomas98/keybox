@@ -2,8 +2,6 @@ import prisma from "../../../lib/prisma";
 import { decryptCards } from "../../../helpers/decryptCards";
 import { getToken } from "next-auth/jwt";
 
-const aes256 = require("aes256");
-
 const handler = async (req, res) => {
   try {
     // authenticate user
@@ -13,6 +11,12 @@ const handler = async (req, res) => {
     }
 
     const { id, userId } = req.body;
+
+    // check user id against token
+    if (userId !== token.id) {
+      res.json({ error: true, message: "Not authorized" });
+      return;
+    }
 
     await prisma.card.delete({ where: { id } });
 

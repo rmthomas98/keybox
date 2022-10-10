@@ -51,11 +51,11 @@ const Banks = ({ stringifiedBanks }) => {
       )}
       {banks.length > 0 && (
         <Table marginTop={30}>
-          <Table.Head height={40}>
+          <Table.Head height={40} paddingRight={0}>
             <Table.SearchHeaderCell
-              minWidth={130}
+              minWidth={50}
               onChange={(value) => setSearchValue(value)}
-              placeholder="Search banks..."
+              placeholder="Search..."
             />
             <Table.TextHeaderCell>Account #</Table.TextHeaderCell>
             <Table.TextHeaderCell>Type</Table.TextHeaderCell>
@@ -77,7 +77,7 @@ const Banks = ({ stringifiedBanks }) => {
                   height={40}
                 >
                   <Table.TextCell>{bank.identifier}</Table.TextCell>
-                  <Table.TextCell>
+                  <Table.TextCell isNumber>
                     {bank.account ? `***${bank.account.slice(-4)}` : ""}
                   </Table.TextCell>
                   <Table.TextCell>{bank.type}</Table.TextCell>

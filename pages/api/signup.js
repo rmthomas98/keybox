@@ -10,6 +10,11 @@ const handler = async (req, res) => {
   try {
     const { email, password, confirmPassword } = req.body;
 
+    if (!email || !password || !confirmPassword) {
+      res.json({ error: true, message: "Invalid data" });
+      return;
+    }
+
     if (password !== confirmPassword) {
       res.json({ error: true, message: "Password do not match" });
       return;

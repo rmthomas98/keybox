@@ -15,6 +15,12 @@ const handler = async (req, res) => {
     const { id, userId, name, nameChange, account, website, password } =
       req.body.options;
 
+    // check user id against token
+    if (userId !== token.id) {
+      res.json({ error: true, message: "Not authorized" });
+      return;
+    }
+
     // get user from db along with existing credentials
     const { credentials } = await prisma.user.findUnique({
       where: { id: userId },

@@ -13,6 +13,12 @@ const handler = async (req, res) => {
       return res.json({ error: true, message: "Not authorized" });
     }
 
+    // check user id against token
+    if (userId !== token.id) {
+      res.json({ error: true, message: "Not authorized" });
+      return;
+    }
+
     // delete bank from db
     await prisma.bank.delete({ where: { id: bankId } });
 

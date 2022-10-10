@@ -51,11 +51,11 @@ const Cards = ({ stringifiedCards }) => {
       )}
       {cards.length > 0 && (
         <Table marginTop={30}>
-          <Table.Head height={40}>
+          <Table.Head height={40} paddingRight={0}>
             <Table.SearchHeaderCell
-              minWidth={130}
+              minWidth={50}
               onChange={(value) => setSearchValue(value)}
-              placeholder="Search cards..."
+              placeholder="Search..."
             />
             <Table.TextHeaderCell>Last 4</Table.TextHeaderCell>
             <Table.TextHeaderCell>type</Table.TextHeaderCell>
@@ -77,7 +77,9 @@ const Cards = ({ stringifiedCards }) => {
                   onSelect={() => handleCardClick(card)}
                 >
                   <Table.TextCell>{card.identifier}</Table.TextCell>
-                  <Table.TextCell>{card.number?.slice(-4)}</Table.TextCell>
+                  <Table.TextCell isNumber>
+                    {card.number?.slice(-4)}
+                  </Table.TextCell>
                   <Table.TextCell>{card.type}</Table.TextCell>
                 </Table.Row>
               ))}
