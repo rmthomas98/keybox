@@ -351,12 +351,14 @@ export const BankView = ({ show, setShow, setBanks, bank, setBank }) => {
           width="100%"
           marginRight={8}
         />
-        <IconButton
-          icon={ClipboardIcon}
-          onClick={() => handleCopy(account)}
-          marginY="auto"
-          marginRight={8}
-        />
+        <Tooltip content="Copy account #">
+          <IconButton
+            icon={ClipboardIcon}
+            onClick={() => handleCopy(account)}
+            marginY="auto"
+            marginRight={8}
+          />
+        </Tooltip>
         <div>
           <Heading size={400} marginBottom={8}>
             Type
@@ -385,12 +387,14 @@ export const BankView = ({ show, setShow, setBanks, bank, setBank }) => {
           width="100%"
           marginRight={8}
         />
-        <IconButton
-          icon={ClipboardIcon}
-          onClick={() => handleCopy(routing)}
-          marginY="auto"
-          marginRight={8}
-        />
+        <Tooltip content="Copy routing #">
+          <IconButton
+            icon={ClipboardIcon}
+            onClick={() => handleCopy(routing)}
+            marginY="auto"
+            marginRight={8}
+          />
+        </Tooltip>
         <div>
           <Heading size={400} marginBottom={8}>
             Ownership

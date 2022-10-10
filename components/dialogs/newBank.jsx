@@ -120,6 +120,11 @@ export const NewBank = ({ show, setShow, setBanks }) => {
           value={identifier}
           onChange={(e) => setIdentifier(e.target.value)}
         />
+        {!isFormValid && (
+          <Text color="#D14343" position="absolute" bottom="-20px">
+            <Small>Please enter an identifier</Small>
+          </Text>
+        )}
       </div>
       <TextInputField
         label="Account Holder"
