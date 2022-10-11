@@ -17,8 +17,12 @@ import {
   Tooltip,
   TrashIcon,
   FileCard,
+  SearchInput,
+  FilePicker,
+  FileUploader,
+  UploadIcon,
 } from "evergreen-ui";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { partial } from "filesize";
 
 const size = partial({ base: 3, standard: "jedec" });
@@ -34,17 +38,42 @@ export const FolderView = ({
   const [isDeleting, setIsDeleting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState("");
+  const [files, setFiles] = useState([]);
+  const [newFiles, setNewFiles] = useState([]);
+  const [fileRejections, setFileRejections] = useState([]);
+  const [deletedFiles, setDeletedFiles] = useState([]);
+  const maxSizeInBytes = 50 * 1024 ** 2; // 50 MB
+  const values = useMemo(
+    () => [
+      ...newFiles,
+      ...fileRejections.map((fileRejection) => fileRejection.file),
+    ],
+    [fileRejections, newFiles]
+  );
+
+  useEffect(() => {
+    if (show) {
+      setFiles(folder.files || []);
+      setName(folder.name);
+    }
+  }, [show]);
 
   const handleClose = () => {
     setShow(false);
   };
 
-  const handleDelete = async () => {};
+  const handleDeleteFolder = async () => {};
+  const handleRemove = (file) => {};
 
   const handleReset = async () => {
     setIsDeleting(false);
     setIsEditing(false);
+    setIsLoading(false);
     setName(folder.name || "");
+    setFiles(folder.files || []);
+    setNewFiles([]);
+    setFileRejections([]);
+    setDeletedFiles([]);
   };
 
   if (!folder) return null;
@@ -97,7 +126,7 @@ export const FolderView = ({
               pointerEvents={"none"}
               transition={"transform 300ms"}
             >
-              Edit mode
+              Upload
             </Badge>
           </div>
           <Heading size={100} fontWeight={700}>
@@ -107,9 +136,9 @@ export const FolderView = ({
           </Heading>
         </div>
         <div style={{ display: "flex" }}>
-          <Tooltip content={isEditing ? "Cancel" : "Edit"}>
+          <Tooltip content={isEditing ? "Cancel" : "Upload files"}>
             <IconButton
-              icon={isEditing ? ResetIcon : EditIcon}
+              icon={isEditing ? ResetIcon : UploadIcon}
               intent={isEditing ? "danger" : "none"}
               onClick={isEditing ? handleReset : () => setIsEditing(true)}
               marginRight={6}
@@ -142,7 +171,7 @@ export const FolderView = ({
                     intent="danger"
                     iconBefore={TrashIcon}
                     isLoading={isDeleting}
-                    onClick={handleDelete}
+                    onClick={handleDeleteFolder}
                   >
                     Delete
                   </Button>
@@ -164,21 +193,43 @@ export const FolderView = ({
           </Popover>
         </div>
       </div>
-      {folder.files.map((file) => {
-        return (
-          <FileCard
-            key={file.id}
-            name={file.name}
-            sizeInBytes={file.size}
-            type={file.type}
-            isLoading={isLoading}
-            disabled={!isEditing}
-            onRemove={() => {}}
-            onClick={() => {}}
-            cursor={isEditing ? "default" : "pointer"}
-          />
-        );
-      })}
+      {files.length > 1 && !isEditing && (
+        <SearchInput
+          width="100%"
+          placeholder="Search files..."
+          marginBottom={12}
+        />
+      )}
+      {isEditing && (
+        <FileUploader
+          label="Select File(s)"
+          description="You can select as many files as you want within your plan. Files must be under 50MB."
+          onAccepted={setNewFiles}
+          onRejected={setFileRejections}
+          maxSizeInBytes={maxSizeInBytes}
+          values={values}
+          renderFile={(file) => {
+            const { name, size, type } = file;
+            return (
+              <FileCard key={name} name={name} sizeInBytes={size} type={type} />
+            );
+          }}
+        />
+      )}
+      {!isEditing &&
+        files.map((file) => {
+          return (
+            <FileCard
+              key={file.id}
+              name={file.name}
+              sizeInBytes={file.size}
+              type={file.type}
+              onClick={() => {}}
+              cursor={"pointer"}
+              onRemove={() => handleRemove(file)}
+            />
+          );
+        })}
     </Dialog>
   );
 };
