@@ -7,6 +7,7 @@ import {
   PlusIcon,
   FolderOpenIcon,
   Table,
+  Icon,
 } from "evergreen-ui";
 import { useState } from "react";
 import { NewFile } from "../../components/dialogs/newFile";
@@ -20,6 +21,7 @@ const Files = ({ stringifiedFolders, status }) => {
   const [fileViewShow, setFileViewShow] = useState(false);
   const [folders, setFolders] = useState(JSON.parse(stringifiedFolders));
   const [selectedFolder, setSelectedFolder] = useState(null);
+  const [searchValue, setSearchValue] = useState("");
 
   const handleFolderClick = (folder) => {
     setSelectedFolder(folder);
@@ -30,7 +32,7 @@ const Files = ({ stringifiedFolders, status }) => {
     <div>
       <div className={styles.navContainer}>
         <Heading size={600} fontWeight={700} display="flex" alignItems="center">
-          <FolderOpenIcon marginRight={6} /> Files
+          <Icon icon={FolderOpenIcon} marginRight={6} /> Files
         </Heading>
         <Button
           appearance="primary"
@@ -58,27 +60,38 @@ const Files = ({ stringifiedFolders, status }) => {
       {folders.length > 0 && (
         <Table marginTop={30}>
           <Table.Head height={40} paddingRight={0}>
-            <Table.SearchHeaderCell minWidth={50} placeholder="Search..." />
+            <Table.SearchHeaderCell
+              minWidth={50}
+              placeholder="Search..."
+              value={searchValue}
+              onChange={(value) => setSearchValue(value)}
+            />
             <Table.TextHeaderCell># Files</Table.TextHeaderCell>
             <Table.TextHeaderCell>Size</Table.TextHeaderCell>
           </Table.Head>
           <Table.Body height="100%" maxHeight={400}>
-            {folders.map((folder) => (
-              <Table.Row
-                key={folder.id}
-                isSelectable
-                onSelect={() => handleFolderClick(folder)}
-                height={40}
-              >
-                <Table.TextCell>{folder.name}</Table.TextCell>
-                <Table.TextCell isNumber>
-                  {`${folder.files.length} ${
-                    folder.files.length > 1 ? "files" : "file"
-                  }`}
-                </Table.TextCell>
-                <Table.TextCell isNumber>{size(folder.size)}</Table.TextCell>
-              </Table.Row>
-            ))}
+            {folders
+              .filter((folder) =>
+                folder.name
+                  .toLowerCase()
+                  .includes(searchValue.toLowerCase().trim())
+              )
+              .map((folder) => (
+                <Table.Row
+                  key={folder.id}
+                  isSelectable
+                  onSelect={() => handleFolderClick(folder)}
+                  height={40}
+                >
+                  <Table.TextCell>{folder.name}</Table.TextCell>
+                  <Table.TextCell isNumber>
+                    {`${folder.files.length} ${
+                      folder.files.length > 1 ? "files" : "file"
+                    }`}
+                  </Table.TextCell>
+                  <Table.TextCell isNumber>{size(folder.size)}</Table.TextCell>
+                </Table.Row>
+              ))}
           </Table.Body>
         </Table>
       )}

@@ -22,27 +22,35 @@ import {
   FileUploader,
   UploadIcon,
 } from "evergreen-ui";
-import { useEffect, useMemo, useState } from "react";
-import { partial } from "filesize";
+import {useEffect, useMemo, useState} from "react";
+import {partial} from "filesize";
+import axios from "axios";
+import {getSession} from "next-auth/react";
 
-const size = partial({ base: 3, standard: "jedec" });
+const size = partial({base: 3, standard: "jedec"});
 
 export const FolderView = ({
-  show,
-  setShow,
-  setFolders,
-  setFolder,
-  folder,
-}) => {
+                             show,
+                             setShow,
+                             setFolders,
+                             setFolder,
+                             folder,
+                           }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
   const [name, setName] = useState("");
   const [files, setFiles] = useState([]);
   const [newFiles, setNewFiles] = useState([]);
   const [fileRejections, setFileRejections] = useState([]);
   const [deletedFiles, setDeletedFiles] = useState([]);
+  const [search, setSearch] = useState("");
+  const [isConfirmDisabled, setIsConfirmDisabled] = useState(true);
   const maxSizeInBytes = 50 * 1024 ** 2; // 50 MB
+
+  console.log(newFiles);
+
   const values = useMemo(
     () => [
       ...newFiles,
@@ -55,26 +63,111 @@ export const FolderView = ({
     if (show) {
       setFiles(folder.files || []);
       setName(folder.name);
+      setSearch("");
     }
   }, [show]);
 
+  useEffect(() => {
+    if (!folder) return;
+    if (search) {
+      const filteredFiles = folder.files.filter((file) => {
+        const fileName = file.name.toLowerCase();
+        const searchValue = search.toLowerCase().trim();
+        if (fileName.includes(searchValue) && deletedFiles.indexOf(file) === -1)
+          return file;
+      });
+      setFiles(filteredFiles);
+    } else {
+      const filteredFiles = folder.files.filter(
+        (file) => deletedFiles.indexOf(file) === -1
+      );
+      setFiles(filteredFiles);
+    }
+  }, [search]);
+
   const handleClose = () => {
+    setIsDeleting(false);
+    setIsEditing(false);
+    setIsLoading(false);
+    setIsAdding(false);
+    setIsConfirmDisabled(true);
+    setName("");
+    setNewFiles([]);
+    setFileRejections([]);
+    setDeletedFiles([]);
     setShow(false);
+    setSearch("");
+    setFiles([]);
   };
 
-  const handleDeleteFolder = async () => {};
-  const handleRemove = (file) => {};
+  const handleDeleteFolder = async () => {
+  };
+
+  const handleRemove = (file) => {
+    const newCurrentFiles = files.filter((f) => f !== file);
+    const newDeletedFiles = [...deletedFiles, file];
+    setFiles(newCurrentFiles);
+    setDeletedFiles(newDeletedFiles);
+  };
+
+  const handleRemoveUploaded = (file) => {
+    const newNewFiles = newFiles.filter((f) => f !== file);
+    const newRejections = fileRejections.filter((f) => f.file !== file);
+
+    setNewFiles(newNewFiles);
+    setFileRejections(newRejections);
+  };
 
   const handleReset = async () => {
     setIsDeleting(false);
     setIsEditing(false);
     setIsLoading(false);
-    setName(folder.name || "");
+    setIsAdding(false);
+    setIsConfirmDisabled(true);
     setFiles(folder.files || []);
+    setName(folder.name || "");
+    setSearch("");
     setNewFiles([]);
     setFileRejections([]);
     setDeletedFiles([]);
   };
+
+  const handleDeleteFiles = async () => {
+    if (deletedFiles.length === 0) return toaster.danger("No files selected");
+
+    const session = await getSession();
+    const {id} = session;
+
+    setIsLoading(true);
+    const {data} = await axios.post("/api/files/delete-files", {
+      files: deletedFiles,
+      userId: id,
+    });
+
+    if (data.error) {
+      setIsLoading(true);
+      toaster.danger(data.message);
+      return;
+    }
+
+    setFolder(data.folder);
+    setFolders(data.folders);
+    toaster.success(data.message);
+    handleReset();
+  };
+
+  const handleUploadFiles = async () => {
+  };
+
+  useEffect(() => {
+    if (isEditing && deletedFiles.length !== 0) {
+      setIsConfirmDisabled(false);
+    } else if (isAdding && newFiles.length !== 0) {
+      setIsConfirmDisabled(false);
+    } else {
+      setIsConfirmDisabled(true);
+    }
+  }, [isEditing, isAdding, deletedFiles, newFiles]);
 
   if (!folder) return null;
 
@@ -84,9 +177,12 @@ export const FolderView = ({
       onCloseComplete={handleClose}
       title="Folder View"
       shouldCloseOnOverlayClick={false}
-      confirmLabel="Save changes"
+      confirmLabel={isEditing ? "Delete" : isAdding ? "Upload" : "Confirm"}
+      isConfirmDisabled={isConfirmDisabled}
       cancelLabel="Close"
       onCancel={handleClose}
+      background={"#fff"}
+      onConfirm={isEditing ? handleDeleteFiles : handleUploadFiles}
     >
       <div
         style={{
@@ -96,10 +192,14 @@ export const FolderView = ({
           borderBottom: "1px solid #E6E8F0",
           paddingBottom: 12,
           marginBottom: 12,
+          // position: "sticky",
+          // top: -10,
+          // background: "#fff",
+          // zIndex: 1,
         }}
       >
         <div>
-          <div style={{ display: "flex", alignItems: "center" }}>
+          <div style={{display: "flex", alignItems: "center"}}>
             <Heading
               size={500}
               marginBottom={4}
@@ -112,17 +212,27 @@ export const FolderView = ({
             </Heading>
             <Badge
               color="teal"
-              position={isEditing ? "absolute" : "relative"}
-              opacity={isEditing ? 0 : 1}
+              position={isEditing || isAdding ? "absolute" : "relative"}
+              opacity={isEditing || isAdding ? 0 : 1}
               transition={"transform 300ms"}
-              transform={isEditing ? "scale(0.75)" : "scale(1)"}
+              transform={isEditing || isAdding ? "scale(0.75)" : "scale(1)"}
             >
               {size(folder.size)}
             </Badge>
             <Badge
-              color="purple"
+              color="yellow"
               opacity={isEditing ? 1 : 0}
               transform={isEditing ? "scale(1)" : "scale(0.75)"}
+              position={isAdding ? "absolute" : "relative"}
+              pointerEvents={"none"}
+              transition={"transform 300ms"}
+            >
+              Delete
+            </Badge>
+            <Badge
+              color="purple"
+              opacity={isAdding ? 1 : 0}
+              transform={isAdding ? "scale(1)" : "scale(0.75)"}
               pointerEvents={"none"}
               transition={"transform 300ms"}
             >
@@ -135,17 +245,27 @@ export const FolderView = ({
             } in folder`}
           </Heading>
         </div>
-        <div style={{ display: "flex" }}>
-          <Tooltip content={isEditing ? "Cancel" : "Upload files"}>
+        <div style={{display: "flex"}}>
+          <Tooltip content={isAdding ? "Cancel" : "Upload"}>
             <IconButton
-              icon={isEditing ? ResetIcon : UploadIcon}
+              icon={isAdding ? ResetIcon : UploadIcon}
+              marginRight={6}
+              onClick={isAdding ? handleReset : () => setIsAdding(true)}
+              disabled={isEditing}
+              intent={isAdding ? "danger" : "none"}
+            />
+          </Tooltip>
+          <Tooltip content={isEditing ? "Cancel" : "Edit"}>
+            <IconButton
+              icon={isEditing ? ResetIcon : EditIcon}
               intent={isEditing ? "danger" : "none"}
               onClick={isEditing ? handleReset : () => setIsEditing(true)}
               marginRight={6}
+              disabled={isAdding}
             />
           </Tooltip>
           <Popover
-            content={({ close }) => (
+            content={({close}) => (
               <Card padding={20}>
                 <Heading size={500} marginBottom={10}>
                   Delete Folder
@@ -187,20 +307,28 @@ export const FolderView = ({
               <IconButton
                 icon={TrashIcon}
                 intent="danger"
-                disabled={isEditing}
+                disabled={isEditing || isAdding}
               />
             </Tooltip>
           </Popover>
         </div>
       </div>
-      {files.length > 1 && !isEditing && (
+      {folder.files.length > 1 && !isAdding && (
         <SearchInput
           width="100%"
           placeholder="Search files..."
           marginBottom={12}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          disabled={
+            deletedFiles.length === folder.files.length ||
+            deletedFiles.length === folder.files.length - 1
+          }
+          // position="sticky"
+          // top={50}
         />
       )}
-      {isEditing && (
+      {isAdding && (
         <FileUploader
           label="Select File(s)"
           description="You can select as many files as you want within your plan. Files must be under 50MB."
@@ -209,27 +337,33 @@ export const FolderView = ({
           maxSizeInBytes={maxSizeInBytes}
           values={values}
           renderFile={(file) => {
-            const { name, size, type } = file;
+            const {name, size, type} = file;
             return (
-              <FileCard key={name} name={name} sizeInBytes={size} type={type} />
+              <FileCard
+                key={name}
+                name={name}
+                sizeInBytes={size}
+                type={type}
+                onRemove={() => handleRemoveUploaded(file)}
+                isInvalid={size > maxSizeInBytes}
+              />
             );
           }}
         />
       )}
-      {!isEditing &&
-        files.map((file) => {
-          return (
-            <FileCard
-              key={file.id}
-              name={file.name}
-              sizeInBytes={file.size}
-              type={file.type}
-              onClick={() => {}}
-              cursor={"pointer"}
-              onRemove={() => handleRemove(file)}
-            />
-          );
-        })}
+      {!isAdding &&
+        files.map((file) => (
+          <FileCard
+            key={file.id}
+            name={file.name}
+            sizeInBytes={file.size}
+            type={file.type}
+            onClick={() => {
+            }}
+            cursor={isEditing ? "default" : "pointer"}
+            onRemove={isEditing ? () => handleRemove(file) : undefined}
+          />
+        ))}
     </Dialog>
   );
 };
