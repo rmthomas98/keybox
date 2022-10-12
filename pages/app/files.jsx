@@ -54,7 +54,7 @@ const Files = ({ stringifiedFolders, status }) => {
         <Alert
           intent="info"
           marginTop={20}
-          title="No files on file. Get started by uploading your first file!"
+          title="No folders on file. Get started by creating your first folder!"
         />
       )}
       {folders.length > 0 && (

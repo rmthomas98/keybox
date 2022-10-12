@@ -11,7 +11,7 @@ const handler = async (req, res) => {
       return;
     }
 
-    const { userId, files, folderId, folderSize } = req.body;
+    const { userId, folderId } = req.body;
 
     // check userId against token id
     if (userId !== token.id) {
@@ -20,10 +20,17 @@ const handler = async (req, res) => {
     }
 
     // check data
-    if (!userId || !files || !folderId || !folderSize) {
-      res.json({ error: true, message: "No files to delete" });
+    if (!userId || !folderId) {
+      res.json({ error: true, message: "Invalid data" });
       return;
     }
+
+    // get folder and files from database
+    const folder = await prisma.folder.findUnique({
+      where: { id: folderId },
+      include: { files: true },
+    });
+    const { files } = folder;
 
     // create s3 instance
     const s3 = new aws.S3({
@@ -32,52 +39,38 @@ const handler = async (req, res) => {
       region: process.env.AWS_REGION,
     });
 
-    // delete files from database
-    for (let i = 0; i < files.length; i++) {
-      const { id, key } = files[i];
+    // delete files from s3
+    for (let i = 0; i < files; i++) {
+      const { key } = files[i];
 
-      // delete file from s3
       const params = {
         Bucket: process.env.AWS_BUCKET,
         Key: key,
       };
 
-      // delete file from s3 and database
       await s3.deleteObject(params).promise();
-      await prisma.file.delete({ where: { id } });
     }
 
-    // get total size of files deleted
-    const totalSize = files.reduce((acc, file) => acc + file.size, 0);
+    // delete files from database
+    await prisma.file.deleteMany({ where: { folderId } });
 
-    // update folder size
-    await prisma.folder.update({
-      where: { id: folderId },
-      data: {
-        size: folderSize - totalSize,
-      },
-    });
-
-    // get updated folder
-    const folder = await prisma.folder.findUnique({
-      where: { id: folderId },
-      include: { files: true },
-    });
+    // delete folder from database
+    await prisma.folder.delete({ where: { id: folderId } });
 
     // get updated folders
-    const folders = await prisma.folder.findMany({
+    const updatedFolders = await prisma.folder.findMany({
       where: { userId },
       include: { files: true },
     });
+
     res.json({
       error: false,
-      message: "Successfully deleted files",
-      folders,
-      folder,
+      folders: updatedFolders,
+      message: "Folder deleted",
     });
   } catch (err) {
     console.log(err);
-    res.json({ error: true, message: "Error deleting files" });
+    res.json({ error: true, message: "Something went wrong" });
   }
 };
 
