@@ -28,10 +28,10 @@ export const Sidebar = () => {
       pathname: "/app/crypto",
       label: "Crypto",
     },
-    {
-      pathname: "/app/secrets",
-      label: "Secrets",
-    },
+    // {
+    //   pathname: "/app/secrets",
+    //   label: "Secrets",
+    // },
   ];
 
   return (

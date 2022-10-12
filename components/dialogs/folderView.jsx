@@ -22,20 +22,20 @@ import {
   FileUploader,
   UploadIcon,
 } from "evergreen-ui";
-import {useEffect, useMemo, useState} from "react";
-import {partial} from "filesize";
+import { useEffect, useMemo, useState } from "react";
+import { partial } from "filesize";
 import axios from "axios";
-import {getSession} from "next-auth/react";
+import { getSession } from "next-auth/react";
 
-const size = partial({base: 3, standard: "jedec"});
+const size = partial({ base: 3, standard: "jedec" });
 
 export const FolderView = ({
-                             show,
-                             setShow,
-                             setFolders,
-                             setFolder,
-                             folder,
-                           }) => {
+  show,
+  setShow,
+  setFolders,
+  setFolder,
+  folder,
+}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -100,8 +100,7 @@ export const FolderView = ({
     setFiles([]);
   };
 
-  const handleDeleteFolder = async () => {
-  };
+  const handleDeleteFolder = async () => {};
 
   const handleRemove = (file) => {
     const newCurrentFiles = files.filter((f) => f !== file);
@@ -136,10 +135,10 @@ export const FolderView = ({
     if (deletedFiles.length === 0) return toaster.danger("No files selected");
 
     const session = await getSession();
-    const {id} = session;
+    const { id } = session;
 
     setIsLoading(true);
-    const {data} = await axios.post("/api/files/delete-files", {
+    const { data } = await axios.post("/api/files/delete-files", {
       files: deletedFiles,
       userId: id,
     });
@@ -156,8 +155,7 @@ export const FolderView = ({
     handleReset();
   };
 
-  const handleUploadFiles = async () => {
-  };
+  const handleUploadFiles = async () => {};
 
   useEffect(() => {
     if (isEditing && deletedFiles.length !== 0) {
@@ -177,7 +175,19 @@ export const FolderView = ({
       onCloseComplete={handleClose}
       title="Folder View"
       shouldCloseOnOverlayClick={false}
-      confirmLabel={isEditing ? "Delete" : isAdding ? "Upload" : "Confirm"}
+      confirmLabel={
+        isEditing
+          ? deletedFiles.length === 0
+            ? "Delete"
+            : `Delete ${deletedFiles.length} ${
+                deletedFiles.length > 1 ? "files" : "file"
+              }`
+          : isAdding
+          ? "Upload"
+          : "Confirm"
+      }
+      isConfirmLoading={isLoading}
+      intent={isEditing ? "danger" : "default"}
       isConfirmDisabled={isConfirmDisabled}
       cancelLabel="Close"
       onCancel={handleClose}
@@ -199,7 +209,7 @@ export const FolderView = ({
         }}
       >
         <div>
-          <div style={{display: "flex", alignItems: "center"}}>
+          <div style={{ display: "flex", alignItems: "center" }}>
             <Heading
               size={500}
               marginBottom={4}
@@ -245,7 +255,7 @@ export const FolderView = ({
             } in folder`}
           </Heading>
         </div>
-        <div style={{display: "flex"}}>
+        <div style={{ display: "flex" }}>
           <Tooltip content={isAdding ? "Cancel" : "Upload"}>
             <IconButton
               icon={isAdding ? ResetIcon : UploadIcon}
@@ -265,7 +275,7 @@ export const FolderView = ({
             />
           </Tooltip>
           <Popover
-            content={({close}) => (
+            content={({ close }) => (
               <Card padding={20}>
                 <Heading size={500} marginBottom={10}>
                   Delete Folder
@@ -337,7 +347,7 @@ export const FolderView = ({
           maxSizeInBytes={maxSizeInBytes}
           values={values}
           renderFile={(file) => {
-            const {name, size, type} = file;
+            const { name, size, type } = file;
             return (
               <FileCard
                 key={name}
@@ -358,12 +368,17 @@ export const FolderView = ({
             name={file.name}
             sizeInBytes={file.size}
             type={file.type}
-            onClick={() => {
-            }}
+            onClick={() => {}}
             cursor={isEditing ? "default" : "pointer"}
             onRemove={isEditing ? () => handleRemove(file) : undefined}
           />
         ))}
+      {!isAdding && !files.length && search && (
+        <Text color="#D14343">No files found</Text>
+      )}
+      {!isAdding && !files.length && !search && (
+        <Text color="#D14343">No files</Text>
+      )}
     </Dialog>
   );
 };
