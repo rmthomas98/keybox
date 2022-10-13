@@ -1,5 +1,5 @@
 import styles from "../../styles/files.module.css";
-import {getSession} from "next-auth/react";
+import { getSession } from "next-auth/react";
 import {
   Alert,
   Heading,
@@ -8,22 +8,22 @@ import {
   FolderOpenIcon,
   Table,
   Icon,
+  Text,
+  Small,
 } from "evergreen-ui";
-import {useState} from "react";
-import {NewFile} from "../../components/dialogs/newFile";
-import {partial} from "filesize";
-import {FolderView} from "../../components/dialogs/folderView";
+import { useState } from "react";
+import { NewFile } from "../../components/dialogs/files/newFile";
+import { partial } from "filesize";
+import { FolderView } from "../../components/dialogs/files/folderView";
 
-const size = partial({base: 3, standard: "jedec"});
+const size = partial({ base: 3, standard: "jedec" });
 
-const Files = ({stringifiedFolders, status}) => {
+const Files = ({ stringifiedFolders, status }) => {
   const [newFileShow, setNewFileShow] = useState(false);
   const [fileViewShow, setFileViewShow] = useState(false);
   const [folders, setFolders] = useState(JSON.parse(stringifiedFolders));
   const [selectedFolder, setSelectedFolder] = useState(null);
   const [searchValue, setSearchValue] = useState("");
-
-  console.log(15000000000)
 
   const handleFolderClick = (folder) => {
     setSelectedFolder(folder);
@@ -34,7 +34,7 @@ const Files = ({stringifiedFolders, status}) => {
     <div>
       <div className={styles.navContainer}>
         <Heading size={600} fontWeight={700} display="flex" alignItems="center">
-          <Icon icon={FolderOpenIcon} marginRight={6}/> Files
+          <Icon icon={FolderOpenIcon} marginRight={6} /> Files
         </Heading>
         <Button
           appearance="primary"
@@ -88,12 +88,31 @@ const Files = ({stringifiedFolders, status}) => {
                   <Table.TextCell>{folder.name}</Table.TextCell>
                   <Table.TextCell isNumber>
                     {`${folder.files.length} ${
-                      folder.files.length > 1 ? "files" : "file"
+                      folder.files.length > 1
+                        ? "files"
+                        : folder.files.length === 0
+                        ? "files"
+                        : "file"
                     }`}
                   </Table.TextCell>
                   <Table.TextCell isNumber>{size(folder.size)}</Table.TextCell>
                 </Table.Row>
               ))}
+            {folders.filter((folder) =>
+              folder.name
+                .toLowerCase()
+                .includes(searchValue.toLowerCase().trim())
+            ).length === 0 && (
+              <Table.Row height={40}>
+                <Table.TextCell textAlign="center" width="100%">
+                  <Text color="#D14343">
+                    <Small>
+                      No results found for <b>{searchValue}</b>
+                    </Small>
+                  </Text>
+                </Table.TextCell>
+              </Table.Row>
+            )}
           </Table.Body>
         </Table>
       )}
@@ -125,9 +144,9 @@ export const getServerSideProps = async (ctx) => {
     };
   }
 
-  const {id} = session;
+  const { id } = session;
   const user = await prisma.user.findUnique({
-    where: {id},
+    where: { id },
   });
 
   if (!user.emailVerified) {
@@ -161,13 +180,13 @@ export const getServerSideProps = async (ctx) => {
   }
 
   const folders = await prisma.folder.findMany({
-    where: {userId: id},
-    include: {files: true},
+    where: { userId: id },
+    include: { files: true },
   });
 
   const stringifiedFolders = JSON.stringify(folders);
 
-  return {props: {stringifiedFolders, status: user.status}};
+  return { props: { stringifiedFolders, status: user.status } };
 };
 
 export default Files;

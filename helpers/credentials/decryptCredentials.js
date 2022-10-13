@@ -1,4 +1,4 @@
-import prisma from "../lib/prisma";
+import prisma from "../../lib/prisma";
 
 const aes256 = require("aes256");
 

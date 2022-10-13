@@ -14,9 +14,9 @@ import {
 import { getSession } from "next-auth/react";
 import prisma from "../../lib/prisma";
 import { useEffect, useState } from "react";
-import { NewCredentials } from "../../components/dialogs/newCredentials";
-import { CredentialsView } from "../../components/dialogs/credentialsView";
-import { decryptCredentials } from "../../helpers/decryptCredentials";
+import { NewCredentials } from "../../components/dialogs/credentials/newCredentials";
+import { CredentialsView } from "../../components/dialogs/credentials/credentialsView";
+import { decryptCredentials } from "../../helpers/credentials/decryptCredentials";
 
 const AppHome = ({ stringifiedCreds, status }) => {
   const [newPasswordShow, setNewPasswordShow] = useState(false);

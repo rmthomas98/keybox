@@ -2,7 +2,7 @@ import prisma from "../../../lib/prisma";
 import { getToken } from "next-auth/jwt";
 
 const aes256 = require("aes256");
-import { decryptCredentials } from "../../../helpers/decryptCredentials";
+import { decryptCredentials } from "../../../helpers/credentials/decryptCredentials";
 
 const handler = async (req, res) => {
   try {

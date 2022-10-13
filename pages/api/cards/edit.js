@@ -1,7 +1,7 @@
 import prisma from "../../../lib/prisma";
 import { getToken } from "next-auth/jwt";
-import { decryptCard } from "../../../helpers/decryptCard";
-import { decryptCards } from "../../../helpers/decryptCards";
+import { decryptCard } from "../../../helpers/cards/decryptCard";
+import { decryptCards } from "../../../helpers/cards/decryptCards";
 
 const aes256 = require("aes256");
 

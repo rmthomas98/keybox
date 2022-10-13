@@ -188,7 +188,30 @@ export const FolderView = ({
     handleReset();
   };
 
-  const handleUploadFiles = async () => {};
+  const handleUploadFiles = async () => {
+    await toaster.closeAll();
+    if (newFiles.length === 0) return toaster.danger("No files selected");
+    setIsLoading(true);
+    const session = await getSession();
+    const { id } = session;
+    const formData = new FormData();
+    formData.append("folderId", folder.id);
+    formData.append("userId", id);
+    newFiles.forEach((file) => formData.append(file.name, file));
+
+    const { data } = await axios.post("/api/files/upload", formData);
+
+    if (data.error) {
+      setIsLoading(false);
+      toaster.danger(data.message);
+      return;
+    }
+
+    setFolder(data.folder);
+    setFolders(data.folders);
+    toaster.success(data.message);
+    handleReset();
+  };
 
   const handleEditName = async () => {
     if (name === folder.name) return;
@@ -437,6 +460,7 @@ export const FolderView = ({
                   type={type}
                   onRemove={() => handleRemoveUploaded(file)}
                   isInvalid={size > maxSizeInBytes}
+                  isLoading={isLoading}
                 />
               );
             }}

@@ -12,9 +12,9 @@ import {
 import { getSession } from "next-auth/react";
 import prisma from "../../lib/prisma";
 import { useState } from "react";
-import { NewCard } from "../../components/dialogs/newCard";
-import { CardView } from "../../components/dialogs/cardView";
-import { decryptCards } from "../../helpers/decryptCards";
+import { NewCard } from "../../components/dialogs/cards/newCard";
+import { CardView } from "../../components/dialogs/cards/cardView";
+import { decryptCards } from "../../helpers/cards/decryptCards";
 
 const Cards = ({ stringifiedCards }) => {
   const [newCardShow, setNewCardShow] = useState(false);

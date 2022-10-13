@@ -3,8 +3,8 @@ import prisma from "../../../lib/prisma";
 const aes256 = require("aes256");
 import { getToken } from "next-auth/jwt";
 import { getUserData } from "../../../helpers/getUserData";
-import { decryptBanks } from "../../../helpers/decryptBanks";
-import { decryptBank } from "../../../helpers/decryptBank";
+import { decryptBanks } from "../../../helpers/banks/decryptBanks";
+import { decryptBank } from "../../../helpers/banks/decryptBank";
 
 const handler = async (req, res) => {
   try {

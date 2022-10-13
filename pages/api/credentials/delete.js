@@ -1,6 +1,6 @@
 import prisma from "../../../lib/prisma";
 import { getToken } from "next-auth/jwt";
-import { decryptCredentials } from "../../../helpers/decryptCredentials";
+import { decryptCredentials } from "../../../helpers/credentials/decryptCredentials";
 
 const handler = async (req, res) => {
   try {

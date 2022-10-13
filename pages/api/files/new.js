@@ -29,6 +29,8 @@ const handler = async (req, res) => {
 
     const { fields, files } = data;
     const { userId, name } = fields;
+    const maxSize = 15000000000; // 15GB
+    const maxFileSize = 50 * 1024 ** 2; // 50 MB
 
     // check data
     if (!fields || !files || !name || !userId) {
@@ -65,6 +67,27 @@ const handler = async (req, res) => {
       return res.json({ error: true, message: "Folder name already exists" });
     }
 
+    // get all folders from db to check size
+    const folders = await prisma.folder.findMany({
+      where: { userId },
+    });
+
+    // check if total size of files exceeds 15GB
+    const currentSize = folders.reduce((acc, file) => acc + file.size, 0);
+    const fileList = Object.keys(files).map((key) => files[key]);
+    const uploadedFileSize = fileList.reduce((acc, file) => acc + file.size, 0);
+
+    if (currentSize + uploadedFileSize > maxSize) {
+      res.json({ error: true, message: "File size exceeds limit" });
+      return;
+    }
+
+    // make sure no files are over 50MB
+    if (fileList.some((file) => file.size > maxFileSize)) {
+      res.json({ error: true, message: "File size exceeds limit" });
+      return;
+    }
+
     // create folder in database
     const folder = await prisma.folder.create({
       data: {
@@ -80,9 +103,6 @@ const handler = async (req, res) => {
       region: process.env.AWS_REGION,
     });
 
-    // create list of files from files object
-    const fileList = Object.keys(files).map((key) => files[key]);
-
     // loop through files and upload to s3
     for (let i = 0; i < fileList.length; i++) {
       const file = fileList[i];
@@ -92,7 +112,7 @@ const handler = async (req, res) => {
       // create s3 params
       const params = {
         Bucket: process.env.AWS_BUCKET,
-        Key: `${userId}/${name}/${originalFilename}`,
+        Key: `${userId}/${folder.id}/${originalFilename}`,
         Body: blob,
       };
 
@@ -105,7 +125,7 @@ const handler = async (req, res) => {
           name: originalFilename,
           type: mimetype,
           size,
-          key: `${userId}/${name}/${originalFilename}`,
+          key: `${userId}/${folder.id}/${originalFilename}`,
           folderId: folder.id,
           userId,
         },

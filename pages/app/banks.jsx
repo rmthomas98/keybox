@@ -11,10 +11,10 @@ import {
   Small,
 } from "evergreen-ui";
 import { getSession } from "next-auth/react";
-import { decryptBanks } from "../../helpers/decryptBanks";
+import { decryptBanks } from "../../helpers/banks/decryptBanks";
 import { useState } from "react";
-import { NewBank } from "../../components/dialogs/newBank";
-import { BankView } from "../../components/dialogs/bankView";
+import { NewBank } from "../../components/dialogs/banks/newBank";
+import { BankView } from "../../components/dialogs/banks/bankView";
 
 const Banks = ({ stringifiedBanks }) => {
   const [banks, setBanks] = useState(JSON.parse(stringifiedBanks));

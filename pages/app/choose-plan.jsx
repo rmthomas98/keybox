@@ -19,8 +19,8 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import { getSession } from "next-auth/react";
 import prisma from "../../lib/prisma";
-import { Trial } from "../../components/dialogs/trial";
-import { Premium } from "../../components/dialogs/premium";
+import { Trial } from "../../components/dialogs/subscribe/trial";
+import { Premium } from "../../components/dialogs/subscribe/premium";
 
 const ChoosePlan = ({ status }) => {
   const [trialDialog, setTrialDialog] = useState(false);
