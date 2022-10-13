@@ -1,5 +1,5 @@
 import styles from "../../styles/files.module.css";
-import { getSession } from "next-auth/react";
+import {getSession} from "next-auth/react";
 import {
   Alert,
   Heading,
@@ -9,19 +9,21 @@ import {
   Table,
   Icon,
 } from "evergreen-ui";
-import { useState } from "react";
-import { NewFile } from "../../components/dialogs/newFile";
-import { partial } from "filesize";
-import { FolderView } from "../../components/dialogs/folderView";
+import {useState} from "react";
+import {NewFile} from "../../components/dialogs/newFile";
+import {partial} from "filesize";
+import {FolderView} from "../../components/dialogs/folderView";
 
-const size = partial({ base: 3, standard: "jedec" });
+const size = partial({base: 3, standard: "jedec"});
 
-const Files = ({ stringifiedFolders, status }) => {
+const Files = ({stringifiedFolders, status}) => {
   const [newFileShow, setNewFileShow] = useState(false);
   const [fileViewShow, setFileViewShow] = useState(false);
   const [folders, setFolders] = useState(JSON.parse(stringifiedFolders));
   const [selectedFolder, setSelectedFolder] = useState(null);
   const [searchValue, setSearchValue] = useState("");
+
+  console.log(15000000000)
 
   const handleFolderClick = (folder) => {
     setSelectedFolder(folder);
@@ -32,7 +34,7 @@ const Files = ({ stringifiedFolders, status }) => {
     <div>
       <div className={styles.navContainer}>
         <Heading size={600} fontWeight={700} display="flex" alignItems="center">
-          <Icon icon={FolderOpenIcon} marginRight={6} /> Files
+          <Icon icon={FolderOpenIcon} marginRight={6}/> Files
         </Heading>
         <Button
           appearance="primary"
@@ -123,9 +125,9 @@ export const getServerSideProps = async (ctx) => {
     };
   }
 
-  const { id } = session;
+  const {id} = session;
   const user = await prisma.user.findUnique({
-    where: { id },
+    where: {id},
   });
 
   if (!user.emailVerified) {
@@ -159,13 +161,13 @@ export const getServerSideProps = async (ctx) => {
   }
 
   const folders = await prisma.folder.findMany({
-    where: { userId: id },
-    include: { files: true },
+    where: {userId: id},
+    include: {files: true},
   });
 
   const stringifiedFolders = JSON.stringify(folders);
 
-  return { props: { stringifiedFolders, status: user.status } };
+  return {props: {stringifiedFolders, status: user.status}};
 };
 
 export default Files;
