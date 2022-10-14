@@ -144,4 +144,6 @@ model CryptoWallet {
   address    String?
   privateKey String?
   phrase     String?  @db.Text
+  user       User?    @relation(fields: [userId], references: [id])
+  userId     String?
 }

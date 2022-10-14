@@ -13,6 +13,7 @@ import {
   ChatIcon,
   CaretDownIcon,
   Badge,
+  CubeIcon,
 } from "evergreen-ui";
 import Image from "next/image";
 import NextLink from "next/link";
@@ -154,7 +155,7 @@ export const Nav = () => {
                 <Menu>
                   <Menu.Group>
                     <Menu.Item icon={CogIcon}>Account Settings</Menu.Item>
-                    <Menu.Item icon={BoxIcon}>My Subscription</Menu.Item>
+                    <Menu.Item icon={CubeIcon}>My Subscription</Menu.Item>
                   </Menu.Group>
                   <Menu.Divider />
                   <Menu.Group>

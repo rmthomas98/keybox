@@ -1,5 +1,5 @@
 import prisma from "../../../lib/prisma";
-import { getToken } from "next-auth/jwt";
+import {getToken} from "next-auth/jwt";
 
 const aws = require("aws-sdk");
 const formidable = require("formidable");
@@ -13,9 +13,9 @@ export const config = {
 
 const handler = async (req, res) => {
   try {
-    const token = await getToken({ req });
+    const token = await getToken({req});
     if (!token) {
-      res.json({ error: true, message: "Unauthorized" });
+      res.json({error: true, message: "Unauthorized"});
       return;
     }
 
@@ -23,22 +23,32 @@ const handler = async (req, res) => {
       const form = new formidable.IncomingForm();
       form.parse(req, (err, fields, files) => {
         if (err) reject(err);
-        resolve({ fields, files });
+        resolve({fields, files});
       });
     });
 
-    const { fields, files } = data;
-    const { userId, folderId } = fields;
-    const maxSize = 15000000000; // 15GB
+    const {fields, files} = data;
+    const {userId, folderId} = fields;
+    const maxSize = 15000000000; // 15 GB
     const maxFileSize = 50 * 1024 ** 2; // 50 MB
 
     if (userId !== token.id) {
-      res.json({ error: true, message: "Unauthorized" });
+      res.json({error: true, message: "Unauthorized"});
       return;
     }
 
     if (!userId || !folderId || !files) {
-      res.json({ error: true, message: "Invalid request" });
+      res.json({error: true, message: "Invalid request"});
+      return;
+    }
+
+    // get user from db and check status
+    const user = await prisma.user.findUnique({
+      where: {id: userId},
+    })
+
+    if (!user || user.status !== 'SUBSCRIPTION_ACTIVE') {
+      res.json({error: true, message: "Unauthorized"});
       return;
     }
 
@@ -51,7 +61,7 @@ const handler = async (req, res) => {
 
     // get all folders from db to check size
     const folders = await prisma.folder.findMany({
-      where: { userId },
+      where: {userId},
     });
 
     // check if total size of files exceeds 15GB
@@ -60,20 +70,20 @@ const handler = async (req, res) => {
     const uploadedFileSize = fileList.reduce((acc, file) => acc + file.size, 0);
 
     if (currentSize + uploadedFileSize > maxSize) {
-      res.json({ error: true, message: "File size exceeds limit" });
+      res.json({error: true, message: "No storage available"});
       return;
     }
 
     // make sure no files are over 50MB
     if (fileList.some((file) => file.size > maxFileSize)) {
-      res.json({ error: true, message: "File size exceeds limit" });
+      res.json({error: true, message: "File size exceeds limit"});
       return;
     }
 
     // loop through files, upload to s3 and save to db
     for (let i = 0; i < fileList.length; i++) {
       const file = fileList[i];
-      const { originalFilename, filepath, mimetype, size } = file;
+      const {originalFilename, filepath, mimetype, size} = file;
       const blob = fs.readFileSync(filepath);
 
       // create s3 params
@@ -101,8 +111,8 @@ const handler = async (req, res) => {
 
     // get all files in folder
     const filesInFolder = await prisma.folder.findUnique({
-      where: { id: folderId },
-      include: { files: true },
+      where: {id: folderId},
+      include: {files: true},
     });
 
     // get total size of files in folder
@@ -113,20 +123,20 @@ const handler = async (req, res) => {
 
     // update folder size
     await prisma.folder.update({
-      where: { id: folderId },
-      data: { size: totalSize },
+      where: {id: folderId},
+      data: {size: totalSize},
     });
 
     // get updated folder
     const updatedFolder = await prisma.folder.findUnique({
-      where: { id: folderId },
-      include: { files: true },
+      where: {id: folderId},
+      include: {files: true},
     });
 
     // get updated folders
     const updatedFolders = await prisma.folder.findMany({
-      where: { userId },
-      include: { files: true },
+      where: {userId},
+      include: {files: true},
     });
 
     res.json({
@@ -137,7 +147,7 @@ const handler = async (req, res) => {
     });
   } catch (err) {
     console.log(err);
-    res.json({ error: true, message: "Error uploading files" });
+    res.json({error: true, message: "Error uploading files"});
   }
 };
 

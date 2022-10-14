@@ -249,6 +249,32 @@ export const FolderView = ({
     }
   }, [isEditing, isAdding, deletedFiles, newFiles]);
 
+  const handleDownload = async (file) => {
+    await toaster.closeAll();
+    if (!file) return toaster.danger("No file selected");
+
+    const session = await getSession();
+    const { id } = session;
+    const { data } = await axios.post("/api/files/download", {
+      userId: id,
+      fileId: file.id,
+      folderId: folder.id,
+      key: file.key,
+    });
+
+    console.log(file.key);
+
+    if (data.error) {
+      toaster.danger(data.message);
+      return;
+    }
+
+    const { signedUrl: url } = data;
+    const link = document.createElement("a");
+    link.href = url;
+    link.click();
+  };
+
   if (!folder) return null;
 
   return (
@@ -344,7 +370,7 @@ export const FolderView = ({
                 icon={isAdding ? ResetIcon : UploadIcon}
                 marginRight={6}
                 onClick={isAdding ? handleReset : () => setIsAdding(true)}
-                disabled={isEditing}
+                disabled={isEditing || isLoading}
                 intent={isAdding ? "danger" : "none"}
               />
             </Tooltip>
@@ -354,7 +380,7 @@ export const FolderView = ({
                 intent={isEditing ? "danger" : "none"}
                 onClick={isEditing ? handleReset : () => setIsEditing(true)}
                 marginRight={6}
-                disabled={isAdding}
+                disabled={isAdding || isLoading}
               />
             </Tooltip>
             <Popover
@@ -400,7 +426,7 @@ export const FolderView = ({
                 <IconButton
                   icon={TrashIcon}
                   intent="danger"
-                  disabled={isEditing || isAdding}
+                  disabled={isEditing || isAdding || isLoading}
                 />
               </Tooltip>
             </Popover>
@@ -473,7 +499,7 @@ export const FolderView = ({
               name={file.name}
               sizeInBytes={file.size}
               type={file.type}
-              onClick={() => {}}
+              onClick={isEditing ? undefined : () => handleDownload(file)}
               cursor={isEditing ? "default" : "pointer"}
               onRemove={isEditing ? () => handleRemove(file) : undefined}
             />

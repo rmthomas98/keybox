@@ -51,7 +51,7 @@ const handler = async (req, res) => {
     });
 
     // check user subscription status
-    if (user.status === "TRIAL_IN_PROGRESS") {
+    if (user.status !== "SUBSCRIPTION_ACTIVE") {
       res.json({
         error: true,
         message: "You must upgrade your subscription to upload files.",
@@ -78,7 +78,7 @@ const handler = async (req, res) => {
     const uploadedFileSize = fileList.reduce((acc, file) => acc + file.size, 0);
 
     if (currentSize + uploadedFileSize > maxSize) {
-      res.json({ error: true, message: "File size exceeds limit" });
+      res.json({ error: true, message: "No storage available" });
       return;
     }
 
