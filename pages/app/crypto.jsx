@@ -13,6 +13,8 @@ import {
 import { useState } from "react";
 import prisma from "../../lib/prisma";
 import { NewCryptoWallet } from "../../components/dialogs/crypto/newCryptoWallet";
+import { decryptWallets } from "../../helpers/crypto/decryptWallets";
+import { CryptoWalletView } from "../../components/dialogs/crypto/cryptoWalletView";
 
 const Crypto = ({ stringifiedWallets }) => {
   const [newWallet, setNewWallet] = useState(false);
@@ -20,6 +22,11 @@ const Crypto = ({ stringifiedWallets }) => {
   const [searchValue, setSearchValue] = useState("");
   const [selectedWallet, setSelectedWallet] = useState(null);
   const [walletView, setWalletView] = useState(false);
+
+  const handleWalletClick = (wallet) => {
+    setSelectedWallet(wallet);
+    setWalletView(true);
+  };
 
   return (
     <div>
@@ -57,10 +64,10 @@ const Crypto = ({ stringifiedWallets }) => {
               <Table.Row
                 key={wallet.id}
                 isSelectable
-                onSelect={() => {}}
+                onSelect={() => handleWalletClick(wallet)}
                 height={40}
               >
-                <Table.TextCell>Name</Table.TextCell>
+                <Table.TextCell>{wallet.name}</Table.TextCell>
                 <Table.TextCell>{wallet.address}</Table.TextCell>
               </Table.Row>
             ))}
@@ -70,6 +77,13 @@ const Crypto = ({ stringifiedWallets }) => {
       <NewCryptoWallet
         show={newWallet}
         setShow={setNewWallet}
+        setWallets={setWallets}
+      />
+      <CryptoWalletView
+        show={walletView}
+        setShow={setWalletView}
+        wallet={selectedWallet}
+        setWallet={setSelectedWallet}
         setWallets={setWallets}
       />
     </div>
@@ -89,7 +103,10 @@ export const getServerSideProps = async (ctx) => {
   }
 
   const { id } = session;
-  const user = await prisma.user.findUnique({ where: { id } });
+  const user = await prisma.user.findUnique({
+    where: { id },
+    include: { cryptoWallets: true },
+  });
 
   if (!user.emailVerified) {
     return {
@@ -113,8 +130,9 @@ export const getServerSideProps = async (ctx) => {
   }
 
   // get the users crypto data
+  const wallets = decryptWallets(user.cryptoWallets);
 
-  return { props: { stringifiedWallets: JSON.stringify([]) } };
+  return { props: { stringifiedWallets: JSON.stringify(wallets) } };
 };
 
 export default Crypto;

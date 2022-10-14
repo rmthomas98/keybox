@@ -17,6 +17,7 @@ const handler = async (req, res) => {
     const token = await getToken({ req });
     if (!token) {
       res.json({ error: true, message: "Not authorized" });
+      return;
     }
 
     const data = await new Promise((resolve, reject) => {

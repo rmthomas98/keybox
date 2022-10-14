@@ -23,22 +23,23 @@ enum Status {
 }
 
 model User {
-  id            String        @id @default(cuid())
-  createdAt     DateTime      @default(now())
+  id            String         @id @default(cuid())
+  createdAt     DateTime       @default(now())
   stripeId      String?
-  email         String        @unique
+  email         String         @unique
   emailToken    String?
-  emailVerified Boolean       @default(false)
+  emailVerified Boolean        @default(false)
   name          String?
   password      String
-  paymentStatus PaymentStatus @default(PAID)
-  status        Status        @default(NEW_ACCOUNT)
-  trialUsed     Boolean       @default(false)
+  paymentStatus PaymentStatus  @default(PAID)
+  status        Status         @default(NEW_ACCOUNT)
+  trialUsed     Boolean        @default(false)
   credentials   Credential[]
   cards         Card[]
   banks         Bank[]
   folders       Folder[]
   files         File[]
+  cryptoWallets CryptoWallet[]
 }
 
 model Credential {

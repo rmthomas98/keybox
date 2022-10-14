@@ -9,8 +9,10 @@ import {
   Heading,
   EyeOffIcon,
   EyeOpenIcon,
+  Text,
+  Small,
 } from "evergreen-ui";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { getSession } from "next-auth/react";
 import axios from "axios";
 
@@ -24,6 +26,41 @@ export const NewCryptoWallet = ({ show, setShow, setWallets }) => {
 
   const handleClose = () => {
     setShow(false);
+    setAddress("");
+    setName("");
+    setKey("");
+    setPhrase([]);
+    setShowKey(false);
+    setIsLoading(false);
+  };
+
+  const handleConfirm = async () => {
+    await toaster.closeAll();
+    if (!name) return toaster.danger("Please enter a name for your wallet");
+    setIsLoading(true);
+    const session = await getSession();
+    const { id } = session;
+    try {
+      const { data } = await axios.post("/api/crypto/new-wallet", {
+        userId: id,
+        name,
+        address,
+        key,
+        phrase,
+      });
+
+      if (data.error) {
+        setIsLoading(false);
+        toaster.danger(data.message);
+        return;
+      }
+
+      setWallets(data.wallets);
+      toaster.success("Wallet added successfully");
+      handleClose();
+    } catch {
+      toaster.danger("There was an error creating your wallet");
+    }
   };
 
   return (
@@ -33,6 +70,9 @@ export const NewCryptoWallet = ({ show, setShow, setWallets }) => {
       onCloseComplete={handleClose}
       shouldCloseOnOverlayClick={false}
       isConfirmLoading={isLoading}
+      onConfirm={handleConfirm}
+      confirmLabel="Add Wallet"
+      isConfirmDisabled={!name}
     >
       <TextInputField
         label="Name"
@@ -76,18 +116,21 @@ export const NewCryptoWallet = ({ show, setShow, setWallets }) => {
       </div>
       <div>
         <Heading size={400} marginBottom={8}>
-          Secret Phrase
+          Seed Phrase
         </Heading>
         <TagInput
           values={phrase}
           onChange={(values) => setPhrase(values)}
           label="Seed Phrase"
-          tagSubmitKey="space"
+          tagSubmitKey="enter"
           inputProps={{
-            placeholder: "Wallet seed phrase",
+            placeholder: "Seed phrase",
           }}
           width="100%"
         />
+        <Text>
+          <Small>Press enter to add a new word</Small>
+        </Text>
       </div>
     </Dialog>
   );
