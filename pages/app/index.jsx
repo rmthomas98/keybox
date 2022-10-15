@@ -17,6 +17,7 @@ import { useEffect, useState } from "react";
 import { NewCredentials } from "../../components/dialogs/credentials/newCredentials";
 import { CredentialsView } from "../../components/dialogs/credentials/credentialsView";
 import { decryptCredentials } from "../../helpers/credentials/decryptCredentials";
+import { TwoFactorAuth } from "../../components/notifs/twoFactorAuth";
 
 const AppHome = ({ stringifiedCreds, status }) => {
   const [newPasswordShow, setNewPasswordShow] = useState(false);
@@ -139,6 +140,7 @@ const AppHome = ({ stringifiedCreds, status }) => {
         setAllCredentials={setCredentials}
         status={status}
       />
+      <TwoFactorAuth />
     </div>
   );
 };

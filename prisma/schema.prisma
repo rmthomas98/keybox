@@ -29,6 +29,8 @@ model User {
   email         String         @unique
   emailToken    String?
   emailVerified Boolean        @default(false)
+  twoFactor     Boolean        @default(false)
+  ask2FA        Boolean        @default(true)
   name          String?
   password      String
   paymentStatus PaymentStatus  @default(PAID)

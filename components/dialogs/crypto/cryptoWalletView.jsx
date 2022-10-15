@@ -37,6 +37,7 @@ export const CryptoWalletView = ({
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isConfirmDisabled, setIsConfirmDisabled] = useState(true);
 
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
@@ -52,19 +53,95 @@ export const CryptoWalletView = ({
       setKey(wallet.privateKey || "");
       setPhrase(wallet.phrase || []);
     }
-  }, [show]);
-
-  console.log(name, address, key, phrase);
+  }, [show, wallet]);
 
   const handleClose = () => {
+    setName("");
+    setAddress("");
+    setKey("");
+    setPhrase([]);
+    setIsLoading(false);
+    setIsEditing(false);
+    setIsDeleting(false);
+    setIsConfirmDisabled(true);
     setShow(false);
   };
 
   const handleReset = () => {
+    setName(wallet.name || "");
+    setAddress(wallet.address || "");
+    setKey(wallet.privateKey || "");
+    setPhrase(wallet.phrase || []);
+    setIsLoading(false);
+    setIsDeleting(false);
     setIsEditing(false);
+    setIsConfirmDisabled(true);
   };
 
-  const handleDelete = async () => {};
+  const handleDelete = async () => {
+    await toaster.closeAll();
+    setIsDeleting(true);
+    const session = await getSession();
+    const { id } = session;
+    try {
+      const { data } = await axios.post("/api/crypto/delete", {
+        userId: id,
+        walletId: wallet.id,
+      });
+
+      if (data.error) {
+        toaster.danger(data.message);
+        setIsDeleting(false);
+        return;
+      }
+
+      toaster.success(data.message);
+      setWallets(data.wallets);
+      handleClose();
+    } catch {
+      toaster.danger("Unable to delete wallet");
+      setIsDeleting(false);
+    }
+  };
+
+  const handleSave = async () => {
+    await toaster.closeAll();
+    if (!name) {
+      toaster.danger("Please enter a name");
+      return;
+    }
+
+    setIsLoading(true);
+    const session = await getSession();
+    const { id } = session;
+
+    try {
+      const { data } = await axios.post("/api/crypto/edit", {
+        userId: id,
+        walletId: wallet.id,
+        name,
+        address,
+        key,
+        phrase,
+        nameChange: name !== wallet.name,
+      });
+
+      if (data.error) {
+        toaster.danger(data.message);
+        setIsLoading(false);
+        return;
+      }
+
+      toaster.success(data.message);
+      setWallets(data.wallets);
+      setWallet(data.wallet);
+      setIsLoading(false);
+      setIsEditing(false);
+    } catch {
+      toaster.danger("Unable to save wallet");
+      setIsLoading(false);
+    }
+  };
 
   const handleCopy = async (text) => {
     await toaster.closeAll();
@@ -76,6 +153,20 @@ export const CryptoWalletView = ({
     }
   };
 
+  useEffect(() => {
+    if (!wallet || !show) return;
+    if (
+      name !== wallet.name ||
+      address !== wallet.address ||
+      key !== wallet.privateKey ||
+      phrase !== wallet.phrase
+    ) {
+      setIsConfirmDisabled(false);
+    } else {
+      setIsConfirmDisabled(true);
+    }
+  }, [name, address, key, phrase, show]);
+
   if (!wallet) return null;
 
   return (
@@ -84,6 +175,10 @@ export const CryptoWalletView = ({
       title="Crypto Wallet"
       onCloseComplete={handleClose}
       shouldCloseOnOverlayClick={false}
+      isConfirmDisabled={isConfirmDisabled}
+      isConfirmLoading={isLoading}
+      onConfirm={handleSave}
+      confirmLabel={"Save changes"}
     >
       <div
         style={{
@@ -209,8 +304,8 @@ export const CryptoWalletView = ({
       <div style={{ display: "flex", position: "relative" }}>
         <TextInputField
           label="Private Key"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
+          value={key}
+          onChange={(e) => setKey(e.target.value)}
           placeholder="Wallet Private Key"
           disabled={!isEditing}
           width="100%"
@@ -258,9 +353,11 @@ export const CryptoWalletView = ({
           width="100%"
           disabled={!isEditing}
         />
-        <Text>
-          <Small>Press enter to add a new word</Small>
-        </Text>
+        {isEditing && (
+          <Text>
+            <Small>Press enter to add a new word</Small>
+          </Text>
+        )}
       </div>
     </Dialog>
   );

@@ -9,6 +9,8 @@ import {
   CreditCardIcon,
   KeyIcon,
   OfflineIcon,
+  Small,
+  Text,
 } from "evergreen-ui";
 import { useState } from "react";
 import prisma from "../../lib/prisma";
@@ -60,17 +62,38 @@ const Crypto = ({ stringifiedWallets }) => {
             <Table.TextHeaderCell>Address</Table.TextHeaderCell>
           </Table.Head>
           <Table.Body height="100%" maxHeight={400}>
-            {wallets.map((wallet) => (
-              <Table.Row
-                key={wallet.id}
-                isSelectable
-                onSelect={() => handleWalletClick(wallet)}
-                height={40}
-              >
-                <Table.TextCell>{wallet.name}</Table.TextCell>
-                <Table.TextCell>{wallet.address}</Table.TextCell>
+            {wallets
+              .filter((wallet) =>
+                searchValue
+                  ? wallet.name.includes(searchValue.toLowerCase().trim())
+                  : wallet
+              )
+              .map((wallet) => (
+                <Table.Row
+                  key={wallet.id}
+                  isSelectable
+                  onSelect={() => handleWalletClick(wallet)}
+                  height={40}
+                >
+                  <Table.TextCell>{wallet.name}</Table.TextCell>
+                  <Table.TextCell>{wallet.address}</Table.TextCell>
+                </Table.Row>
+              ))}
+            {wallets.filter((wallet) =>
+              searchValue
+                ? wallet.name.includes(searchValue.toLowerCase().trim())
+                : wallet
+            ).length === 0 && (
+              <Table.Row height={40}>
+                <Table.TextCell textAlign="center" width="100%">
+                  <Text color="#D14343">
+                    <Small>
+                      No results found for <b>{searchValue}</b>
+                    </Small>
+                  </Text>
+                </Table.TextCell>
               </Table.Row>
-            ))}
+            )}
           </Table.Body>
         </Table>
       )}

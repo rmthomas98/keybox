@@ -262,8 +262,6 @@ export const FolderView = ({
       key: file.key,
     });
 
-    console.log(file.key);
-
     if (data.error) {
       toaster.danger(data.message);
       return;
