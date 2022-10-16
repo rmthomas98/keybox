@@ -14,12 +14,54 @@ import {
   CaretDownIcon,
   Badge,
   CubeIcon,
+  CommentIcon,
+  Autocomplete,
+  TextInput,
 } from "evergreen-ui";
 import Image from "next/image";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { signOut } from "next-auth/react";
 import { useState } from "react";
+
+const searchOptions = [
+  {
+    label: "Credentials",
+    route: "/app",
+  },
+  {
+    label: "Credit/Debit Cards",
+    route: "/app/cards",
+  },
+  {
+    label: "Bank Accounts",
+    route: "/app/banks",
+  },
+  {
+    label: "Files",
+    route: "/app/files",
+  },
+  {
+    label: "Crypto Wallets",
+    route: "/app/crypto",
+  },
+  {
+    label: "Account Settings",
+    route: "/app/settings",
+  },
+  {
+    label: "My Subscription",
+    route: "/app/subscription",
+  },
+  {
+    label: "Support",
+    route: "/app/support",
+  },
+  {
+    label: "Feedback",
+    route: "/app/feedback",
+  },
+];
 
 export const Nav = () => {
   const router = useRouter();
@@ -28,6 +70,13 @@ export const Nav = () => {
   const handleSignOut = async () => {
     setIsMenuOpen(false);
     await signOut();
+  };
+
+  const handleSearch = (value) => {
+    const option = searchOptions.find((option) => option.label === value);
+    if (option) {
+      router.push(option.route);
+    }
   };
 
   return (
@@ -90,7 +139,26 @@ export const Nav = () => {
                   // marginLeft: 20,
                 }}
               >
-                <SearchInput placeholder="Search..." width="100%" />
+                <Autocomplete
+                  items={searchOptions.map((option) => option.label)}
+                  onChange={(value) => handleSearch(value)}
+                  selectedItem={null}
+                  popoverMaxHeight={200}
+                >
+                  {(props) => {
+                    const { getInputProps, getRef, inputValue, openMenu } =
+                      props;
+                    return (
+                      <SearchInput
+                        autocomplete="off"
+                        placeholder="Search..."
+                        value={inputValue}
+                        ref={getRef}
+                        {...getInputProps()}
+                      />
+                    );
+                  }}
+                </Autocomplete>
               </div>
             </>
           )}
@@ -154,12 +222,18 @@ export const Nav = () => {
               content={
                 <Menu>
                   <Menu.Group>
-                    <Menu.Item icon={CogIcon}>Account Settings</Menu.Item>
+                    <Menu.Item
+                      icon={CogIcon}
+                      onSelect={() => router.push("/app/settings")}
+                    >
+                      Account Settings
+                    </Menu.Item>
                     <Menu.Item icon={CubeIcon}>My Subscription</Menu.Item>
                   </Menu.Group>
                   <Menu.Divider />
                   <Menu.Group>
                     <Menu.Item icon={ChatIcon}>Support</Menu.Item>
+                    <Menu.Item icon={CommentIcon}>Feedback</Menu.Item>
                   </Menu.Group>
                   <Menu.Divider />
                   <Menu.Group>

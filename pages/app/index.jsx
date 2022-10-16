@@ -19,7 +19,7 @@ import { CredentialsView } from "../../components/dialogs/credentials/credential
 import { decryptCredentials } from "../../helpers/credentials/decryptCredentials";
 import { TwoFactorAuth } from "../../components/notifs/twoFactorAuth";
 
-const AppHome = ({ stringifiedCreds, status }) => {
+const AppHome = ({ stringifiedCreds, status, ask2FA }) => {
   const [newPasswordShow, setNewPasswordShow] = useState(false);
   const [credentialsViewShow, setCredentialsViewShow] = useState(false);
   const [selectedCredentials, setSelectedCredentials] = useState(null);
@@ -140,7 +140,7 @@ const AppHome = ({ stringifiedCreds, status }) => {
         setAllCredentials={setCredentials}
         status={status}
       />
-      <TwoFactorAuth />
+      <TwoFactorAuth ask={ask2FA} />
     </div>
   );
 };
@@ -195,11 +195,13 @@ export const getServerSideProps = async (ctx) => {
   }
 
   credentials = await decryptCredentials(id);
+  const { ask2FA } = user;
 
   return {
     props: {
       stringifiedCreds: JSON.stringify(credentials),
       status: user.status,
+      ask2FA,
     },
   };
 };

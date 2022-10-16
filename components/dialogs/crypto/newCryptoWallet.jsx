@@ -40,27 +40,24 @@ export const NewCryptoWallet = ({ show, setShow, setWallets }) => {
     setIsLoading(true);
     const session = await getSession();
     const { id } = session;
-    try {
-      const { data } = await axios.post("/api/crypto/new-wallet", {
-        userId: id,
-        name,
-        address,
-        key,
-        phrase,
-      });
+    const { data } = await axios.post("/api/crypto/new-wallet", {
+      userId: id,
+      name,
+      address,
+      key,
+      phrase,
+    });
 
-      if (data.error) {
-        setIsLoading(false);
-        toaster.danger(data.message);
-        return;
-      }
-
-      setWallets(data.wallets);
-      toaster.success("Wallet added successfully");
-      handleClose();
-    } catch {
-      toaster.danger("There was an error creating your wallet");
+    if (data.error) {
+      setIsLoading(false);
+      toaster.danger(data.message);
+      return;
     }
+
+    setWallets(data.wallets);
+    toaster.success("Wallet added successfully");
+    handleClose();
+    toaster.danger("There was an error creating your wallet");
   };
 
   return (

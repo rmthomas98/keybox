@@ -83,25 +83,20 @@ export const CryptoWalletView = ({
     setIsDeleting(true);
     const session = await getSession();
     const { id } = session;
-    try {
-      const { data } = await axios.post("/api/crypto/delete", {
-        userId: id,
-        walletId: wallet.id,
-      });
+    const { data } = await axios.post("/api/crypto/delete", {
+      userId: id,
+      walletId: wallet.id,
+    });
 
-      if (data.error) {
-        toaster.danger(data.message);
-        setIsDeleting(false);
-        return;
-      }
-
-      toaster.success(data.message);
-      setWallets(data.wallets);
-      handleClose();
-    } catch {
-      toaster.danger("Unable to delete wallet");
+    if (data.error) {
+      toaster.danger(data.message);
       setIsDeleting(false);
+      return;
     }
+
+    toaster.success(data.message);
+    setWallets(data.wallets);
+    handleClose();
   };
 
   const handleSave = async () => {
@@ -115,32 +110,29 @@ export const CryptoWalletView = ({
     const session = await getSession();
     const { id } = session;
 
-    try {
-      const { data } = await axios.post("/api/crypto/edit", {
-        userId: id,
-        walletId: wallet.id,
-        name,
-        address,
-        key,
-        phrase,
-        nameChange: name !== wallet.name,
-      });
+    const { data } = await axios.post("/api/crypto/edit", {
+      userId: id,
+      walletId: wallet.id,
+      name,
+      address,
+      key,
+      phrase,
+      nameChange: name !== wallet.name,
+    });
 
-      if (data.error) {
-        toaster.danger(data.message);
-        setIsLoading(false);
-        return;
-      }
-
-      toaster.success(data.message);
-      setWallets(data.wallets);
-      setWallet(data.wallet);
+    if (data.error) {
+      toaster.danger(data.message);
       setIsLoading(false);
-      setIsEditing(false);
-    } catch {
-      toaster.danger("Unable to save wallet");
-      setIsLoading(false);
+      return;
     }
+
+    toaster.success(data.message);
+    setWallets(data.wallets);
+    setWallet(data.wallet);
+    setIsLoading(false);
+    setIsEditing(false);
+    toaster.danger("Unable to save wallet");
+    setIsLoading(false);
   };
 
   const handleCopy = async (text) => {

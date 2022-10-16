@@ -31,6 +31,8 @@ model User {
   emailVerified Boolean        @default(false)
   twoFactor     Boolean        @default(false)
   ask2FA        Boolean        @default(true)
+  phone         String?        @unique
+  phoneToken    String?
   name          String?
   password      String
   paymentStatus PaymentStatus  @default(PAID)
@@ -52,7 +54,7 @@ model Credential {
   account   String?
   password  String?
   website   String?
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
 }
 
@@ -83,7 +85,7 @@ model Card {
   exp        String?
   cvc        String?
   zip        String?
-  user       User       @relation(fields: [userId], references: [id])
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId     String
 }
 
@@ -110,7 +112,7 @@ model Bank {
   name       String?
   account    String?
   routing    String?
-  user       User           @relation(fields: [userId], references: [id])
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId     String
 }
 
@@ -121,7 +123,7 @@ model Folder {
   name      String
   files     File[]
   size      Int? // total size of all files in folder
-  User      User?    @relation(fields: [userId], references: [id])
+  User      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String?
 }
 
@@ -135,7 +137,7 @@ model File {
   key       String?
   folder    Folder?  @relation(fields: [folderId], references: [id])
   folderId  String?
-  User      User?    @relation(fields: [userId], references: [id])
+  User      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String?
 }
 
@@ -147,6 +149,6 @@ model CryptoWallet {
   address    String?
   privateKey String?
   phrase     String?  @db.Text
-  user       User?    @relation(fields: [userId], references: [id])
+  user       User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId     String?
 }

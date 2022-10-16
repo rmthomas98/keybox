@@ -69,16 +69,19 @@ const ChoosePlan = ({ status }) => {
                   Unlimited credit/debit cards
                 </ListItem>
                 <ListItem icon={TickCircleIcon} iconColor="success">
-                  Any other secret info
+                  Unlimited crypto wallets
+                </ListItem>
+                <ListItem icon={TickCircleIcon} iconColor="success">
+                  Bank accounts
+                </ListItem>
+                <ListItem icon={TickCircleIcon} iconColor="success">
+                  2 Factor authentication
                 </ListItem>
                 <ListItem icon={TickCircleIcon} iconColor="success">
                   Customer support
                 </ListItem>
                 <ListItem icon={BanCircleIcon} iconColor="danger">
                   Password generator
-                </ListItem>
-                <ListItem icon={BanCircleIcon} iconColor="danger">
-                  Bank accounts
                 </ListItem>
                 <ListItem icon={BanCircleIcon} iconColor="danger">
                   File uploads
@@ -132,7 +135,10 @@ const ChoosePlan = ({ status }) => {
                 15 GB File Storage
               </ListItem>
               <ListItem icon={TickCircleIcon} iconColor="success">
-                Any other secret info
+                Unlimited crypto wallets
+              </ListItem>
+              <ListItem icon={TickCircleIcon} iconColor="success">
+                2 Factor authentication
               </ListItem>
               <ListItem icon={TickCircleIcon} iconColor="success">
                 Customer support

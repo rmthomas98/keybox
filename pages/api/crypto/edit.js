@@ -56,9 +56,10 @@ const handler = async (req, res) => {
       ? aes256.encrypt(encryptionKey, address)
       : null;
     const encryptedKey = key ? aes256.encrypt(encryptionKey, key) : null;
-    const encryptedPhrase = phrase
-      ? aes256.encrypt(encryptionKey, phrase.join(","))
-      : null;
+    const encryptedPhrase =
+      phrase.length > 0
+        ? aes256.encrypt(encryptionKey, phrase.join(","))
+        : null;
 
     // update wallet
     let updatedWallet = await prisma.cryptoWallet.update({
