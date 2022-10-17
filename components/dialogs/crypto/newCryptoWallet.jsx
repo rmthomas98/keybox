@@ -57,7 +57,6 @@ export const NewCryptoWallet = ({ show, setShow, setWallets }) => {
     setWallets(data.wallets);
     toaster.success("Wallet added successfully");
     handleClose();
-    toaster.danger("There was an error creating your wallet");
   };
 
   return (

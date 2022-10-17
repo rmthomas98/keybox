@@ -65,6 +65,7 @@ export const CryptoWalletView = ({
     setIsDeleting(false);
     setIsConfirmDisabled(true);
     setShow(false);
+    setWallet(null);
   };
 
   const handleReset = () => {
@@ -131,8 +132,6 @@ export const CryptoWalletView = ({
     setWallet(data.wallet);
     setIsLoading(false);
     setIsEditing(false);
-    toaster.danger("Unable to save wallet");
-    setIsLoading(false);
   };
 
   const handleCopy = async (text) => {
@@ -159,7 +158,7 @@ export const CryptoWalletView = ({
     }
   }, [name, address, key, phrase, show]);
 
-  if (!wallet) return null;
+  if (!show) return null;
 
   return (
     <Dialog

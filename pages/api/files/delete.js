@@ -39,9 +39,9 @@ const handler = async (req, res) => {
       region: process.env.AWS_REGION,
     });
 
-    // delete files from s3
-    for (let i = 0; i < files; i++) {
-      const { key } = files[i];
+    // delete files from s3 and database
+    for (let i = 0; i < files.length; i++) {
+      const { key, id } = files[i];
 
       const params = {
         Bucket: process.env.AWS_BUCKET,
@@ -49,6 +49,7 @@ const handler = async (req, res) => {
       };
 
       await s3.deleteObject(params).promise();
+      await prisma.file.delete({ where: { id } });
     }
 
     // delete folder from database

@@ -114,7 +114,7 @@ export const TwoFactorAuth = ({ twoFactor, currentPhone }) => {
         onChange={(e) => setPhone(e.target.value)}
         placeholder="Your phone number"
         maxWidth={400}
-        hint="Verification codes will be sent to this number"
+        hint="Verification code will be sent to this number"
       />
       <DisableDialog
         show={showDisableDialog}

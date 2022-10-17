@@ -227,7 +227,12 @@ export const Nav = () => {
                     >
                       Account Settings
                     </Menu.Item>
-                    <Menu.Item icon={CubeIcon}>My Subscription</Menu.Item>
+                    <Menu.Item
+                      icon={CubeIcon}
+                      onSelect={() => router.push("/app/subscription")}
+                    >
+                      My Subscription
+                    </Menu.Item>
                   </Menu.Group>
                   <Menu.Divider />
                   <Menu.Group>

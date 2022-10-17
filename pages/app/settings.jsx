@@ -16,7 +16,7 @@ import { Password } from "../../components/settings/password/password";
 import { TwoFactorAuth } from "../../components/settings/twoFactorAuth/twoFactorAuth";
 import { Storage } from "../../components/settings/storage/storage";
 
-const Settings = ({ email, twoFactor, phone, status }) => {
+const Settings = ({ email, twoFactor, phone, status, storageSize }) => {
   const [selected, setSelected] = useState("profile");
 
   return (
@@ -60,7 +60,6 @@ const Settings = ({ email, twoFactor, phone, status }) => {
               direction="vertical"
               isSelected={selected === "storage"}
               onSelect={() => setSelected("storage")}
-              disabled={status === "TRIAL_IN_PROGRESS"}
             >
               File Storage
             </Tab>
@@ -72,7 +71,9 @@ const Settings = ({ email, twoFactor, phone, status }) => {
           {selected === "twoFactor" && (
             <TwoFactorAuth twoFactor={twoFactor} currentPhone={phone} />
           )}
-          {selected === "storage" && <Storage />}
+          {selected === "storage" && (
+            <Storage status={status} storageSize={storageSize} />
+          )}
         </div>
       </div>
     </div>
@@ -92,7 +93,10 @@ export const getServerSideProps = async (ctx) => {
   }
 
   const { id } = session;
-  const user = await prisma.user.findUnique({ where: { id } });
+  const user = await prisma.user.findUnique({
+    where: { id },
+    include: { files: true },
+  });
 
   if (!user.emailVerified) {
     return {
@@ -125,8 +129,9 @@ export const getServerSideProps = async (ctx) => {
   }
 
   const { email, twoFactor, phone, status } = user;
+  const storageSize = user.files.reduce((acc, file) => acc + file.size, 0);
 
-  return { props: { email, twoFactor, phone, status } };
+  return { props: { email, twoFactor, phone, status, storageSize } };
 };
 
 export default Settings;
