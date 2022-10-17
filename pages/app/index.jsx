@@ -31,13 +31,6 @@ const AppHome = ({ stringifiedCreds, status, ask2FA }) => {
     setCredentialsViewShow(true);
   };
 
-  // useEffect(() => {
-  //   const newSelectedCredentials = credentials.find(
-  //     (cred) => cred.id === selectedCredentials?.id
-  //   );
-  //   setSelectedCredentials(newSelectedCredentials);
-  // }, [stringifiedCreds]);
-
   return (
     <div>
       <div className={styles.navContainer}>

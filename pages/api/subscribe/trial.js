@@ -21,6 +21,12 @@ const handler = async (req, res) => {
     const user = await prisma.user.findUnique({ where: { id } });
     const { stripeId } = user;
 
+    // make sure user hasnt used trial before
+    if (user.trialUsed) {
+      res.json({ error: true, message: "Trial already used" });
+      return;
+    }
+
     await stripe.subscriptions.create({
       customer: stripeId,
       items: [{ price: priceId }],

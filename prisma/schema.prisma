@@ -29,10 +29,12 @@ model User {
   email         String         @unique
   emailToken    String?
   emailVerified Boolean        @default(false)
+  changeEmailTo String?
   twoFactor     Boolean        @default(false)
   ask2FA        Boolean        @default(true)
   phone         String?        @unique
   phoneToken    String?
+  setPhoneTo    String?
   name          String?
   password      String
   paymentStatus PaymentStatus  @default(PAID)

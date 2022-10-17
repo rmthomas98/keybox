@@ -1,0 +1,19 @@
+.container {
+  height: 100%;
+}
+
+.contentContainer {
+  display: flex;
+}
+
+.content {
+  width: 100%;
+}
+
+.tabContainer {
+  width: 175px;
+  min-width: 175px;
+  border-right: 1px solid #E6E8F0;
+  padding-right: 20px;
+  /*height: 100%;*/
+}

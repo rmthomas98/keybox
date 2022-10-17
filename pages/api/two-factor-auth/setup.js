@@ -28,6 +28,12 @@ const handler = async (req, res) => {
       return;
     }
 
+    // check length of phone number
+    if (phone.length < 10) {
+      res.json({ error: true, message: "Invalid phone number" });
+      return;
+    }
+
     // check if phone number already exists
     const doesPhoneExist = await prisma.user.findUnique({
       where: { phone: phone.trim() },
@@ -61,6 +67,7 @@ const handler = async (req, res) => {
       where: { id: userId },
       data: {
         phoneToken: verificationCode.toString(),
+        setPhoneTo: phone.trim(),
       },
     });
 

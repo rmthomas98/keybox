@@ -51,9 +51,6 @@ const handler = async (req, res) => {
       await s3.deleteObject(params).promise();
     }
 
-    // delete files from database
-    await prisma.file.deleteMany({ where: { folderId } });
-
     // delete folder from database
     await prisma.folder.delete({ where: { id: folderId } });
 

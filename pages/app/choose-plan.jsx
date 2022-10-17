@@ -177,6 +177,24 @@ export const getServerSideProps = async (ctx) => {
   const user = await prisma.user.findUnique({ where: { id } });
   const { status } = user;
 
+  if (!user.emailVerified) {
+    return {
+      redirect: {
+        destination: `/verify-email?email=${user.email}`,
+        permanent: false,
+      },
+    };
+  }
+
+  if (user.paymentStatus === "FAILED") {
+    return {
+      redirect: {
+        destination: `/app/subscription`,
+        permanent: false,
+      },
+    };
+  }
+
   if (status === "SUBSCRIPTION_ACTIVE" || status === "TRIAL_IN_PROGRESS") {
     return {
       redirect: {

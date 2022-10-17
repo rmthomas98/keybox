@@ -1,5 +1,5 @@
 import styles from "./sidebar.module.css";
-import { Tab, Tablist, Link, Heading } from "evergreen-ui";
+import { Tab, Tablist, Link, Heading, Badge } from "evergreen-ui";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
 import Image from "next/image";
@@ -28,10 +28,17 @@ export const Sidebar = () => {
       pathname: "/app/crypto",
       label: "Crypto",
     },
-    // {
-    //   pathname: "/app/secrets",
-    //   label: "Secrets",
-    // },
+  ];
+
+  const accountTabs = [
+    {
+      pathname: "/app/settings",
+      label: "Settings",
+    },
+    {
+      pathname: "/app/subscription",
+      label: "Subscription",
+    },
   ];
 
   return (
@@ -53,6 +60,15 @@ export const Sidebar = () => {
           </Link>
         </NextLink>
         <div className={styles.tabContainer}>
+          <Heading
+            size={100}
+            // fontWeight={700}
+            color="#696f8c"
+            marginLeft={18}
+            marginBottom={10}
+          >
+            MAIN
+          </Heading>
           <Tablist>
             {tabs.map((tab) => {
               return (

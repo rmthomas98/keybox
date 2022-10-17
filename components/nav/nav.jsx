@@ -150,7 +150,6 @@ export const Nav = () => {
                       props;
                     return (
                       <SearchInput
-                        autocomplete="off"
                         placeholder="Search..."
                         value={inputValue}
                         ref={getRef}
