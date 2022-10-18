@@ -8,13 +8,15 @@ import {
   CubeIcon,
   Tablist,
   Tab,
+  Paragraph,
+  Small,
 } from "evergreen-ui";
 import { getSession } from "next-auth/react";
 import { useState } from "react";
 import { Plan } from "../../components/subscription/plan/plan";
 import { Payment } from "../../components/subscription/payment/payment";
 
-const Subscription = ({ plan, status }) => {
+const Subscription = ({ plan, status, paymentStatus, paymentMethod }) => {
   return (
     <div className={styles.container}>
       <Heading
@@ -28,9 +30,16 @@ const Subscription = ({ plan, status }) => {
       >
         <Icon icon={CubeIcon} marginRight={6} /> My Subscription
       </Heading>
+      {status === "TRIAL_IN_PROGRESS" && (
+        <Alert
+          intent="info"
+          marginBottom={20}
+          title="Upgrade to pro to continue using Darkpine after your trial is over."
+        />
+      )}
       <div className={styles.flexContainer}>
-        <Plan status={status} />
-        <Payment />
+        <Plan status={status} plan={plan} paymentStatus={paymentStatus} />
+        <Payment paymentMethod={paymentMethod} status={status} />
       </div>
     </div>
   );
@@ -74,13 +83,28 @@ export const getServerSideProps = async (context) => {
 
   const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
-  const plan = await stripe.subscriptions.list({
+  let plan = await stripe.subscriptions.list({
     customer: user.stripeId,
-    status: "active",
+    status: "all",
     limit: 1,
   });
 
-  return { props: { status: user.status, plan } };
+  plan = plan?.data[0] || null;
+
+  let paymentMethod = await stripe.customers.listPaymentMethods(user.stripeId, {
+    type: "card",
+  });
+
+  paymentMethod = paymentMethod?.data[0]?.card || null;
+
+  return {
+    props: {
+      status: user.status,
+      plan,
+      paymentStatus: user.paymentStatus,
+      paymentMethod,
+    },
+  };
 };
 
 export default Subscription;

@@ -20,4 +20,5 @@
 
 .flexContainer {
   display: flex;
+  align-items: stretch;
 }
