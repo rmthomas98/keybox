@@ -6,6 +6,7 @@ import {
   DatabaseIcon,
   Paragraph,
   Small,
+  Text,
 } from "evergreen-ui";
 import { partial } from "filesize";
 
@@ -20,10 +21,13 @@ export const Storage = ({ storageSize, status }) => {
         File Storage
       </Heading>
       {status === "TRIAL_IN_PROGRESS" && (
-        <Alert
-          intent="warning"
-          title="You are currently on a free trial. You can gain access to file uploads by upgrading to the premium plan."
-        />
+        <Alert intent="warning" title="You are currently on a free trial.">
+          <Text color="#996A13">
+            <Small>
+              You can gain access to file storage by upgrading to the pro plan.
+            </Small>
+          </Text>
+        </Alert>
       )}
       {status === "SUBSCRIPTION_ACTIVE" && (
         <div className={styles.storageContainer}>

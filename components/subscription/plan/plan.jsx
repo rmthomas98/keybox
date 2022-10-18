@@ -31,7 +31,7 @@ export const Plan = ({ status, plan, paymentStatus }) => {
         justifyContent="space-between"
       >
         <Heading size={400} fontWeight={700} marginBottom={10}>
-          Your Plan
+          My Plan
         </Heading>
         {status === "SUBSCRIPTION_ACTIVE" && (
           <div className={styles.planContainer}>
@@ -87,7 +87,7 @@ export const Plan = ({ status, plan, paymentStatus }) => {
         )}
         {status === "SUBSCRIPTION_ACTIVE" && !cancelAtPeriodEnd && (
           <div className={styles.buttonContainer}>
-            <Button size="small">Cancel plan</Button>
+            <Button>Cancel plan</Button>
           </div>
         )}
         {status === "TRIAL_IN_PROGRESS" && (
@@ -97,9 +97,7 @@ export const Plan = ({ status, plan, paymentStatus }) => {
         )}
         {cancelAtPeriodEnd && status !== "TRIAL_IN_PROGRESS" && (
           <div className={styles.buttonContainer}>
-            <Button appearance="primary" size="small">
-              Resume
-            </Button>
+            <Button appearance="primary">Resume</Button>
           </div>
         )}
       </Card>

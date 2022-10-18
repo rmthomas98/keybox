@@ -3,7 +3,7 @@ import { Heading, Button, Card, Badge } from "evergreen-ui";
 import { getSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
-export const Payment = ({ paymentMethod, status }) => {
+export const Payment = ({ paymentMethod, status, paymentStatus }) => {
   return (
     <div style={{ width: "100%", display: "flex" }}>
       <Card
@@ -32,6 +32,37 @@ export const Payment = ({ paymentMethod, status }) => {
               Add payment method
             </Button>
           </div>
+        )}
+        {paymentMethod && (
+          <>
+            <div className={styles.paymentContainer}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  marginBottom: 10,
+                }}
+              >
+                <Heading size={300} marginRight={8}>
+                  **** **** **** {paymentMethod.last4}
+                </Heading>
+                {paymentStatus !== "FAILED" && (
+                  <Badge color="blue">{paymentMethod.brand}</Badge>
+                )}
+                {paymentStatus === "FAILED" && (
+                  <Badge color="red">Payment Failed</Badge>
+                )}
+              </div>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <Heading size={200}>
+                  Expires {paymentMethod.exp_month}/{paymentMethod.exp_year}
+                </Heading>
+              </div>
+              <div className={styles.buttonContainer}>
+                <Button appearance="primary">Update</Button>
+              </div>
+            </div>
+          </>
         )}
       </Card>
     </div>

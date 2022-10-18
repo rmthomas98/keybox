@@ -15,8 +15,15 @@ import { getSession } from "next-auth/react";
 import { useState } from "react";
 import { Plan } from "../../components/subscription/plan/plan";
 import { Payment } from "../../components/subscription/payment/payment";
+import { Invoices } from "../../components/subscription/invoices/invoices";
 
-const Subscription = ({ plan, status, paymentStatus, paymentMethod }) => {
+const Subscription = ({
+  plan,
+  status,
+  paymentStatus,
+  paymentMethod,
+  invoices,
+}) => {
   return (
     <div className={styles.container}>
       <Heading
@@ -37,10 +44,28 @@ const Subscription = ({ plan, status, paymentStatus, paymentMethod }) => {
           title="Upgrade to pro to continue using Darkpine after your trial is over."
         />
       )}
+      {paymentStatus === "FAILED" && (
+        <Alert
+          intent="danger"
+          marginBottom={20}
+          title="Your payment method has failed."
+        >
+          <Paragraph color="#7D2828">
+            <Small>
+              Please update your payment method to continue using Darkpine.
+            </Small>
+          </Paragraph>
+        </Alert>
+      )}
       <div className={styles.flexContainer}>
         <Plan status={status} plan={plan} paymentStatus={paymentStatus} />
-        <Payment paymentMethod={paymentMethod} status={status} />
+        <Payment
+          paymentMethod={paymentMethod}
+          status={status}
+          paymentStatus={paymentStatus}
+        />
       </div>
+      <Invoices invoices={invoices} />
     </div>
   );
 };
@@ -97,12 +122,29 @@ export const getServerSideProps = async (context) => {
 
   paymentMethod = paymentMethod?.data[0]?.card || null;
 
+  let invoices = await stripe.invoices.list({
+    customer: user.stripeId,
+  });
+
+  invoices = invoices?.data || null;
+  invoices = invoices?.map((invoice) => {
+    if (
+      invoice.status === "paid" ||
+      invoice.status === "open" ||
+      invoice.status === "uncollectible"
+    ) {
+      return invoice;
+    }
+  });
+  invoices = invoices.filter((invoice) => invoice !== undefined);
+
   return {
     props: {
       status: user.status,
       plan,
       paymentStatus: user.paymentStatus,
       paymentMethod,
+      invoices,
     },
   };
 };
