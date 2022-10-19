@@ -3,7 +3,9 @@ import { Heading, Button, Card, Badge } from "evergreen-ui";
 import { getSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
-export const Payment = ({ paymentMethod, status, paymentStatus }) => {
+export const Payment = ({ paymentMethod, status, paymentStatus, plan }) => {
+  const cancelAtPeriodEnd = plan?.cancel_at_period_end;
+
   return (
     <div style={{ width: "100%", display: "flex" }}>
       <Card
@@ -59,7 +61,11 @@ export const Payment = ({ paymentMethod, status, paymentStatus }) => {
                 </Heading>
               </div>
               <div className={styles.buttonContainer}>
-                <Button appearance="primary">Update</Button>
+                <Button appearance="primary" disabled={cancelAtPeriodEnd}>
+                  {paymentStatus === "FAILED"
+                    ? "Update and pay invoice"
+                    : "Update"}
+                </Button>
               </div>
             </div>
           </>

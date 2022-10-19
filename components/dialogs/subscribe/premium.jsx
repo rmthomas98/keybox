@@ -89,7 +89,8 @@ export const PaymentForm = ({ isOpen, setIsOpen }) => {
     });
 
     if (setupIntent.error) {
-      toaster.danger("Something went wrong while processing your card");
+      toaster.danger(setupIntent.error.message);
+      setIsLoading(false);
       return;
     }
 

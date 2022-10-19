@@ -4,6 +4,8 @@ import { getSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { format } from "date-fns";
+import { Cancel } from "../dialogs/cancel";
+import { Resume } from "../dialogs/resume";
 
 // All cases
 // 1. User has Pro plan - show cancel button - show next billing date
@@ -18,6 +20,9 @@ import { format } from "date-fns";
 export const Plan = ({ status, plan, paymentStatus }) => {
   const cancelAtPeriodEnd = plan?.cancel_at_period_end;
   const currentPeriodEnd = plan?.current_period_end;
+
+  const [showCancel, setShowCancel] = useState(false);
+  const [showResume, setShowResume] = useState(false);
 
   return (
     <div className={styles.container}>
@@ -38,10 +43,18 @@ export const Plan = ({ status, plan, paymentStatus }) => {
             <Heading size={300}>
               Darkpine Pro
               <Badge
-                color={paymentStatus === "FAILED" ? "yellow" : "green"}
+                color={
+                  paymentStatus === "FAILED" || cancelAtPeriodEnd
+                    ? "yellow"
+                    : "green"
+                }
                 marginLeft={6}
               >
-                {paymentStatus === "FAILED" ? "Payment Pending" : "Active"}
+                {paymentStatus === "FAILED"
+                  ? "Payment Pending"
+                  : cancelAtPeriodEnd
+                  ? "cancels soon"
+                  : "Active"}
               </Badge>
             </Heading>
             <Heading size={300}>
@@ -87,20 +100,30 @@ export const Plan = ({ status, plan, paymentStatus }) => {
         )}
         {status === "SUBSCRIPTION_ACTIVE" && !cancelAtPeriodEnd && (
           <div className={styles.buttonContainer}>
-            <Button>Cancel plan</Button>
+            <Button onClick={() => setShowCancel(true)} intent="danger">
+              Cancel plan
+            </Button>
           </div>
         )}
         {status === "TRIAL_IN_PROGRESS" && (
-          <div class={styles.buttonContainer}>
+          <div className={styles.buttonContainer}>
             <Button appearance="primary">Upgrade to pro</Button>
           </div>
         )}
         {cancelAtPeriodEnd && status !== "TRIAL_IN_PROGRESS" && (
           <div className={styles.buttonContainer}>
-            <Button appearance="primary">Resume</Button>
+            <Button appearance="primary" onClick={() => setShowResume(true)}>
+              Resume
+            </Button>
           </div>
         )}
       </Card>
+      <Cancel
+        show={showCancel}
+        setShow={setShowCancel}
+        paymentStatus={paymentStatus}
+      />
+      <Resume show={showResume} setShow={setShowResume} />
     </div>
   );
 };

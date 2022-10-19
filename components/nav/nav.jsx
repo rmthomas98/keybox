@@ -236,7 +236,7 @@ export const Nav = () => {
                   </Menu.Group>
                   <Menu.Divider />
                   <Menu.Group>
-                    <Menu.Item icon={ChatIcon}>Support</Menu.Item>
+                    {/*<Menu.Item icon={ChatIcon}>Support</Menu.Item>*/}
                     <Menu.Item icon={CommentIcon}>Feedback</Menu.Item>
                   </Menu.Group>
                   <Menu.Divider />

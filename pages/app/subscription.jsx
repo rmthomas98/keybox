@@ -16,6 +16,7 @@ import { useState } from "react";
 import { Plan } from "../../components/subscription/plan/plan";
 import { Payment } from "../../components/subscription/payment/payment";
 import { Invoices } from "../../components/subscription/invoices/invoices";
+import { Cancel } from "../../components/subscription/dialogs/cancel";
 
 const Subscription = ({
   plan,
@@ -63,6 +64,7 @@ const Subscription = ({
           paymentMethod={paymentMethod}
           status={status}
           paymentStatus={paymentStatus}
+          plan={plan}
         />
       </div>
       <Invoices invoices={invoices} />
