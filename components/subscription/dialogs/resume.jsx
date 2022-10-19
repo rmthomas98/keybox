@@ -37,6 +37,7 @@ export const Resume = ({ show, setShow }) => {
       confirmLabel="Resume plan"
       isConfirmLoading={isLoading}
       cancelLabel={"Close"}
+      intent="success"
     >
       <Paragraph>
         Are you sure you want to resume your subscription? You will continue to
