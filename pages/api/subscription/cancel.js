@@ -36,7 +36,7 @@ const handler = async (req, res) => {
       limit: 1,
     });
 
-    const subscriptionId = plan?.data[0].id || null;
+    const subscriptionId = plan?.data[0]?.id || null;
 
     if (!subscriptionId) {
       res.json({ error: true, message: "Subscription not found" });

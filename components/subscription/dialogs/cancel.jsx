@@ -9,6 +9,7 @@ export const Cancel = ({ show, setShow, paymentStatus }) => {
   const router = useRouter();
 
   const handleConfirm = async () => {
+    await toaster.closeAll();
     setIsLoading(true);
     const session = await getSession();
     const { id } = session;

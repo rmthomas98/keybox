@@ -11,15 +11,16 @@ import {
 } from "evergreen-ui";
 import { getSession } from "next-auth/react";
 import prisma from "../../lib/prisma";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { NewCard } from "../../components/dialogs/cards/newCard";
 import { CardView } from "../../components/dialogs/cards/cardView";
 import { decryptCards } from "../../helpers/cards/decryptCards";
+import { SearchContext } from "../../components/context/search";
 
 const Cards = ({ stringifiedCards }) => {
   const [newCardShow, setNewCardShow] = useState(false);
   const [cards, setCards] = useState(JSON.parse(stringifiedCards));
-  const [searchValue, setSearchValue] = useState("");
+  const { searchValue, setSearchValue } = useContext(SearchContext);
   const [selectedCard, setSelectedCard] = useState(null);
   const [cardViewShow, setCardViewShow] = useState(false);
 
@@ -52,11 +53,13 @@ const Cards = ({ stringifiedCards }) => {
       {cards.length > 0 && (
         <Table marginTop={30}>
           <Table.Head height={40} paddingRight={0}>
-            <Table.SearchHeaderCell
-              minWidth={50}
-              onChange={(value) => setSearchValue(value)}
-              placeholder="Search..."
-            />
+            {/*<Table.SearchHeaderCell*/}
+            {/*  minWidth={50}*/}
+            {/*  onChange={(value) => setSearchValue(value)}*/}
+            {/*  value={searchValue}*/}
+            {/*  placeholder="Search..."*/}
+            {/*/>*/}
+            <Table.TextHeaderCell>Name</Table.TextHeaderCell>
             <Table.TextHeaderCell>Last 4</Table.TextHeaderCell>
             <Table.TextHeaderCell>type</Table.TextHeaderCell>
           </Table.Head>

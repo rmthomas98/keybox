@@ -4,8 +4,13 @@ import { useRouter } from "next/router";
 import { SessionProvider } from "next-auth/react";
 import { Sidebar } from "../components/sidebar/sidebar";
 import NextNProgress from "nextjs-progressbar";
+import { useEffect, useState } from "react";
+import { SearchContext } from "../components/context/search";
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }) {
+  const [searchValue, setSearchValue] = useState("");
+  const [checkRoute, setCheckRoute] = useState(false);
+
   const router = useRouter();
   const noNavRoutes = [
     "/login",
@@ -17,18 +22,33 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
     "/app/new-subscription",
   ];
 
-  const checkRoute = () => {
+  useEffect(() => {
     const route = router.pathname;
+
     if (
       route === "/app/choose-plan" ||
       route === "/app/new-trial" ||
       route === "/app/new-subscription"
     ) {
-      return true;
+      setCheckRoute(true);
+      return;
     }
 
-    return false;
-  };
+    setCheckRoute(false);
+  }, [router.pathname]);
+
+  // const checkRoute = () => {
+  //   const route = router.pathname;
+  //   if (
+  //     route === "/app/choose-plan" ||
+  //     route === "/app/new-trial" ||
+  //     route === "/app/new-subscription"
+  //   ) {
+  //     return true;
+  //   }
+  //
+  //   return false;
+  // };
 
   return (
     <>
@@ -36,31 +56,33 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
         <NextNProgress color="#3366FF" height={2} startPosition={0} />
       )}
       <SessionProvider session={session}>
-        {checkRoute() && (
-          <div>
-            {!noNavRoutes.includes(router.pathname) && <Nav />}
-            <Component {...pageProps} />
-          </div>
-        )}
-        {!router.pathname.includes("/app") && !checkRoute() && (
-          <div>
-            {!noNavRoutes.includes(router.pathname) && <Nav />}
-            <Component {...pageProps} />
-          </div>
-        )}
-        {router.pathname.includes("/app") && !checkRoute() && (
-          <div className="app-wrapper">
-            <Sidebar />
-            <div className="app-container">
-              <Nav />
-              <div className="app-content-wrapper">
-                <div className="app-content">
-                  <Component {...pageProps} />
+        <SearchContext.Provider value={{ searchValue, setSearchValue }}>
+          {checkRoute && (
+            <div>
+              {!noNavRoutes.includes(router.pathname) && <Nav />}
+              <Component {...pageProps} />
+            </div>
+          )}
+          {!router.pathname.includes("/app") && !checkRoute && (
+            <div>
+              {!noNavRoutes.includes(router.pathname) && <Nav />}
+              <Component {...pageProps} />
+            </div>
+          )}
+          {router.pathname.includes("/app") && !checkRoute && (
+            <div className="app-wrapper">
+              <Sidebar />
+              <div className="app-container">
+                <Nav />
+                <div className="app-content-wrapper">
+                  <div className="app-content">
+                    <Component {...pageProps} />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </SearchContext.Provider>
       </SessionProvider>
     </>
   );

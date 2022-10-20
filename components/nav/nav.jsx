@@ -22,62 +22,86 @@ import Image from "next/image";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { signOut } from "next-auth/react";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { SearchContext } from "../context/search";
+import { Feedback } from "../dialogs/feedback";
 
-const searchOptions = [
-  {
-    label: "Credentials",
-    route: "/app",
-  },
-  {
-    label: "Credit/Debit Cards",
-    route: "/app/cards",
-  },
-  {
-    label: "Bank Accounts",
-    route: "/app/banks",
-  },
-  {
-    label: "Files",
-    route: "/app/files",
-  },
-  {
-    label: "Crypto Wallets",
-    route: "/app/crypto",
-  },
-  {
-    label: "Account Settings",
-    route: "/app/settings",
-  },
-  {
-    label: "My Subscription",
-    route: "/app/subscription",
-  },
-  {
-    label: "Support",
-    route: "/app/support",
-  },
-  {
-    label: "Feedback",
-    route: "/app/feedback",
-  },
-];
+// const searchOptions = [
+//   {
+//     label: "Credentials",
+//     route: "/app",
+//   },
+//   {
+//     label: "Credit/Debit Cards",
+//     route: "/app/cards",
+//   },
+//   {
+//     label: "Bank Accounts",
+//     route: "/app/banks",
+//   },
+//   {
+//     label: "Files",
+//     route: "/app/files",
+//   },
+//   {
+//     label: "Crypto Wallets",
+//     route: "/app/crypto",
+//   },
+//   {
+//     label: "Account Settings",
+//     route: "/app/settings",
+//   },
+//   {
+//     label: "My Subscription",
+//     route: "/app/subscription",
+//   },
+//   {
+//     label: "Support",
+//     route: "/app/support",
+//   },
+//   {
+//     label: "Feedback",
+//     route: "/app/feedback",
+//   },
+// ];
 
 export const Nav = () => {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { searchValue, setSearchValue } = useContext(SearchContext);
+  const [searchPlaceholder, setSearchPlaceholder] = useState("");
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
 
   const handleSignOut = async () => {
     setIsMenuOpen(false);
     await signOut();
   };
 
-  const handleSearch = (value) => {
-    const option = searchOptions.find((option) => option.label === value);
-    if (option) {
-      router.push(option.route);
+  useEffect(() => {
+    const route = router.pathname;
+    setSearchValue("");
+
+    if (route === "/app") {
+      setSearchPlaceholder("Search credentials...");
+    } else if (route === "/app/cards") {
+      setSearchPlaceholder("Search cards...");
+    } else if (route === "/app/banks") {
+      setSearchPlaceholder("Search banks...");
+    } else if (route === "/app/files") {
+      setSearchPlaceholder("Search folders...");
+    } else if (route === "/app/crypto") {
+      setSearchPlaceholder("Search crypto wallets...");
+    } else {
+      setSearchPlaceholder("Search...");
     }
-  };
+  }, [router.pathname]);
+
+  // const handleSearch = (value) => {
+  //   const option = searchOptions.find((option) => option.label === value);
+  //   if (option) {
+  //     router.push(option.route);
+  //   }
+  // };
 
   return (
     <div className={styles.navWrapper}>
@@ -139,25 +163,35 @@ export const Nav = () => {
                   // marginLeft: 20,
                 }}
               >
-                <Autocomplete
-                  items={searchOptions.map((option) => option.label)}
-                  onChange={(value) => handleSearch(value)}
-                  selectedItem={null}
-                  popoverMaxHeight={200}
-                >
-                  {(props) => {
-                    const { getInputProps, getRef, inputValue, openMenu } =
-                      props;
-                    return (
-                      <SearchInput
-                        placeholder="Search..."
-                        value={inputValue}
-                        ref={getRef}
-                        {...getInputProps()}
-                      />
-                    );
-                  }}
-                </Autocomplete>
+                {/*<Autocomplete*/}
+                {/*  items={searchOptions.map((option) => option.label)}*/}
+                {/*  onChange={(value) => handleSearch(value)}*/}
+                {/*  selectedItem={null}*/}
+                {/*  popoverMaxHeight={200}*/}
+                {/*>*/}
+                {/*  {(props) => {*/}
+                {/*    const { getInputProps, getRef, inputValue, openMenu } =*/}
+                {/*      props;*/}
+                {/*    return (*/}
+                {/*      <SearchInput*/}
+                {/*        placeholder="Search..."*/}
+                {/*        value={inputValue}*/}
+                {/*        ref={getRef}*/}
+                {/*        {...getInputProps()}*/}
+                {/*      />*/}
+                {/*    );*/}
+                {/*  }}*/}
+                {/*</Autocomplete>*/}
+                <SearchInput
+                  placeholder={searchPlaceholder}
+                  width="100%"
+                  value={searchValue}
+                  onChange={(e) => setSearchValue(e.target.value)}
+                  disabled={
+                    router.pathname.endsWith("/app/settings") ||
+                    router.pathname.endsWith("/app/subscription")
+                  }
+                />
               </div>
             </>
           )}
@@ -237,7 +271,12 @@ export const Nav = () => {
                   <Menu.Divider />
                   <Menu.Group>
                     {/*<Menu.Item icon={ChatIcon}>Support</Menu.Item>*/}
-                    <Menu.Item icon={CommentIcon}>Feedback</Menu.Item>
+                    <Menu.Item
+                      icon={CommentIcon}
+                      onSelect={() => setIsFeedbackOpen(true)}
+                    >
+                      Feedback
+                    </Menu.Item>
                   </Menu.Group>
                   <Menu.Divider />
                   <Menu.Group>
@@ -256,6 +295,9 @@ export const Nav = () => {
             </Popover>
           )}
       </div>
+      {router.pathname.includes("/app") && (
+        <Feedback show={isFeedbackOpen} setShow={setIsFeedbackOpen} />
+      )}
     </div>
   );
 };

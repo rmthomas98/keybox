@@ -11,10 +11,11 @@ import {
   Text,
   Small,
 } from "evergreen-ui";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { NewFile } from "../../components/dialogs/files/newFile";
 import { partial } from "filesize";
 import { FolderView } from "../../components/dialogs/files/folderView";
+import { SearchContext } from "../../components/context/search";
 
 const size = partial({ base: 3, standard: "jedec" });
 
@@ -23,7 +24,7 @@ const Files = ({ stringifiedFolders, status }) => {
   const [fileViewShow, setFileViewShow] = useState(false);
   const [folders, setFolders] = useState(JSON.parse(stringifiedFolders));
   const [selectedFolder, setSelectedFolder] = useState(null);
-  const [searchValue, setSearchValue] = useState("");
+  const { searchValue, setSearchValue } = useContext(SearchContext);
 
   const handleFolderClick = (folder) => {
     setSelectedFolder(folder);
@@ -62,12 +63,13 @@ const Files = ({ stringifiedFolders, status }) => {
       {folders.length > 0 && (
         <Table marginTop={30}>
           <Table.Head height={40} paddingRight={0}>
-            <Table.SearchHeaderCell
-              minWidth={50}
-              placeholder="Search..."
-              value={searchValue}
-              onChange={(value) => setSearchValue(value)}
-            />
+            {/*<Table.SearchHeaderCell*/}
+            {/*  minWidth={50}*/}
+            {/*  placeholder="Search..."*/}
+            {/*  value={searchValue}*/}
+            {/*  onChange={(value) => setSearchValue(value)}*/}
+            {/*/>*/}
+            <Table.TextHeaderCell>Folder</Table.TextHeaderCell>
             <Table.TextHeaderCell># Files</Table.TextHeaderCell>
             <Table.TextHeaderCell>Size</Table.TextHeaderCell>
           </Table.Head>

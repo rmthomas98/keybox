@@ -12,13 +12,14 @@ import {
   RigIcon,
   Text,
 } from "evergreen-ui";
-import { getSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+import {getSession} from "next-auth/react";
+import {useEffect, useState} from "react";
 import axios from "axios";
-import { format } from "date-fns";
-import { Cancel } from "../dialogs/cancel";
-import { Resume } from "../dialogs/resume";
+import {format} from "date-fns";
+import {Cancel} from "../dialogs/cancel";
+import {Resume} from "../dialogs/resume";
 import NextLink from "next/link";
+import {UpdatePayment} from "../dialogs/updatePayment";
 
 // All cases
 // 1. User has Pro plan - show cancel button - show next billing date
@@ -30,12 +31,19 @@ import NextLink from "next/link";
 // Redirect to /app/choose-plan
 // So they can choose a plan
 
-export const Plan = ({ status, plan, paymentStatus }) => {
+export const Plan = ({status, plan, paymentStatus}) => {
   const cancelAtPeriodEnd = plan?.cancel_at_period_end;
   const currentPeriodEnd = plan?.current_period_end;
 
   const [showCancel, setShowCancel] = useState(false);
   const [showResume, setShowResume] = useState(false);
+  const [showUpdatePayment, setShowUpdatePayment] = useState(false);
+  const [upgradeToPro, setUpgradeToPro] = useState(false);
+
+  const handleUpgrade = () => {
+    setUpgradeToPro(true);
+    setShowUpdatePayment(true);
+  }
 
   return (
     <div className={styles.container}>
@@ -66,8 +74,8 @@ export const Plan = ({ status, plan, paymentStatus }) => {
                 {paymentStatus === "FAILED"
                   ? "Payment Pending"
                   : cancelAtPeriodEnd
-                  ? "cancels soon"
-                  : "Active"}
+                    ? "cancels soon"
+                    : "Active"}
               </Badge>
             </Heading>
             <Heading size={300}>
@@ -134,7 +142,7 @@ export const Plan = ({ status, plan, paymentStatus }) => {
                 </Text>
               </Link>
             </NextLink>
-            <Button appearance="primary">Upgrade to pro</Button>
+            <Button appearance="primary" onClick={handleUpgrade}>Upgrade to pro</Button>
           </div>
         )}
         {cancelAtPeriodEnd && status !== "TRIAL_IN_PROGRESS" && (
@@ -154,7 +162,8 @@ export const Plan = ({ status, plan, paymentStatus }) => {
         setShow={setShowCancel}
         paymentStatus={paymentStatus}
       />
-      <Resume show={showResume} setShow={setShowResume} />
+      <Resume show={showResume} setShow={setShowResume}/>
+      <UpdatePayment show={showUpdatePayment} setShow={setShowUpdatePayment} upgradeToPro={upgradeToPro}/>
     </div>
   );
 };

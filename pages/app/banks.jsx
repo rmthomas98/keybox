@@ -12,16 +12,17 @@ import {
 } from "evergreen-ui";
 import { getSession } from "next-auth/react";
 import { decryptBanks } from "../../helpers/banks/decryptBanks";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { NewBank } from "../../components/dialogs/banks/newBank";
 import { BankView } from "../../components/dialogs/banks/bankView";
+import { SearchContext } from "../../components/context/search";
 
 const Banks = ({ stringifiedBanks }) => {
   const [banks, setBanks] = useState(JSON.parse(stringifiedBanks));
   const [newBankShow, setNewBankShow] = useState(false);
   const [bankViewShow, setBankViewShow] = useState(false);
   const [selectedBank, setSelectedBank] = useState(null);
-  const [searchValue, setSearchValue] = useState("");
+  const { searchValue, setSearchValue } = useContext(SearchContext);
 
   const handleBankClick = (bank) => {
     setSelectedBank(bank);
@@ -52,11 +53,12 @@ const Banks = ({ stringifiedBanks }) => {
       {banks.length > 0 && (
         <Table marginTop={30}>
           <Table.Head height={40} paddingRight={0}>
-            <Table.SearchHeaderCell
-              minWidth={50}
-              onChange={(value) => setSearchValue(value)}
-              placeholder="Search..."
-            />
+            {/*<Table.SearchHeaderCell*/}
+            {/*  minWidth={50}*/}
+            {/*  onChange={(value) => setSearchValue(value)}*/}
+            {/*  placeholder="Search..."*/}
+            {/*/>*/}
+            <Table.TextHeaderCell>Name</Table.TextHeaderCell>
             <Table.TextHeaderCell>Account #</Table.TextHeaderCell>
             <Table.TextHeaderCell>Type</Table.TextHeaderCell>
           </Table.Head>

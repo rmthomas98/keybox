@@ -13,17 +13,18 @@ import {
 } from "evergreen-ui";
 import { getSession } from "next-auth/react";
 import prisma from "../../lib/prisma";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { NewCredentials } from "../../components/dialogs/credentials/newCredentials";
 import { CredentialsView } from "../../components/dialogs/credentials/credentialsView";
 import { decryptCredentials } from "../../helpers/credentials/decryptCredentials";
 import { TwoFactorAuth } from "../../components/notifs/twoFactorAuth";
+import { SearchContext } from "../../components/context/search";
 
 const AppHome = ({ stringifiedCreds, status, ask2FA }) => {
   const [newPasswordShow, setNewPasswordShow] = useState(false);
   const [credentialsViewShow, setCredentialsViewShow] = useState(false);
   const [selectedCredentials, setSelectedCredentials] = useState(null);
-  const [searchValue, setSearchValue] = useState("");
+  const { searchValue, setSearchValue } = useContext(SearchContext);
   const [credentials, setCredentials] = useState(JSON.parse(stringifiedCreds));
 
   const handleClick = (credentials) => {
@@ -56,13 +57,13 @@ const AppHome = ({ stringifiedCreds, status, ask2FA }) => {
       {credentials?.length > 0 && (
         <Table marginTop={30}>
           <Table.Head height={40} paddingRight={0}>
-            <Table.SearchHeaderCell
-              minWidth={50}
-              value={searchValue}
-              placeholder="Search..."
-              onChange={(value) => setSearchValue(value)}
-            />
-            {/*<Table.TextHeaderCell>Name</Table.TextHeaderCell>*/}
+            {/*<Table.SearchHeaderCell*/}
+            {/*  minWidth={50}*/}
+            {/*  value={searchValue}*/}
+            {/*  placeholder="Search..."*/}
+            {/*  onChange={(value) => setSearchValue(value)}*/}
+            {/*/>*/}
+            <Table.TextHeaderCell>Name</Table.TextHeaderCell>
             <Table.TextHeaderCell>Username</Table.TextHeaderCell>
             <Table.TextHeaderCell>Website</Table.TextHeaderCell>
           </Table.Head>

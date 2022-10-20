@@ -1,5 +1,5 @@
 import styles from "../../styles/crypto.module.css";
-import {getSession} from "next-auth/react";
+import { getSession } from "next-auth/react";
 import {
   Alert,
   Heading,
@@ -12,16 +12,17 @@ import {
   Small,
   Text,
 } from "evergreen-ui";
-import {useState} from "react";
+import { useState, useContext } from "react";
 import prisma from "../../lib/prisma";
-import {NewCryptoWallet} from "../../components/dialogs/crypto/newCryptoWallet";
-import {decryptWallets} from "../../helpers/crypto/decryptWallets";
-import {CryptoWalletView} from "../../components/dialogs/crypto/cryptoWalletView";
+import { NewCryptoWallet } from "../../components/dialogs/crypto/newCryptoWallet";
+import { decryptWallets } from "../../helpers/crypto/decryptWallets";
+import { CryptoWalletView } from "../../components/dialogs/crypto/cryptoWalletView";
+import { SearchContext } from "../../components/context/search";
 
-const Crypto = ({stringifiedWallets}) => {
+const Crypto = ({ stringifiedWallets }) => {
   const [newWallet, setNewWallet] = useState(false);
   const [wallets, setWallets] = useState(JSON.parse(stringifiedWallets));
-  const [searchValue, setSearchValue] = useState("");
+  const { searchValue, setSearchValue } = useContext(SearchContext);
   const [selectedWallet, setSelectedWallet] = useState(null);
   const [walletView, setWalletView] = useState(false);
 
@@ -34,7 +35,7 @@ const Crypto = ({stringifiedWallets}) => {
     <div>
       <div className={styles.navContainer}>
         <Heading size={600} fontWeight={700} display="flex" alignItems="center">
-          <OfflineIcon marginRight={6}/> Crypto
+          <OfflineIcon marginRight={6} /> Crypto
         </Heading>
         <Button
           appearance="primary"
@@ -125,10 +126,10 @@ export const getServerSideProps = async (ctx) => {
     };
   }
 
-  const {id} = session;
+  const { id } = session;
   const user = await prisma.user.findUnique({
-    where: {id},
-    include: {cryptoWallets: true},
+    where: { id },
+    include: { cryptoWallets: true },
   });
 
   if (!user.emailVerified) {
@@ -152,19 +153,19 @@ export const getServerSideProps = async (ctx) => {
     };
   }
 
-  if (user.paymentStatus === 'FAILED') {
+  if (user.paymentStatus === "FAILED") {
     return {
       redirect: {
-        destination: '/app/subscription',
-        permanent: false
-      }
-    }
+        destination: "/app/subscription",
+        permanent: false,
+      },
+    };
   }
 
   // get the users crypto data
   const wallets = decryptWallets(user.cryptoWallets);
 
-  return {props: {stringifiedWallets: JSON.stringify(wallets)}};
+  return { props: { stringifiedWallets: JSON.stringify(wallets) } };
 };
 
 export default Crypto;

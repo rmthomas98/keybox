@@ -22,7 +22,7 @@ const getClientSecret = async () => {
 };
 
 // payment element provider
-export const UpdatePayment = ({ show, setShow }) => {
+export const UpdatePayment = ({ show, setShow, upgradeToPro }) => {
   const [clientSecret, setClientSecret] = useState(null);
   console.log(clientSecret);
 
@@ -75,13 +75,19 @@ export const UpdatePayment = ({ show, setShow }) => {
         show={show}
         setShow={setShow}
         setClientSecret={setClientSecret}
+        upgradeToPro={upgradeToPro}
       />
     </Elements>
   );
 };
 
 // payment element
-export const UpdatePaymentDialog = ({ show, setShow, setClientSecret }) => {
+export const UpdatePaymentDialog = ({
+  show,
+  setShow,
+  setClientSecret,
+  upgradeToPro,
+}) => {
   const elements = useElements();
   const stripe = useStripe();
 
@@ -119,6 +125,7 @@ export const UpdatePaymentDialog = ({ show, setShow, setClientSecret }) => {
     const { data } = await axios.post("/api/payment-method/update", {
       userId: id,
       setupIntent,
+      upgradeToPro,
     });
 
     if (data.error) {
@@ -141,6 +148,12 @@ export const UpdatePaymentDialog = ({ show, setShow, setClientSecret }) => {
       onConfirm={handleConfirm}
       isConfirmLoading={isLoading}
     >
+      {upgradeToPro && (
+        <Heading size={400} marginBottom={16}>
+          You are upgrading to Pro for $2.99 per month and will be charged on a
+          monthly basis. Your card will be charged immediately.
+        </Heading>
+      )}
       <PaymentElement />
     </Dialog>
   );
