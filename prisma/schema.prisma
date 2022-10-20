@@ -25,7 +25,7 @@ enum Status {
 model User {
   id            String         @id @default(cuid())
   createdAt     DateTime       @default(now())
-  stripeId      String?
+  stripeId      String?        @unique
   email         String         @unique
   emailToken    String?
   emailVerified Boolean        @default(false)

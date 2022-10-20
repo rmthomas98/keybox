@@ -1,10 +1,12 @@
 import styles from "./payment.module.css";
-import { Heading, Button, Card, Badge } from "evergreen-ui";
+import { Heading, Button, Card, Badge, Tooltip } from "evergreen-ui";
 import { getSession } from "next-auth/react";
 import { useEffect, useState } from "react";
+import { UpdatePayment } from "../dialogs/updatePayment";
 
 export const Payment = ({ paymentMethod, status, paymentStatus, plan }) => {
   const cancelAtPeriodEnd = plan?.cancel_at_period_end;
+  const [showUpdatePayment, setShowUpdatePayment] = useState(false);
 
   return (
     <div style={{ width: "100%", display: "flex" }}>
@@ -61,16 +63,30 @@ export const Payment = ({ paymentMethod, status, paymentStatus, plan }) => {
                 </Heading>
               </div>
               <div className={styles.buttonContainer}>
-                <Button appearance="primary" disabled={cancelAtPeriodEnd}>
-                  {paymentStatus === "FAILED"
-                    ? "Update and pay invoice"
-                    : "Update"}
-                </Button>
+                {paymentStatus === "FAILED" && (
+                  <Button
+                    appearance="primary"
+                    disabled={cancelAtPeriodEnd}
+                    onClick={() => setShowUpdatePayment(true)}
+                  >
+                    Update and pay invoice
+                  </Button>
+                )}
+                {paymentStatus !== "FAILED" && (
+                  <Button
+                    appearance="primary"
+                    disabled={cancelAtPeriodEnd}
+                    onClick={() => setShowUpdatePayment(true)}
+                  >
+                    Update
+                  </Button>
+                )}
               </div>
             </div>
           </>
         )}
       </Card>
+      <UpdatePayment show={showUpdatePayment} setShow={setShowUpdatePayment} />
     </div>
   );
 };

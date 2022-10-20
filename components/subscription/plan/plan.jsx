@@ -1,11 +1,24 @@
 import styles from "./plan.module.css";
-import { Card, Heading, Button, Badge, Small, InlineAlert } from "evergreen-ui";
+import {
+  Card,
+  Heading,
+  Button,
+  Badge,
+  Small,
+  InlineAlert,
+  Link,
+  Icon,
+  ArrowRightIcon,
+  RigIcon,
+  Text,
+} from "evergreen-ui";
 import { getSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { format } from "date-fns";
 import { Cancel } from "../dialogs/cancel";
 import { Resume } from "../dialogs/resume";
+import NextLink from "next/link";
 
 // All cases
 // 1. User has Pro plan - show cancel button - show next billing date
@@ -106,7 +119,21 @@ export const Plan = ({ status, plan, paymentStatus }) => {
           </div>
         )}
         {status === "TRIAL_IN_PROGRESS" && (
-          <div className={styles.buttonContainer}>
+          <div className={styles.buttonProContainer}>
+            <NextLink href="/pricing" target="_blank" passHref>
+              <Link>
+                <Text display="flex" alignItems="center" color="inherit">
+                  <Small>View pro plan</Small>
+                  <Icon
+                    icon={ArrowRightIcon}
+                    size={10}
+                    marginLeft={6}
+                    position="relative"
+                    top={1}
+                  />
+                </Text>
+              </Link>
+            </NextLink>
             <Button appearance="primary">Upgrade to pro</Button>
           </div>
         )}

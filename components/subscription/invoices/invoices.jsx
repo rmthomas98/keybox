@@ -1,8 +1,18 @@
 import { Card, Table, Heading, Text, Small, Button, Badge } from "evergreen-ui";
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
+import { useRouter } from "next/router";
 
 export const Invoices = ({ invoices }) => {
+  const router = useRouter();
+
+  const handleInvoiceClick = (invoice) => {
+    // download invoice pdf
+    const link = document.createElement("a");
+    link.href = invoice.invoice_pdf;
+    link.click();
+  };
+
   return (
     // <Card elevation={1} padding={20} background="tint2">
     <>
@@ -19,7 +29,12 @@ export const Invoices = ({ invoices }) => {
           </Table.Head>
           <Table.Body height="100%" maxHeight={400}>
             {invoices.map((invoice) => (
-              <Table.Row key={invoice.id} height={40} isSelectable>
+              <Table.Row
+                key={invoice.id}
+                height={40}
+                isSelectable
+                onSelect={() => handleInvoiceClick(invoice)}
+              >
                 <Table.TextCell isNumber>{invoice.number}</Table.TextCell>
                 <Table.Cell>
                   {invoice.status === "paid" && (

@@ -104,7 +104,7 @@ export const PaymentForm = ({ isOpen, setIsOpen }) => {
       return;
     }
 
-    router.push("/app/new-subscription");
+    await router.push("/app/new-subscription");
   };
 
   return (

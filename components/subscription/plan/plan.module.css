@@ -16,3 +16,10 @@
   display: flex;
   justify-content: flex-end;
 }
+
+.buttonProContainer {
+  margin-top: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

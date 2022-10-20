@@ -15,14 +15,14 @@ import {
   Dialog,
 } from "evergreen-ui";
 import axios from "axios";
-import { useRouter } from "next/router";
-import { useState } from "react";
-import { getSession } from "next-auth/react";
+import {useRouter} from "next/router";
+import {useState} from "react";
+import {getSession} from "next-auth/react";
 import prisma from "../../lib/prisma";
-import { Trial } from "../../components/dialogs/subscribe/trial";
-import { Premium } from "../../components/dialogs/subscribe/premium";
+import {Trial} from "../../components/dialogs/subscribe/trial";
+import {Premium} from "../../components/dialogs/subscribe/premium";
 
-const ChoosePlan = ({ status }) => {
+const ChoosePlan = ({status}) => {
   const [trialDialog, setTrialDialog] = useState(false);
   const [premiumDialog, setPremiumDialog] = useState(false);
   const router = useRouter();
@@ -54,7 +54,7 @@ const ChoosePlan = ({ status }) => {
               <Heading
                 size={700}
                 paddingBottom={10}
-                style={{ borderBottom: "1px solid #E6E8F0" }}
+                style={{borderBottom: "1px solid #E6E8F0"}}
               >
                 $0.00
               </Heading>
@@ -108,7 +108,7 @@ const ChoosePlan = ({ status }) => {
             <Heading
               size={700}
               paddingBottom={10}
-              style={{ borderBottom: "1px solid #E6E8F0" }}
+              style={{borderBottom: "1px solid #E6E8F0"}}
             >
               $2.99{" "}
               <Text>
@@ -155,8 +155,8 @@ const ChoosePlan = ({ status }) => {
           </Card>
         </div>
       </div>
-      <Trial isOpen={trialDialog} setIsOpen={setTrialDialog} />
-      <Premium isOpen={premiumDialog} setIsOpen={setPremiumDialog} />
+      <Trial isOpen={trialDialog} setIsOpen={setTrialDialog}/>
+      <Premium isOpen={premiumDialog} setIsOpen={setPremiumDialog}/>
     </div>
   );
 };
@@ -173,23 +173,14 @@ export const getServerSideProps = async (ctx) => {
     };
   }
 
-  const { id } = session;
-  const user = await prisma.user.findUnique({ where: { id } });
-  const { status } = user;
+  const {id} = session;
+  const user = await prisma.user.findUnique({where: {id}});
+  const {status} = user;
 
   if (!user.emailVerified) {
     return {
       redirect: {
         destination: `/verify-email?email=${user.email}`,
-        permanent: false,
-      },
-    };
-  }
-
-  if (user.paymentStatus === "FAILED") {
-    return {
-      redirect: {
-        destination: `/app/subscription`,
         permanent: false,
       },
     };
@@ -204,7 +195,17 @@ export const getServerSideProps = async (ctx) => {
     };
   }
 
-  return { props: { status } };
+  if (user.paymentStatus === "FAILED") {
+    return {
+      redirect: {
+        destination: `/app/subscription`,
+        permanent: false,
+      },
+    };
+  }
+
+
+  return {props: {status}};
 };
 
 export default ChoosePlan;
