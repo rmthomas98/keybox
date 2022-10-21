@@ -11,6 +11,14 @@ import {
   Popover,
   Menu,
   Position,
+  CaretDownIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  UserIcon,
+  ShieldIcon,
+  EyeOnIcon,
+  KeyIcon,
+  DatabaseIcon,
 } from "evergreen-ui";
 import { useState } from "react";
 import { Profile } from "../../components/settings/profile/profile";
@@ -21,50 +29,115 @@ import { Storage } from "../../components/settings/storage/storage";
 
 const Settings = ({ email, twoFactor, phone, status, storageSize }) => {
   const [selected, setSelected] = useState("profile");
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [label, setLabel] = useState("My Profile");
+
+  const handleSelect = (tab) => {
+    setIsMenuOpen(false);
+    setSelected(tab);
+    if (tab === "profile") {
+      setLabel("My Profile");
+    } else if (tab === "password") {
+      setLabel("Password");
+    } else if (tab === "twoFactor") {
+      setLabel("Two Factor Auth");
+    } else if (tab === "storage") {
+      setLabel("File Storage");
+    }
+  };
 
   return (
     <div className="container">
-      <Heading
-        size={600}
-        fontWeight={700}
-        marginBottom={20}
-        display="flex"
-        alignItems="center"
-        borderBottom="1px solid #E6E8F0"
-        paddingBottom={10}
-      >
-        <Icon icon={CogIcon} marginRight={6} /> Account Settings
-      </Heading>
+      <div className={styles.headerContainer}>
+        <Heading size={600} fontWeight={700} display="flex" alignItems="center">
+          <Icon icon={CogIcon} marginRight={6} />
+          Account Settings
+        </Heading>
+        <div className={styles.dropdownContainer}>
+          <Popover
+            isShown={isMenuOpen}
+            onOpen={() => setIsMenuOpen(true)}
+            onClose={() => setIsMenuOpen(false)}
+            position={Position.BOTTOM_RIGHT}
+            content={
+              <Menu>
+                <Menu.Group>
+                  <Menu.Item
+                    onSelect={() => handleSelect("profile")}
+                    icon={UserIcon}
+                    intent={(selected === "profile" && "#3366FF") || "none"}
+                    background={selected === "profile" && "#EBF0FF"}
+                    appearance="default"
+                  >
+                    My Profile
+                  </Menu.Item>
+                  <Menu.Item
+                    onSelect={() => handleSelect("password")}
+                    icon={EyeOnIcon}
+                    intent={(selected === "password" && "#3366FF") || "none"}
+                    background={selected === "password" && "#EBF0FF"}
+                    appearance="default"
+                  >
+                    Password
+                  </Menu.Item>
+                  <Menu.Item
+                    onSelect={() => handleSelect("twoFactor")}
+                    icon={ShieldIcon}
+                    intent={(selected === "twoFactor" && "#3366FF") || "none"}
+                    background={selected === "twoFactor" && "#EBF0FF"}
+                    appearance="default"
+                  >
+                    Two Factor Auth
+                  </Menu.Item>
+                  <Menu.Item
+                    onSelect={() => handleSelect("storage")}
+                    icon={DatabaseIcon}
+                    intent={(selected === "storage" && "#3366FF") || "none"}
+                    background={selected === "storage" && "#EBF0FF"}
+                    appearance="default"
+                  >
+                    File Storage
+                  </Menu.Item>
+                </Menu.Group>
+              </Menu>
+            }
+          >
+            <Button iconAfter={isMenuOpen ? ChevronUpIcon : ChevronDownIcon}>
+              {label}
+            </Button>
+          </Popover>
+        </div>
+      </div>
       <div className={styles.contentContainer}>
         <div className={styles.tabContainer}>
           <Tablist>
             <Tab
               direction="vertical"
               isSelected={selected === "profile"}
-              onSelect={() => setSelected("profile")}
+              onSelect={() => handleSelect("profile")}
             >
-              My Profile
+              <Icon icon={UserIcon} marginRight={6} /> My Profile
             </Tab>
             <Tab
               direction="vertical"
               isSelected={selected === "password"}
-              onSelect={() => setSelected("password")}
+              onSelect={() => handleSelect("password")}
             >
-              Password
+              <Icon icon={EyeOnIcon} marginRight={6} /> Password
             </Tab>
             <Tab
               direction="vertical"
               isSelected={selected === "twoFactor"}
-              onSelect={() => setSelected("twoFactor")}
+              onSelect={() => handleSelect("twoFactor")}
             >
-              Two Factor Auth
+              <Icon icon={ShieldIcon} marginRight={6} /> Two Factor Auth
             </Tab>
             <Tab
               direction="vertical"
               isSelected={selected === "storage"}
-              onSelect={() => setSelected("storage")}
+              onSelect={() => handleSelect("storage")}
             >
-              File Storage
+              <Icon icon={DatabaseIcon} marginRight={6} /> File Storage
             </Tab>
           </Tablist>
         </div>

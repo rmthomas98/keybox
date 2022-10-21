@@ -55,8 +55,7 @@ export const Storage = ({ storageSize, status }) => {
         <Paragraph marginTop={20}>
           <Small>
             <strong>Note:</strong> You can upload files up to 50MB in size and
-            have a maximum of 15GB in storage.<br></br> We plan to increase
-            these limits in the future.
+            have a maximum of 15GB in storage.
           </Small>
         </Paragraph>
       )}

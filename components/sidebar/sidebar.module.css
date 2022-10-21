@@ -6,6 +6,7 @@
   /*background: #F9FAFC;*/
   position: sticky;
   top: 0;
+  transition: 300ms;
 }
 
 .container {
@@ -26,4 +27,50 @@
   height: 100%;
   border-right: 1px solid #E6E8F0;
   overflow: auto;
+}
+
+.icon {
+  margin-right: 10px;
+}
+
+@media screen and (max-width: 900px) {
+  .wrapper {
+    width: 190px;
+  }
+}
+
+@media screen and (max-width: 800px) {
+  .wrapper {
+    width: 73px;
+  }
+
+  .titleContainer {
+    justify-content: center;
+    padding: 12px;
+  }
+
+  .tabContainer {
+    padding: 20px 12px;
+  }
+
+  .icon {
+    margin-right: 0;
+  }
+
+  .tabLabel {
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+  }
+
+  .title {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .wrapper {
+    width: 0px;
+    overflow: hidden;
+  }
 }

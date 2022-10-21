@@ -103,18 +103,18 @@ export const Nav = () => {
   //   }
   // };
 
+  const handleDropdown = async (route) => {
+    setIsMenuOpen(false);
+    if (route === "feedback") return setIsFeedbackOpen(true);
+    await router.push(route);
+  };
+
   return (
     <div className={styles.navWrapper}>
       <div
         className={styles.navContainer}
         style={{
-          maxWidth:
-            router.pathname.includes("/app") &&
-            router.pathname !== "/app/choose-plan" &&
-            router.pathname !== "/app/new-trial" &&
-            router.pathname !== "/app/new-subscription"
-              ? 1000
-              : 1000,
+          maxWidth: 1000,
         }}
       >
         {!router.pathname.includes("/app") && (
@@ -257,13 +257,13 @@ export const Nav = () => {
                   <Menu.Group>
                     <Menu.Item
                       icon={CogIcon}
-                      onSelect={() => router.push("/app/settings")}
+                      onSelect={() => handleDropdown("/app/settings")}
                     >
                       Account Settings
                     </Menu.Item>
                     <Menu.Item
                       icon={CubeIcon}
-                      onSelect={() => router.push("/app/subscription")}
+                      onSelect={() => handleDropdown("/app/subscription")}
                     >
                       My Subscription
                     </Menu.Item>
@@ -273,7 +273,7 @@ export const Nav = () => {
                     {/*<Menu.Item icon={ChatIcon}>Support</Menu.Item>*/}
                     <Menu.Item
                       icon={CommentIcon}
-                      onSelect={() => setIsFeedbackOpen(true)}
+                      onSelect={() => handleDropdown("feedback")}
                     >
                       Feedback
                     </Menu.Item>
