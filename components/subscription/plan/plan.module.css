@@ -1,6 +1,6 @@
 .container {
   width: 100%;
-  margin-right: 16px;
+  margin-right: 20px;
 }
 
 .planContainer {
@@ -22,4 +22,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+@media screen and (max-width: 860px) {
+  .container {
+    margin-right: 0;
+    margin-bottom: 20px;
+  }
 }

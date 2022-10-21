@@ -39,8 +39,8 @@ export const Feedback = ({ show, setShow }) => {
       return;
     }
 
-    setIsLoading(false);
-    toaster.success("Feedback submitted successfully");
+    handleClose();
+    toaster.success("Feedback submitted");
   };
 
   return (
@@ -50,12 +50,24 @@ export const Feedback = ({ show, setShow }) => {
       onCloseComplete={handleClose}
       confirmLabel="Send"
       onConfirm={handleSubmit}
+      shouldCloseOnOverlayClick={false}
+      isConfirmLoading={isLoading}
+      isConfirmDisabled={!feedback}
     >
-      <Paragraph marginBottom={20} fontWeight={500}>
+      <Paragraph marginBottom={20}>
         We&#39;re always looking to improve our product. Please let us know what
         you like or dislike, as well as any features or changes you&#39;d like
         to see in the future.
       </Paragraph>
+      <TextareaField
+        label="Your Feedback"
+        value={feedback}
+        resize="none"
+        onChange={(e) => setFeedback(e.target.value)}
+        placeholder="Any feedback is appreciated!"
+        marginBottom={10}
+        inputHeight={100}
+      />
     </Dialog>
   );
 };

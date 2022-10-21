@@ -1,4 +1,4 @@
-import { Dialog, Heading, toaster } from "evergreen-ui";
+import { Dialog, Heading, Paragraph, toaster } from "evergreen-ui";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { getSession } from "next-auth/react";
@@ -149,10 +149,10 @@ export const UpdatePaymentDialog = ({
       isConfirmLoading={isLoading}
     >
       {upgradeToPro && (
-        <Heading size={400} marginBottom={16}>
-          You are upgrading to Pro for $2.99 per month and will be charged on a
-          monthly basis. Your card will be charged immediately.
-        </Heading>
+        <Paragraph marginBottom={16}>
+          You are upgrading to Pro for <strong>$2.99 per month</strong> and will
+          be charged on a monthly basis. Your card will be charged immediately.
+        </Paragraph>
       )}
       <PaymentElement />
     </Dialog>

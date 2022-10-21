@@ -55,11 +55,12 @@ const Crypto = ({ stringifiedWallets }) => {
       {wallets.length > 0 && (
         <Table marginTop={30}>
           <Table.Head height={40} paddingRight={0}>
-            <Table.SearchHeaderCell
-              minWidth={50}
-              onChange={(value) => setSearchValue(value)}
-              placeholder="Search..."
-            />
+            {/*<Table.SearchHeaderCell*/}
+            {/*  minWidth={50}*/}
+            {/*  onChange={(value) => setSearchValue(value)}*/}
+            {/*  placeholder="Search..."*/}
+            {/*/>*/}
+            <Table.TextHeaderCell>Wallet Name</Table.TextHeaderCell>
             <Table.TextHeaderCell>Address</Table.TextHeaderCell>
           </Table.Head>
           <Table.Body height="100%" maxHeight={400}>

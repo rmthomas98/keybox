@@ -8,6 +8,9 @@ import {
   Icon,
   Tab,
   Tablist,
+  Popover,
+  Menu,
+  Position,
 } from "evergreen-ui";
 import { useState } from "react";
 import { Profile } from "../../components/settings/profile/profile";

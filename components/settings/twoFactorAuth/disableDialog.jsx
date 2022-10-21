@@ -39,11 +39,9 @@ export const DisableDialog = ({ show, setShow, setPhone }) => {
       isConfirmLoading={isLoading}
     >
       <Paragraph>
-        <Small>
-          Are you sure you want to disable two factor authentication? You will
-          no longer be able to use two factor authentication to log in to your
-          account unless you enable it again.
-        </Small>
+        Are you sure you want to disable two factor authentication? You will no
+        longer be able to use two factor authentication to log in to your
+        account unless you enable it again.
       </Paragraph>
     </Dialog>
   );

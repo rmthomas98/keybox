@@ -19,7 +19,7 @@ export const Payment = ({ paymentMethod, status, paymentStatus, plan }) => {
         flexDirection="column"
         justifyContent="space-between"
       >
-        <Heading size={400} fontWeight={700}>
+        <Heading size={400} fontWeight={700} marginBottom={10}>
           Payment Method
         </Heading>
         {!paymentMethod && (

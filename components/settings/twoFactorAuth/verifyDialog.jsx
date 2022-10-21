@@ -21,6 +21,7 @@ export const VerifyDialog = ({ show, setShow, phone }) => {
   };
 
   const handleConfirm = async () => {
+    await toaster.closeAll();
     if (!code) {
       toaster.danger("Please enter your code");
       return;
@@ -59,10 +60,7 @@ export const VerifyDialog = ({ show, setShow, phone }) => {
       onConfirm={handleConfirm}
     >
       <Paragraph marginBottom={20}>
-        <Small>
-          Please enter the code we sent to your phone to verify your phone
-          number.
-        </Small>
+        Please enter the code we sent to your phone to verify your phone number.
       </Paragraph>
       <TextInputField
         label="Verification Code"
