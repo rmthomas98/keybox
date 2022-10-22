@@ -90,9 +90,7 @@ export const Sidebar = () => {
                       content={tab.label}
                       key={tab.label}
                       position={Position.RIGHT}
-                      pointerEvents="none"
                       isShown={width < 800 && undefined}
-                      hasArrow={true}
                     >
                       <Tab
                         direction="vertical"

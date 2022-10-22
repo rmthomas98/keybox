@@ -26,6 +26,7 @@ a {
 .app-content-wrapper {
   width: 100%;
   padding: 20px;
+  padding-bottom: 80px;
 }
 
 .app-content {

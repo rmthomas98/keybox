@@ -15,14 +15,14 @@ import {
   Dialog,
 } from "evergreen-ui";
 import axios from "axios";
-import {useRouter} from "next/router";
-import {useState} from "react";
-import {getSession} from "next-auth/react";
+import { useRouter } from "next/router";
+import { useState } from "react";
+import { getSession } from "next-auth/react";
 import prisma from "../../lib/prisma";
-import {Trial} from "../../components/dialogs/subscribe/trial";
-import {Premium} from "../../components/dialogs/subscribe/premium";
+import { Trial } from "../../components/dialogs/subscribe/trial";
+import { Premium } from "../../components/dialogs/subscribe/premium";
 
-const ChoosePlan = ({status}) => {
+const ChoosePlan = ({ status }) => {
   const [trialDialog, setTrialDialog] = useState(false);
   const [premiumDialog, setPremiumDialog] = useState(false);
   const router = useRouter();
@@ -48,13 +48,13 @@ const ChoosePlan = ({status}) => {
               elevation={1}
               maxWidth={250}
               width="100%"
-              marginRight={20}
+              className={styles.firstCard}
             >
               <Badge marginBottom={10}>7 Day Free Trial</Badge>
               <Heading
                 size={700}
                 paddingBottom={10}
-                style={{borderBottom: "1px solid #E6E8F0"}}
+                style={{ borderBottom: "1px solid #E6E8F0" }}
               >
                 $0.00
               </Heading>
@@ -75,10 +75,10 @@ const ChoosePlan = ({status}) => {
                   Bank accounts
                 </ListItem>
                 <ListItem icon={TickCircleIcon} iconColor="success">
-                  2 Factor authentication
-                </ListItem>
-                <ListItem icon={TickCircleIcon} iconColor="success">
                   Customer support
+                </ListItem>
+                <ListItem icon={BanCircleIcon} iconColor="danger">
+                  2 Factor authentication
                 </ListItem>
                 <ListItem icon={BanCircleIcon} iconColor="danger">
                   Password generator
@@ -104,11 +104,13 @@ const ChoosePlan = ({status}) => {
             maxWidth={250}
             width="100%"
           >
-            <Badge marginBottom={10}>KeyBox Premium</Badge>
+            <Badge marginBottom={10} color="green">
+              Darkpine Pro
+            </Badge>
             <Heading
               size={700}
               paddingBottom={10}
-              style={{borderBottom: "1px solid #E6E8F0"}}
+              style={{ borderBottom: "1px solid #E6E8F0" }}
             >
               $2.99{" "}
               <Text>
@@ -150,13 +152,13 @@ const ChoosePlan = ({status}) => {
               width="100%"
               onClick={() => setPremiumDialog(true)}
             >
-              Buy Premium
+              Start pro plan
             </Button>
           </Card>
         </div>
       </div>
-      <Trial isOpen={trialDialog} setIsOpen={setTrialDialog}/>
-      <Premium isOpen={premiumDialog} setIsOpen={setPremiumDialog}/>
+      <Trial isOpen={trialDialog} setIsOpen={setTrialDialog} />
+      <Premium isOpen={premiumDialog} setIsOpen={setPremiumDialog} />
     </div>
   );
 };
@@ -173,9 +175,9 @@ export const getServerSideProps = async (ctx) => {
     };
   }
 
-  const {id} = session;
-  const user = await prisma.user.findUnique({where: {id}});
-  const {status} = user;
+  const { id } = session;
+  const user = await prisma.user.findUnique({ where: { id } });
+  const { status } = user;
 
   if (!user.emailVerified) {
     return {
@@ -204,8 +206,7 @@ export const getServerSideProps = async (ctx) => {
     };
   }
 
-
-  return {props: {status}};
+  return { props: { status } };
 };
 
 export default ChoosePlan;

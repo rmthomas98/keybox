@@ -15,6 +15,7 @@ const size = partial({ base: 3, standard: "jedec" });
 export const Storage = ({ storageSize, status }) => {
   const maxStorage = 15000000000; // 15GB
   const storagePercentage = ((storageSize / maxStorage) * 100).toFixed(2);
+  console.log(size(maxStorage));
   return (
     <div className={styles.container}>
       <Heading size={400} fontWeight={700} marginBottom={20}>

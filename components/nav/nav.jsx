@@ -17,6 +17,12 @@ import {
   CommentIcon,
   Autocomplete,
   TextInput,
+  UserIcon,
+  IconButton,
+  PersonIcon,
+  Tooltip,
+  ChevronDownIcon,
+  ChevronUpIcon,
 } from "evergreen-ui";
 import Image from "next/image";
 import NextLink from "next/link";
@@ -25,6 +31,7 @@ import { signOut } from "next-auth/react";
 import { useContext, useEffect, useState } from "react";
 import { SearchContext } from "../context/search";
 import { Feedback } from "../dialogs/feedback";
+import { useWindowWidth } from "@react-hook/window-size";
 
 // const searchOptions = [
 //   {
@@ -71,6 +78,7 @@ export const Nav = () => {
   const { searchValue, setSearchValue } = useContext(SearchContext);
   const [searchPlaceholder, setSearchPlaceholder] = useState("");
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+  const width = useWindowWidth();
 
   const handleSignOut = async () => {
     setIsMenuOpen(false);
@@ -122,8 +130,8 @@ export const Nav = () => {
             <Link>
               <div className={styles.titleContainer}>
                 <Image src="/images/logo.svg" height={30} width={30} />
-                <Heading size={700} fontWeight={700} marginLeft={10}>
-                  DARKPINE
+                <Heading size={400} fontWeight={700} marginLeft={10}>
+                  Darkpine
                 </Heading>
               </div>
             </Link>
@@ -134,8 +142,8 @@ export const Nav = () => {
             <Link>
               <div className={styles.titleContainer}>
                 <Image src="/images/logo.svg" height={30} width={30} />
-                <Heading size={700} fontWeight={700} marginLeft={10}>
-                  DARKPINE
+                <Heading size={400} fontWeight={700} marginLeft={10}>
+                  Darkpine
                 </Heading>
               </div>
             </Link>
@@ -143,7 +151,9 @@ export const Nav = () => {
         )}
         {router.pathname.includes("/app") &&
           !router.pathname.endsWith("/app/choose-plan") && (
-            <>
+            <div
+              style={{ display: "flex", alignItems: "center", width: "100%" }}
+            >
               {/*<NextLink href="/app" passHref>*/}
               {/*  <Link minWidth="fit-content">*/}
               {/*    <div className={styles.titleContainer}>*/}
@@ -154,6 +164,20 @@ export const Nav = () => {
               {/*    </div>*/}
               {/*  </Link>*/}
               {/*</NextLink>*/}
+              {router.pathname.includes("/app") &&
+                router.pathname !== "/app/choose-plan" && (
+                  <div className={styles.mobileImageContainer}>
+                    <NextLink href="/app" passHref>
+                      <Link
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                      >
+                        <Image src="/images/logo.svg" height={25} width={25} />
+                      </Link>
+                    </NextLink>
+                  </div>
+                )}
               <div
                 className={styles.searchContainer}
                 style={{
@@ -193,7 +217,7 @@ export const Nav = () => {
                   }
                 />
               </div>
-            </>
+            </div>
           )}
         {!router.pathname.includes("/app") && (
           <div className={styles.navLinks}>
@@ -291,7 +315,19 @@ export const Nav = () => {
                 </Menu>
               }
             >
-              <Button minWidth="fit-content">My Account</Button>
+              <div>
+                <Button
+                  minWidth="fit-content"
+                  className={styles.accountBtn}
+                  iconAfter={isMenuOpen ? ChevronUpIcon : ChevronDownIcon}
+                >
+                  My Account
+                </Button>
+                <IconButton
+                  icon={PersonIcon}
+                  className={styles.accountIconBtn}
+                />
+              </div>
             </Popover>
           )}
       </div>

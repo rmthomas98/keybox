@@ -41,16 +41,16 @@
 
 @media screen and (max-width: 800px) {
   .wrapper {
-    width: 73px;
+    width: 61px;
   }
 
   .titleContainer {
     justify-content: center;
-    padding: 12px;
+    padding: 6px;
   }
 
   .tabContainer {
-    padding: 20px 12px;
+    padding: 20px 6px;
   }
 
   .icon {

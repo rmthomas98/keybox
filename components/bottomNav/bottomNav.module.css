@@ -1,0 +1,27 @@
+.wrapper {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  border-top: 1px solid #E6E8F0;
+  background: #fff;
+  z-index: 9;
+}
+
+.container {
+  padding: 10px;
+}
+
+.wrapper {
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: 300ms;
+}
+
+@media screen and (max-width: 500px) {
+  .wrapper {
+    height: 48px;
+    opacity: 1;
+  }
+}

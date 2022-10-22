@@ -1,31 +1,39 @@
 import prisma from "../../../lib/prisma";
-import { getToken } from "next-auth/jwt";
-import { decryptCard } from "../../../helpers/cards/decryptCard";
-import { decryptCards } from "../../../helpers/cards/decryptCards";
+import {getToken} from "next-auth/jwt";
+import {decryptCard} from "../../../helpers/cards/decryptCard";
+import {decryptCards} from "../../../helpers/cards/decryptCards";
 
 const aes256 = require("aes256");
 
 const handler = async (req, res) => {
   try {
-    const token = await getToken({ req });
+    const token = await getToken({req});
     if (!token) {
-      return res.json({ error: true, message: "Not authorized" });
+      return res.json({error: true, message: "Not authorized"});
     }
 
-    const { cardId, userId, identifier, identifierChange, type, brand } =
+    const {cardId, userId, identifier, identifierChange, type, brand} =
       req.body;
-    let { name, number, exp, cvc, zip } = req.body;
+    let {name, number, exp, cvc, zip} = req.body;
 
     // check user id against token
     if (userId !== token.id) {
-      res.json({ error: true, message: "Not authorized" });
+      res.json({error: true, message: "Not authorized"});
+      return;
+    }
+
+    // check user
+    const user = await prisma.user.findUnique({where: {id: userId}})
+
+    if (!user) {
+      res.json({error: true, message: "User not found"});
       return;
     }
 
     // get user from db along with existing cards
-    const { cards } = await prisma.user.findUnique({
-      where: { id: userId },
-      include: { cards: true },
+    const {cards} = await prisma.user.findUnique({
+      where: {id: userId},
+      include: {cards: true},
     });
 
     // check if user changed identifier
@@ -55,7 +63,7 @@ const handler = async (req, res) => {
 
     // update card in db
     await prisma.card.update({
-      where: { id: cardId },
+      where: {id: cardId},
       data: {
         identifier: identifier.trim(),
         type: type ? type : null,
@@ -70,13 +78,13 @@ const handler = async (req, res) => {
     });
 
     // get updated card
-    let updatedCard = await prisma.card.findUnique({ where: { id: cardId } });
+    let updatedCard = await prisma.card.findUnique({where: {id: cardId}});
     updatedCard = decryptCard(updatedCard);
 
     // Get all cards and update
-    let { cards: updatedCards } = await prisma.user.findUnique({
-      where: { id: userId },
-      include: { cards: true },
+    let {cards: updatedCards} = await prisma.user.findUnique({
+      where: {id: userId},
+      include: {cards: true},
     });
     updatedCards = decryptCards(updatedCards);
 
@@ -88,7 +96,7 @@ const handler = async (req, res) => {
       cards: updatedCards,
     });
   } catch {
-    res.json({ error: true, message: "Something went wrong" });
+    res.json({error: true, message: "Something went wrong"});
   }
 };
 

@@ -1,30 +1,39 @@
 import prisma from "../../../lib/prisma";
-import { getToken } from "next-auth/jwt";
-import { decryptCards } from "../../../helpers/cards/decryptCards";
+import {getToken} from "next-auth/jwt";
+import {decryptCards} from "../../../helpers/cards/decryptCards";
 
 const aes256 = require("aes256");
 
 const handler = async (req, res) => {
   try {
     // authenticate user
-    const token = await getToken({ req });
+    const token = await getToken({req});
     if (!token) {
-      return res.json({ error: true, message: "Not authorized" });
+      return res.json({error: true, message: "Not authorized"});
     }
 
-    const { id, identifier, type, brand } = req.body.options;
-    let { name, number, exp, cvc, zip } = req.body.options;
+    const {id, identifier, type, brand} = req.body.options;
+    let {name, number, exp, cvc, zip} = req.body.options;
 
     // check user id against token
     if (id !== token.id) {
-      res.json({ error: true, message: "Not authorized" });
+      res.json({error: true, message: "Not authorized"});
+      return;
+    }
+
+    // check user
+    const user = await prisma.user.findUnique({where: {id}});
+
+    // check if user exists
+    if (!user) {
+      res.json({error: true, message: "User not found"});
       return;
     }
 
     // get user from db along with existing cards
-    const { cards } = await prisma.user.findUnique({
-      where: { id },
-      include: { cards: true },
+    const {cards} = await prisma.user.findUnique({
+      where: {id},
+      include: {cards: true},
     });
 
     // check if identifier is already taken
@@ -65,9 +74,9 @@ const handler = async (req, res) => {
     });
 
     // get updated cards
-    let { cards: updatedCards } = await prisma.user.findUnique({
-      where: { id: id },
-      include: { cards: true },
+    let {cards: updatedCards} = await prisma.user.findUnique({
+      where: {id: id},
+      include: {cards: true},
     });
 
     // decrypt card details
@@ -79,7 +88,7 @@ const handler = async (req, res) => {
       cards: updatedCards,
     });
   } catch {
-    res.json({ error: true, message: "Something went wrong" });
+    res.json({error: true, message: "Something went wrong"});
   }
 };
 

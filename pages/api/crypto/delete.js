@@ -19,6 +19,14 @@ const handler = async (req, res) => {
       return;
     }
 
+    // check user
+    const user = await prisma.user.findUnique({where: {id: userId}});
+
+    if (!user) {
+      res.json({error: true, message: "User not found"});
+      return;
+    }
+
     // make sure user owns wallet
     const wallet = await prisma.cryptoWallet.findUnique({
       where: {id: walletId},

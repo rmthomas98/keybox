@@ -6,6 +6,7 @@ import { Sidebar } from "../components/sidebar/sidebar";
 import NextNProgress from "nextjs-progressbar";
 import { useEffect, useState } from "react";
 import { SearchContext } from "../components/context/search";
+import { BottomNav } from "../components/bottomNav/bottomNav";
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }) {
   const [searchValue, setSearchValue] = useState("");
@@ -70,17 +71,20 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
             </div>
           )}
           {router.pathname.includes("/app") && !checkRoute && (
-            <div className="app-wrapper">
-              <Sidebar />
-              <div className="app-container">
-                <Nav />
-                <div className="app-content-wrapper">
-                  <div className="app-content">
-                    <Component {...pageProps} />
+            <>
+              <div className="app-wrapper">
+                <Sidebar />
+                <div className="app-container">
+                  <Nav />
+                  <div className="app-content-wrapper">
+                    <div className="app-content">
+                      <Component {...pageProps} />
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+              <BottomNav />
+            </>
           )}
         </SearchContext.Provider>
       </SessionProvider>

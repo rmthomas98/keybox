@@ -11,6 +11,7 @@ import {
   OfflineIcon,
   Small,
   Text,
+  Paragraph,
 } from "evergreen-ui";
 import { useState, useContext } from "react";
 import prisma from "../../lib/prisma";
@@ -46,11 +47,11 @@ const Crypto = ({ stringifiedWallets }) => {
         </Button>
       </div>
       {wallets.length === 0 && (
-        <Alert
-          marginTop={20}
-          intent="info"
-          title="No wallets on file. Get started by adding your first wallet!"
-        />
+        <Alert marginTop={20} intent="info" title="No wallets on file">
+          <Paragraph size={300} color="#2952CC" marginTop={4}>
+            Get started by adding your first wallet!
+          </Paragraph>
+        </Alert>
       )}
       {wallets.length > 0 && (
         <Table marginTop={30}>

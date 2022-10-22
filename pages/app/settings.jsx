@@ -145,7 +145,11 @@ const Settings = ({ email, twoFactor, phone, status, storageSize }) => {
           {selected === "profile" && <Profile userEmail={email} />}
           {selected === "password" && <Password />}
           {selected === "twoFactor" && (
-            <TwoFactorAuth twoFactor={twoFactor} currentPhone={phone} />
+            <TwoFactorAuth
+              twoFactor={twoFactor}
+              currentPhone={phone}
+              status={status}
+            />
           )}
           {selected === "storage" && (
             <Storage status={status} storageSize={storageSize} />

@@ -25,6 +25,14 @@ const handler = async (req, res) => {
       return;
     }
 
+    // check user
+    const user = await prisma.user.findUnique({where: {id: userId}});
+
+    if (!user) {
+      res.json({error: true, message: "User not found"});
+      return;
+    }
+
     // create s3 instance
     const s3 = new aws.S3({
       accessKeyId: process.env.AWS_ACCESS_KEY_ID,

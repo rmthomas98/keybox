@@ -8,6 +8,7 @@ import {
   CreditCardIcon,
   Text,
   Small,
+  Paragraph,
 } from "evergreen-ui";
 import { getSession } from "next-auth/react";
 import prisma from "../../lib/prisma";
@@ -44,11 +45,11 @@ const Cards = ({ stringifiedCards }) => {
         </Button>
       </div>
       {cards.length === 0 && (
-        <Alert
-          marginTop={20}
-          intent="info"
-          title="No cards on file. Get started by adding your first card!"
-        />
+        <Alert marginTop={20} intent="info" title="No cards on file">
+          <Paragraph size={300} color="#2952CC" marginTop={4}>
+            Get started by adding your first card!
+          </Paragraph>
+        </Alert>
       )}
       {cards.length > 0 && (
         <Table marginTop={30}>

@@ -1,36 +1,44 @@
 import prisma from "../../../lib/prisma";
-import { getToken } from "next-auth/jwt";
+import {getToken} from "next-auth/jwt";
 
 const aws = require("aws-sdk");
 
 const handler = async (req, res) => {
   try {
-    const token = await getToken({ req });
+    const token = await getToken({req});
     if (!token) {
-      res.json({ error: true, message: "Not authorized" });
+      res.json({error: true, message: "Not authorized"});
       return;
     }
 
-    const { userId, folderId } = req.body;
+    const {userId, folderId} = req.body;
 
     // check userId against token id
     if (userId !== token.id) {
-      res.json({ error: true, message: "Not authorized" });
+      res.json({error: true, message: "Not authorized"});
       return;
     }
 
     // check data
     if (!userId || !folderId) {
-      res.json({ error: true, message: "Invalid data" });
+      res.json({error: true, message: "Invalid data"});
+      return;
+    }
+
+    // check user
+    const user = await prisma.user.findUnique({where: {id: userId}});
+
+    if (!user) {
+      res.json({error: true, message: "Invalid user"});
       return;
     }
 
     // get folder and files from database
     const folder = await prisma.folder.findUnique({
-      where: { id: folderId },
-      include: { files: true },
+      where: {id: folderId},
+      include: {files: true},
     });
-    const { files } = folder;
+    const {files} = folder;
 
     // create s3 instance
     const s3 = new aws.S3({
@@ -41,7 +49,7 @@ const handler = async (req, res) => {
 
     // delete files from s3 and database
     for (let i = 0; i < files.length; i++) {
-      const { key, id } = files[i];
+      const {key, id} = files[i];
 
       const params = {
         Bucket: process.env.AWS_BUCKET,
@@ -49,16 +57,16 @@ const handler = async (req, res) => {
       };
 
       await s3.deleteObject(params).promise();
-      await prisma.file.delete({ where: { id } });
+      await prisma.file.delete({where: {id}});
     }
 
     // delete folder from database
-    await prisma.folder.delete({ where: { id: folderId } });
+    await prisma.folder.delete({where: {id: folderId}});
 
     // get updated folders
     const updatedFolders = await prisma.folder.findMany({
-      where: { userId },
-      include: { files: true },
+      where: {userId},
+      include: {files: true},
     });
 
     res.json({
@@ -68,7 +76,7 @@ const handler = async (req, res) => {
     });
   } catch (err) {
     console.log(err);
-    res.json({ error: true, message: "Something went wrong" });
+    res.json({error: true, message: "Something went wrong"});
   }
 };
 

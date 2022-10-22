@@ -1,31 +1,40 @@
 import prisma from "../../../lib/prisma";
 
 const aes256 = require("aes256");
-import { getToken } from "next-auth/jwt";
-import { getUserData } from "../../../helpers/getUserData";
-import { decryptBanks } from "../../../helpers/banks/decryptBanks";
-import { decryptBank } from "../../../helpers/banks/decryptBank";
+import {getToken} from "next-auth/jwt";
+import {getUserData} from "../../../helpers/getUserData";
+import {decryptBanks} from "../../../helpers/banks/decryptBanks";
+import {decryptBank} from "../../../helpers/banks/decryptBank";
 
 const handler = async (req, res) => {
   try {
     // authenticate user
-    const token = await getToken({ req });
+    const token = await getToken({req});
     if (!token) {
-      return res.json({ error: true, message: "Not authorized" });
+      return res.json({error: true, message: "Not authorized"});
     }
 
-    const { userId, bankId, identifier, type, ownership, isIdentityChange } =
+    const {userId, bankId, identifier, type, ownership, isIdentityChange} =
       req.body;
-    let { name, account, routing } = req.body;
+    let {name, account, routing} = req.body;
 
     // check user id against token
     if (userId !== token.id) {
-      res.json({ error: true, message: "Not authorized" });
+      res.json({error: true, message: "Not authorized"});
+      return;
+    }
+
+    // check user
+    const user = await prisma.user.findUnique({where: {id: userId}});
+
+    // check if user exists
+    if (!user) {
+      res.json({error: true, message: "User not found"});
       return;
     }
 
     // check if identifier is changed and if it is already taken
-    let { banks } = getUserData(userId, { banks: true });
+    let {banks} = getUserData(userId, {banks: true});
     if (isIdentityChange) {
       const isIdentityTaken = banks.filter(
         (bank) =>
@@ -47,7 +56,7 @@ const handler = async (req, res) => {
 
     // update bank in db
     const updatedBank = await prisma.bank.update({
-      where: { id: bankId },
+      where: {id: bankId},
       data: {
         identifier: identifier.trim(),
         name,
@@ -59,7 +68,7 @@ const handler = async (req, res) => {
     });
 
     // get updated banks
-    const { banks: updatedBanks } = await getUserData(userId, { banks: true });
+    const {banks: updatedBanks} = await getUserData(userId, {banks: true});
 
     // decrypt bank details
     const decryptedBanks = decryptBanks(updatedBanks);
@@ -73,7 +82,7 @@ const handler = async (req, res) => {
       bank: decryptedBank,
     });
   } catch {
-    res.json({ error: true, message: "Something went wrong" });
+    res.json({error: true, message: "Something went wrong"});
   }
 };
 

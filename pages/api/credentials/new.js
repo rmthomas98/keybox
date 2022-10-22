@@ -29,6 +29,11 @@ const handler = async (req, res) => {
       include: { credentials: true },
     });
 
+    if (!user) {
+      res.json({ error: true, message: "User not found" });
+      return;
+    }
+
     // check if name is already taken
     const isNameTaken = user.credentials.filter(
       (credentials) =>

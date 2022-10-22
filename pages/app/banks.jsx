@@ -9,6 +9,7 @@ import {
   Table,
   Text,
   Small,
+  Paragraph,
 } from "evergreen-ui";
 import { getSession } from "next-auth/react";
 import { decryptBanks } from "../../helpers/banks/decryptBanks";
@@ -44,11 +45,11 @@ const Banks = ({ stringifiedBanks }) => {
         </Button>
       </div>
       {banks.length === 0 && (
-        <Alert
-          marginTop={20}
-          intent="info"
-          title="No banks on file. Get started by adding your first bank!"
-        />
+        <Alert marginTop={20} intent="info" title="No banks on file">
+          <Paragraph size={300} color="#2952CC" marginTop={4}>
+            Get started by adding your first bank account!
+          </Paragraph>
+        </Alert>
       )}
       {banks.length > 0 && (
         <Table marginTop={30}>

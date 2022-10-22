@@ -1,27 +1,33 @@
 import prisma from "../../lib/prisma";
-import { getToken } from "next-auth/jwt";
+import {getToken} from "next-auth/jwt";
 
 const nodemailer = require("nodemailer");
 
 const handler = async (req, res) => {
   try {
     // authenticate user
-    const token = await getToken({ req });
+    const token = await getToken({req});
     if (!token) {
-      res.json({ error: true, message: "Unauthorized" });
+      res.json({error: true, message: "Unauthorized"});
       return;
     }
 
     // get feedback and user id
-    const { feedback, userId } = req.body;
+    const {feedback, userId} = req.body;
 
     if (!userId || !feedback) {
-      res.json({ error: true, message: "Invalid request" });
+      res.json({error: true, message: "Invalid request"});
       return;
     }
 
     // get user from db
-    const user = await prisma.user.findUnique({ where: { id: userId } });
+    const user = await prisma.user.findUnique({where: {id: userId}});
+
+    // check user
+    if (!user) {
+      res.json({error: true, message: "Invalid user"});
+      return;
+    }
 
     // create nodemailer transporter
     const transporter = nodemailer.createTransport({
@@ -45,9 +51,9 @@ const handler = async (req, res) => {
     // send message
     await transporter.sendMail(msg);
 
-    res.json({ error: false, message: "Feedback sent" });
+    res.json({error: false, message: "Feedback sent"});
   } catch {
-    res.json({ error: true, message: "Something went wrong" });
+    res.json({error: true, message: "Something went wrong"});
   }
 };
 

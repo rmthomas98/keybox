@@ -1,29 +1,38 @@
 import prisma from "../../../lib/prisma";
-import { getToken } from "next-auth/jwt";
-import { getUserData } from "../../../helpers/getUserData";
-import { decryptBanks } from "../../../helpers/banks/decryptBanks";
+import {getToken} from "next-auth/jwt";
+import {getUserData} from "../../../helpers/getUserData";
+import {decryptBanks} from "../../../helpers/banks/decryptBanks";
 
 const aes256 = require("aes256");
 
 const handler = async (req, res) => {
   try {
     // authenticate user
-    const token = await getToken({ req });
+    const token = await getToken({req});
     if (!token) {
-      return res.json({ error: true, message: "Not authorized" });
+      return res.json({error: true, message: "Not authorized"});
     }
 
-    const { userId, identifier, type, ownership } = req.body;
-    let { name, account, routing } = req.body;
+    const {userId, identifier, type, ownership} = req.body;
+    let {name, account, routing} = req.body;
 
     // check user id against token
     if (userId !== token.id) {
-      res.json({ error: true, message: "Not authorized" });
+      res.json({error: true, message: "Not authorized"});
+      return;
+    }
+
+    // check user
+    const user = await prisma.user.findUnique({where: {id: userId}});
+
+    // check if user exists
+    if (!user) {
+      res.json({error: true, message: "User not found"});
       return;
     }
 
     // get user from db along with existing banks
-    const { banks } = await getUserData(userId, { banks: true });
+    const {banks} = await getUserData(userId, {banks: true});
 
     // check if identifier is already taken
     const isIdentityTaken = banks.filter(
@@ -57,7 +66,7 @@ const handler = async (req, res) => {
     });
 
     // get updated banks
-    const { banks: updatedBanks } = await getUserData(userId, { banks: true });
+    const {banks: updatedBanks} = await getUserData(userId, {banks: true});
     const banksWithDecryptedDetails = decryptBanks(updatedBanks);
 
     res.json({
@@ -66,7 +75,7 @@ const handler = async (req, res) => {
       message: "Bank added successfully!",
     });
   } catch {
-    res.json({ error: true, message: "Something went wrong" });
+    res.json({error: true, message: "Something went wrong"});
   }
 };
 

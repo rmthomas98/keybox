@@ -10,6 +10,7 @@ import {
   Icon,
   Text,
   Small,
+  Paragraph,
 } from "evergreen-ui";
 import { useState, useContext } from "react";
 import { NewFile } from "../../components/dialogs/files/newFile";
@@ -54,11 +55,11 @@ const Files = ({ stringifiedFolders, status }) => {
         />
       )}
       {folders.length === 0 && status !== "TRIAL_IN_PROGRESS" && (
-        <Alert
-          intent="info"
-          marginTop={20}
-          title="No folders on file. Get started by creating your first folder!"
-        />
+        <Alert intent="info" marginTop={20} title="No folders on file">
+          <Paragraph size={300} color="#2952CC" marginTop={4}>
+            Get started by creating your first folder!
+          </Paragraph>
+        </Alert>
       )}
       {folders.length > 0 && (
         <Table marginTop={30}>

@@ -1,5 +1,5 @@
 import prisma from "../../../lib/prisma";
-import { getToken } from "next-auth/jwt";
+import {getToken} from "next-auth/jwt";
 
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
@@ -8,35 +8,48 @@ const client = require("twilio")(accountSid, authToken);
 const handler = async (req, res) => {
   try {
     // authenticate user
-    const token = await getToken({ req });
+    const token = await getToken({req});
     if (!token) {
-      res.json({ error: true, message: "Unauthorized" });
+      res.json({error: true, message: "Unauthorized"});
       return;
     }
 
-    const { userId, phone } = req.body;
+    const {userId, phone} = req.body;
 
     // check user id against token
     if (userId !== token.id) {
-      res.json({ error: true, message: "Unauthorized" });
+      res.json({error: true, message: "Unauthorized"});
       return;
     }
 
     // check for phone and user id
     if (!phone || !userId) {
-      res.json({ error: true, message: "Invalid data" });
+      res.json({error: true, message: "Invalid data"});
+      return;
+    }
+
+    // check if user exists and user status
+    const user = await prisma.user.findUnique({where: {id: userId}});
+
+    if (!user) {
+      res.json({error: true, message: "Invalid user"});
+      return;
+    }
+
+    if (user.status !== 'SUBSCRIPTION_ACTIVE') {
+      res.json({error: true, message: "Upgrade your plan to enable 2FA"});
       return;
     }
 
     // check length of phone number
     if (phone.length < 10) {
-      res.json({ error: true, message: "Invalid phone number" });
+      res.json({error: true, message: "Invalid phone number"});
       return;
     }
 
     // check if phone number already exists
     const doesPhoneExist = await prisma.user.findUnique({
-      where: { phone: phone.trim() },
+      where: {phone: phone.trim()},
     });
 
     if (doesPhoneExist && doesPhoneExist.id !== userId) {
@@ -58,23 +71,23 @@ const handler = async (req, res) => {
     });
 
     if (message.status === "failed") {
-      res.json({ error: true, message: "Error sending verification code" });
+      res.json({error: true, message: "Error sending verification code"});
       return;
     }
 
     // updated user in db
-    const user = await prisma.user.update({
-      where: { id: userId },
+    await prisma.user.update({
+      where: {id: userId},
       data: {
         phoneToken: verificationCode.toString(),
         setPhoneTo: phone.trim(),
       },
     });
 
-    res.json({ error: false, message: "Verification code sent" });
+    res.json({error: false, message: "Verification code sent"});
   } catch (err) {
     console.log(err);
-    res.json({ error: true, message: "Something went wrong" });
+    res.json({error: true, message: "Something went wrong"});
   }
 };
 

@@ -19,6 +19,15 @@ const handler = async (req, res) => {
       return;
     }
 
+    // check user
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+
+    // check if user exists
+    if (!user) {
+      res.json({ error: true, message: "User not found" });
+      return;
+    }
+
     // delete bank from db
     await prisma.bank.delete({ where: { id: bankId } });
 

@@ -197,7 +197,7 @@ export const CredentialsView = ({
 
   // generate a random password
   const generatePassword = () => {
-    if (status === "TRIAL_IN_PROGRESS") {
+    if (status !== "TRIAL_IN_PROGRESS") {
       toaster.danger("You cannot generate a password in trial mode");
       return;
     }

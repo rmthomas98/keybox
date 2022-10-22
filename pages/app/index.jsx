@@ -10,6 +10,7 @@ import {
   PlusIcon,
   ShieldIcon,
   Text,
+  Paragraph,
 } from "evergreen-ui";
 import { getSession } from "next-auth/react";
 import prisma from "../../lib/prisma";
@@ -48,11 +49,11 @@ const AppHome = ({ stringifiedCreds, status, ask2FA }) => {
         </Button>
       </div>
       {credentials?.length === 0 && (
-        <Alert
-          marginTop={20}
-          intent="info"
-          title="No credentials on file. Get started by adding your first credentials!"
-        />
+        <Alert marginTop={20} intent="info" title="No credentials on file">
+          <Paragraph size={300} color="#2952CC" marginTop={4}>
+            Get started by adding your first credentials!
+          </Paragraph>
+        </Alert>
       )}
       {credentials?.length > 0 && (
         <Table marginTop={30}>
@@ -134,7 +135,7 @@ const AppHome = ({ stringifiedCreds, status, ask2FA }) => {
         setAllCredentials={setCredentials}
         status={status}
       />
-      <TwoFactorAuth ask={ask2FA} />
+      <TwoFactorAuth ask={ask2FA} status={status} />
     </div>
   );
 };

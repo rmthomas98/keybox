@@ -1,5 +1,6 @@
 .wrapper {
   padding: 20px;
+  padding-bottom: 50px;
 }
 
 .container {
@@ -10,4 +11,20 @@
 .cardContainer {
   display: flex;
   justify-content: center;
+}
+
+.firstCard {
+  margin-right: 20px;
+}
+
+@media screen and (max-width: 600px) {
+  .cardContainer {
+    flex-direction: column;
+    align-items: center
+  }
+
+  .firstCard {
+    margin-right: 0;
+    margin-bottom: 20px;
+  }
 }

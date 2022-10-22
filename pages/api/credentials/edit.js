@@ -1,30 +1,38 @@
 import prisma from "../../../lib/prisma";
-import { getToken } from "next-auth/jwt";
+import {getToken} from "next-auth/jwt";
 
 const aes256 = require("aes256");
-import { decryptCredentials } from "../../../helpers/credentials/decryptCredentials";
+import {decryptCredentials} from "../../../helpers/credentials/decryptCredentials";
 
 const handler = async (req, res) => {
   try {
     // authenticate user
-    const token = await getToken({ req });
+    const token = await getToken({req});
     if (!token) {
-      return res.json({ error: true, message: "Not authorized" });
+      return res.json({error: true, message: "Not authorized"});
     }
 
-    const { id, userId, name, nameChange, account, website, password } =
+    const {id, userId, name, nameChange, account, website, password} =
       req.body.options;
 
     // check user id against token
     if (userId !== token.id) {
-      res.json({ error: true, message: "Not authorized" });
+      res.json({error: true, message: "Not authorized"});
+      return;
+    }
+
+    // check user
+    const user = await prisma.user.findUnique({where: {id: userId}});
+
+    if (!user) {
+      res.json({error: true, message: "User not found"});
       return;
     }
 
     // get user from db along with existing credentials
-    const { credentials } = await prisma.user.findUnique({
-      where: { id: userId },
-      include: { credentials: true },
+    const {credentials} = await prisma.user.findUnique({
+      where: {id: userId},
+      include: {credentials: true},
     });
 
     if (nameChange) {
@@ -51,7 +59,7 @@ const handler = async (req, res) => {
 
     // update credentials
     await prisma.credential.update({
-      where: { id },
+      where: {id},
       data: {
         name: name.trim(),
         account,
@@ -62,11 +70,11 @@ const handler = async (req, res) => {
 
     // get updated credential and decrypt
     const updatedCredential = await prisma.credential.findUnique({
-      where: { id },
+      where: {id},
     });
     if (updatedCredential.password) {
       const key = process.env.ENCRYPTION_KEY;
-      const { password: encryptedPassword } = updatedCredential;
+      const {password: encryptedPassword} = updatedCredential;
       updatedCredential.decryptedPassword = aes256.decrypt(
         key,
         encryptedPassword
@@ -87,7 +95,7 @@ const handler = async (req, res) => {
       credentials: updatedCredentials,
     });
   } catch {
-    res.json({ error: true, message: "Something went wrong" });
+    res.json({error: true, message: "Something went wrong"});
   }
 };
 

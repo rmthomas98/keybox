@@ -1,4 +1,4 @@
-import { getToken } from "next-auth/jwt";
+import {getToken} from "next-auth/jwt";
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 import prisma from "../../../lib/prisma";
@@ -6,22 +6,29 @@ import prisma from "../../../lib/prisma";
 const handler = async (req, res) => {
   try {
     // authenticate user
-    const token = await getToken({ req });
+    const token = await getToken({req});
     if (!token) {
-      return res.json({ error: true, message: "Not authorized" });
+      return res.json({error: true, message: "Not authorized"});
     }
-    const { id, setupIntent } = req.body;
+    const {id, setupIntent} = req.body;
 
     // check user id against token id
     if (token.id !== id) {
-      res.json({ error: true, message: "Not authorized" });
+      res.json({error: true, message: "Not authorized"});
       return;
     }
 
     const paymentMethodId = setupIntent.setupIntent.payment_method;
     const priceId = "price_1LldZsIjvIl5h3pN1j3cMKH3";
-    const user = await prisma.user.findUnique({ where: { id } });
-    const { stripeId } = user;
+    const user = await prisma.user.findUnique({where: {id}});
+
+    // check user
+    if (!user) {
+      res.json({error: true, message: "User not found"});
+      return;
+    }
+
+    const {stripeId} = user;
 
     // attach payment method to customer
     await stripe.paymentMethods.attach(paymentMethodId, {
@@ -38,12 +45,12 @@ const handler = async (req, res) => {
     // create subscription in stripe
     await stripe.subscriptions.create({
       customer: stripeId,
-      items: [{ price: priceId }],
+      items: [{price: priceId}],
     });
 
     // update user in db
     await prisma.user.update({
-      where: { id },
+      where: {id},
       data: {
         paymentStatus: "PAID",
         status: "SUBSCRIPTION_ACTIVE",
@@ -51,9 +58,9 @@ const handler = async (req, res) => {
       },
     });
 
-    res.json({ error: false, message: "success" });
+    res.json({error: false, message: "success"});
   } catch {
-    res.json({ error: true, message: "Something went wrong" });
+    res.json({error: true, message: "Something went wrong"});
   }
 };
 

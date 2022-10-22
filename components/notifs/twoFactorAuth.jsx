@@ -6,11 +6,11 @@ import {
   TextInputField,
   toaster,
 } from "evergreen-ui";
-import { useEffect, useState } from "react";
-import { getSession } from "next-auth/react";
+import {useEffect, useState} from "react";
+import {getSession} from "next-auth/react";
 import axios from "axios";
 
-export const TwoFactorAuth = ({ ask }) => {
+export const TwoFactorAuth = ({ask, status}) => {
   const [show, setShow] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -32,20 +32,26 @@ export const TwoFactorAuth = ({ ask }) => {
 
   useEffect(() => {
     setTimeout(() => {
-      setShow(true);
+      if (status !== "TRIAL_IN_PROGRESS") {
+        setShow(true);
+      }
     }, [100]);
   }, []);
 
   // submit phone number to backend to get code
   const handleSubmitPhone = async () => {
+    if (status === "TRIAL_IN_PROGRESS") {
+      toaster.danger("Please upgrade your plan to enable 2FA");
+      return;
+    }
     if (!phone || phone.length < 10) {
       toaster.danger("Please enter a valid phone number");
       return;
     }
     setIsLoading(true);
     const session = await getSession();
-    const { id } = session;
-    const { data } = await axios.post("api/two-factor-auth/setup", {
+    const {id} = session;
+    const {data} = await axios.post("api/two-factor-auth/setup", {
       userId: id,
       phone,
     });
@@ -63,6 +69,11 @@ export const TwoFactorAuth = ({ ask }) => {
 
   // submit code to backend to verify code and enable two factor auth
   const handleVerify = async () => {
+    if (status === "TRIAL_IN_PROGRESS") {
+      toaster.danger("Please upgrade your plan to enable 2FA");
+      return;
+    }
+
     if (!code) {
       toaster.danger("Please enter a verification code");
       return;
@@ -70,8 +81,8 @@ export const TwoFactorAuth = ({ ask }) => {
 
     setIsLoading(true);
     const session = await getSession();
-    const { id } = session;
-    const { data } = await axios.post("/api/two-factor-auth/verify", {
+    const {id} = session;
+    const {data} = await axios.post("/api/two-factor-auth/verify", {
       userId: id,
       code,
       phone,
@@ -93,9 +104,9 @@ export const TwoFactorAuth = ({ ask }) => {
     setShowDialog(false);
 
     const session = await getSession();
-    const { id } = session;
+    const {id} = session;
 
-    const { data } = await axios.post("/api/two-factor-auth/disable-message", {
+    const {data} = await axios.post("/api/two-factor-auth/disable-message", {
       userId: id,
     });
   };

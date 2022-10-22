@@ -28,3 +28,32 @@
   left: 50%;
   transform: translateX(-50%);
 }
+
+.mobileImageContainer {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  right: 4px;
+}
+
+.accountIconBtn {
+  display: none;
+}
+
+@media screen and (max-width: 500px) {
+  .mobileImageContainer {
+    display: flex;
+    min-width: 30px;
+    width: 30px;
+    margin-right: 10px;
+  }
+
+  .accountIconBtn {
+    display: block;
+  }
+
+  .accountBtn {
+    display: none;
+  }
+}

@@ -1,25 +1,33 @@
 import prisma from "../../../lib/prisma";
-import { getToken } from "next-auth/jwt";
-import { decryptCredentials } from "../../../helpers/credentials/decryptCredentials";
+import {getToken} from "next-auth/jwt";
+import {decryptCredentials} from "../../../helpers/credentials/decryptCredentials";
 
 const handler = async (req, res) => {
   try {
     // authenticate user
-    const token = await getToken({ req });
+    const token = await getToken({req});
     if (!token) {
-      return res.json({ error: true, message: "Not authorized" });
+      return res.json({error: true, message: "Not authorized"});
     }
 
-    const { id, userId } = req.body;
+    const {id, userId} = req.body;
 
     // check auth token against user id
     if (token.id !== userId) {
-      res.json({ error: true, message: "Not authorized" });
+      res.json({error: true, message: "Not authorized"});
+      return;
+    }
+
+    // check user
+    const user = await prisma.user.findUnique({where: {id: userId}});
+
+    if (!user) {
+      res.json({error: true, message: "User not found"});
       return;
     }
 
     // delete credentials from db
-    await prisma.credential.delete({ where: { id } });
+    await prisma.credential.delete({where: {id}});
 
     // get updated credentials from db
     const updatedCredentials = await decryptCredentials(userId);
@@ -31,7 +39,7 @@ const handler = async (req, res) => {
       credentials: updatedCredentials,
     });
   } catch {
-    res.json({ error: true, message: "Something went wrong" });
+    res.json({error: true, message: "Something went wrong"});
   }
 };
 
