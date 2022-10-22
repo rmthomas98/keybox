@@ -118,7 +118,14 @@ export const Nav = () => {
   };
 
   return (
-    <div className={styles.navWrapper}>
+    <div
+      className={styles.navWrapper}
+      style={{
+        borderBottom: router.pathname.endsWith("/")
+          ? "1px solid transparent"
+          : "1px solid #E6E8F0",
+      }}
+    >
       <div
         className={styles.navContainer}
         style={{
@@ -219,33 +226,33 @@ export const Nav = () => {
               </div>
             </div>
           )}
-        {!router.pathname.includes("/app") && (
-          <div className={styles.navLinks}>
-            <NextLink href="/features" passHref>
-              <Link
-                color={router.pathname === "/features" ? "primary" : "neutral"}
-                marginRight={20}
-              >
-                Features
-              </Link>
-            </NextLink>
-            <NextLink href="/pricing" passHref>
-              <Link
-                color={router.pathname === "/pricing" ? "primary" : "neutral"}
-                marginRight={20}
-              >
-                Pricing
-              </Link>
-            </NextLink>
-            <NextLink href="/about" passHref>
-              <Link
-                color={router.pathname === "/about" ? "primary" : "neutral"}
-              >
-                About
-              </Link>
-            </NextLink>
-          </div>
-        )}
+        {/*{!router.pathname.includes("/app") && (*/}
+        {/*  <div className={styles.navLinks}>*/}
+        {/*    <NextLink href="/features" passHref>*/}
+        {/*      <Link*/}
+        {/*        color={router.pathname === "/features" ? "primary" : "neutral"}*/}
+        {/*        marginRight={20}*/}
+        {/*      >*/}
+        {/*        Features*/}
+        {/*      </Link>*/}
+        {/*    </NextLink>*/}
+        {/*    <NextLink href="/pricing" passHref>*/}
+        {/*      <Link*/}
+        {/*        color={router.pathname === "/pricing" ? "primary" : "neutral"}*/}
+        {/*        marginRight={20}*/}
+        {/*      >*/}
+        {/*        Pricing*/}
+        {/*      </Link>*/}
+        {/*    </NextLink>*/}
+        {/*    <NextLink href="/about" passHref>*/}
+        {/*      <Link*/}
+        {/*        color={router.pathname === "/about" ? "primary" : "neutral"}*/}
+        {/*      >*/}
+        {/*        About*/}
+        {/*      </Link>*/}
+        {/*    </NextLink>*/}
+        {/*  </div>*/}
+        {/*)}*/}
         {!router.pathname.includes("app") && (
           <div>
             <NextLink href="/login" passHref>

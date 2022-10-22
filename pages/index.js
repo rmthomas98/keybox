@@ -1,10 +1,11 @@
-import {Button} from "evergreen-ui";
+import { Main } from "../components/landing/main/main";
 
 const Home = () => {
   return (
-    <div>
+    <div style={{ overflowX: "hidden" }}>
+      <Main />
     </div>
-  )
-}
+  );
+};
 
 export default Home;

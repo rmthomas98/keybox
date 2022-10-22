@@ -1,0 +1,25 @@
+.wrapper {
+  padding: 75px 20px;
+}
+
+.container {
+  max-width: 1000px;
+  margin: auto;
+  display: flex;
+  /*align-items: center;*/
+  justify-content: space-between;
+}
+
+.lottieContainer {
+  height: 600px;
+  width: 600px;
+  min-width: 400px;
+  position: relative;
+  bottom: 50px;
+  left: 70px;
+}
+
+.contentContainer {
+  max-width: 500px;
+  min-width: 300px;
+}
