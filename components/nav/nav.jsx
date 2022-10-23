@@ -122,7 +122,7 @@ export const Nav = () => {
       className={styles.navWrapper}
       style={{
         borderBottom: router.pathname.endsWith("/")
-          ? "1px solid transparent"
+          ? "1px solid #E6E8F0"
           : "1px solid #E6E8F0",
       }}
     >

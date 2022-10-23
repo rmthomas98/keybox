@@ -8,6 +8,9 @@
   display: flex;
   /*align-items: center;*/
   justify-content: space-between;
+  align-items: center;
+  position: relative;
+  bottom: 100px;
 }
 
 .lottieContainer {
@@ -22,4 +25,9 @@
 .contentContainer {
   max-width: 500px;
   min-width: 300px;
+}
+
+.inputContainer {
+  display: flex;
+  align-items: center;
 }
