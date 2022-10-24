@@ -9,15 +9,8 @@ import {
 import NextLink from "next/link";
 import Lottie from "lottie-react";
 import animationData from "../../../src/security.json";
-import axios from "axios";
 
 export const Main = () => {
-  const handleSubmit = async () => {
-    const res = await axios.get("/api/genKey");
-
-    console.log(res.data);
-  };
-
   return (
     <div className={styles.wrapper}>
       <div className={styles.container}>
@@ -39,18 +32,13 @@ export const Main = () => {
             {/*  width="100%"*/}
             {/*  maxWidth={300}*/}
             {/*/>*/}
-            {/*<NextLink href="/signup" passHref>*/}
-            {/*  <a>*/}
-            <Button
-              appearance="primary"
-              size={"large"}
-              marginRight={10}
-              onClick={handleSubmit}
-            >
-              Get started
-            </Button>
-            {/*  </a>*/}
-            {/*</NextLink>*/}
+            <NextLink href="/signup" passHref>
+              <a>
+                <Button appearance="primary" size={"large"} marginRight={10}>
+                  Get started
+                </Button>
+              </a>
+            </NextLink>
             <Button size={"large"}>Learn more</Button>
           </div>
         </div>

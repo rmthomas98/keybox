@@ -1,5 +1,6 @@
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 import prisma from "../../lib/prisma";
+import {generateDataKey} from "../../helpers/keys/generateDataKey";
 
 const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
@@ -7,28 +8,46 @@ const crypto = require("crypto");
 
 const handler = async (req, res) => {
   try {
-    const { email, password, confirmPassword } = req.body;
+    const {email, password, confirmPassword} = req.body;
 
     if (!email || !password || !confirmPassword) {
-      res.json({ error: true, message: "Invalid data" });
+      res.json({error: true, message: "Invalid data"});
+      return;
+    }
+
+    if (password.length < 12) {
+      res.json({
+        error: true,
+        message: "Password must be at least 12 characters",
+      });
       return;
     }
 
     if (password !== confirmPassword) {
-      res.json({ error: true, message: "Password do not match" });
+      res.json({error: true, message: "Password do not match"});
       return;
     }
 
     // check if email already exists
     const doesEmailExist = await prisma.user.findUnique({
-      where: { email: email.trim().toLowerCase() },
+      where: {email: email.trim().toLowerCase()},
     });
 
     if (doesEmailExist) {
       res.json({
         error: true,
-        message: "A user with this email already exists",
+        message: "The email you entered is already in use",
       });
+      return;
+    }
+
+    // generate encryption key
+    // this key will be used to encrypt and decrypt the users data
+    let key = await generateDataKey();
+
+    // check if key is valid
+    if (!key) {
+      res.json({error: true, message: "Error creating account"});
       return;
     }
 
@@ -47,8 +66,11 @@ const handler = async (req, res) => {
         stripeId: customer.id,
         password: hashedPassword,
         emailToken,
+        key,
       },
     });
+
+    key = null;
 
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -69,9 +91,10 @@ const handler = async (req, res) => {
 
     await transporter.sendMail(msg);
 
-    res.json({ error: false, message: "success" });
-  } catch {
-    res.json({ error: true, message: "Something went wrong" });
+    res.json({error: false, message: "success"});
+  } catch (err) {
+    console.log(err);
+    res.json({error: true, message: "Something went wrong"});
   }
 };
 

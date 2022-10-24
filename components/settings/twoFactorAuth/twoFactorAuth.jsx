@@ -10,13 +10,13 @@ import {
   Small,
   Alert,
 } from "evergreen-ui";
-import {useState, useEffect} from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
-import {getSession} from "next-auth/react";
-import {DisableDialog} from "./disableDialog";
-import {VerifyDialog} from "./verifyDialog";
+import { getSession } from "next-auth/react";
+import { DisableDialog } from "./disableDialog";
+import { VerifyDialog } from "./verifyDialog";
 
-export const TwoFactorAuth = ({twoFactor, currentPhone, status}) => {
+export const TwoFactorAuth = ({ twoFactor, currentPhone, status }) => {
   const [phone, setPhone] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isConfirmDisabled, setIsConfirmDisabled] = useState(true);
@@ -31,7 +31,11 @@ export const TwoFactorAuth = ({twoFactor, currentPhone, status}) => {
   }, [twoFactor, currentPhone]);
 
   useEffect(() => {
-    if (phone.length >= 10 && phone.trim() !== currentPhone && status !== 'TRIAL_IN_PROGRESS') {
+    if (
+      phone.length >= 10 &&
+      phone.trim() !== currentPhone &&
+      status !== "TRIAL_IN_PROGRESS"
+    ) {
       setIsConfirmDisabled(false);
     } else {
       setIsConfirmDisabled(true);
@@ -51,8 +55,8 @@ export const TwoFactorAuth = ({twoFactor, currentPhone, status}) => {
 
     setIsLoading(true);
     const session = await getSession();
-    const {id} = session;
-    const {data} = await axios.post("/api/two-factor-auth/setup", {
+    const { id } = session;
+    const { data } = await axios.post("/api/two-factor-auth/setup", {
       userId: id,
       phone,
     });
@@ -71,9 +75,9 @@ export const TwoFactorAuth = ({twoFactor, currentPhone, status}) => {
     <div className={styles.container}>
       {status !== "TRIAL_IN_PROGRESS" && (
         <>
-          <div class={styles.header}>
+          <div className={styles.header}>
             <Heading size={400} fontWeight={700}>
-              <StatusIndicator color={twoFactor ? "success" : "danger"}/>
+              <StatusIndicator color={twoFactor ? "success" : "danger"} />
               Two Factor Auth
             </Heading>
             <div className={styles.btnContainer}>

@@ -189,7 +189,7 @@ export const getServerSideProps = async (ctx) => {
     };
   }
 
-  credentials = await decryptCredentials(id);
+  credentials = await decryptCredentials(user.key, credentials);
   const { ask2FA } = user;
 
   return {

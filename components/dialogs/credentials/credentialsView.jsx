@@ -69,7 +69,7 @@ export const CredentialsView = ({
     setName(credentials.name || "");
     setWebsite(credentials.website || "");
     setAccount(credentials.account || "");
-    setPassword(credentials.decryptedPassword || "");
+    setPassword(credentials.password || "");
   }, [show]);
 
   const handleClose = () => {
@@ -108,7 +108,7 @@ export const CredentialsView = ({
 
   const handleCopyPassword = async () => {
     await toaster.closeAll();
-    navigator.clipboard.writeText(credentials.decryptedPassword);
+    navigator.clipboard.writeText(credentials.password);
     toaster.success("Password copied to clipboard");
   };
 
@@ -122,11 +122,11 @@ export const CredentialsView = ({
     setIsEditing(false);
     setIsLoading(false);
     setIsConfirmDisabled(true);
-    setPassword(credentials.decryptedPassword);
+    setPassword(credentials.password);
     setName(credentials.name || "");
     setWebsite(credentials.website || "");
     setAccount(credentials.account || "");
-    setPassword(credentials.decryptedPassword || "");
+    setPassword(credentials.password || "");
   };
 
   const submit = async () => {
@@ -172,7 +172,7 @@ export const CredentialsView = ({
     if (isEditing) {
       if (name !== credentials.name) {
         setIsConfirmDisabled(false);
-      } else if (password !== credentials.decryptedPassword) {
+      } else if (password !== credentials.password) {
         setIsConfirmDisabled(false);
       } else if (account !== credentials.account) {
         setIsConfirmDisabled(false);

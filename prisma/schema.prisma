@@ -25,7 +25,8 @@ enum Status {
 model User {
   id            String         @id @default(cuid())
   createdAt     DateTime       @default(now())
-  key           String         @unique
+  key           String         @unique @db.Text
+  apiKey        String?        @unique @db.Text
   stripeId      String?        @unique
   email         String         @unique
   emailToken    String?

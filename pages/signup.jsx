@@ -51,6 +51,10 @@ const Signup = () => {
       return;
     }
 
+    // console.log(res.data);
+    // setIsLoading(false)
+    // return;
+
     // redirect to email verification
     await router.push({ pathname: "/verify", query: { email } });
   };
@@ -93,11 +97,11 @@ const Signup = () => {
             </div>
             <div style={{ position: "relative" }}>
               <TextInputField
-                label="Password (8 characters min)"
+                label="Password (12 characters min)"
                 placeholder="Password"
                 marginBottom={30}
                 type={showPassword ? "text" : "password"}
-                {...register("password", { required: true, minLength: 8 })}
+                {...register("password", { required: true, minLength: 12 })}
               />
               <Text
                 className={styles.errorText}
@@ -114,7 +118,7 @@ const Signup = () => {
                 }}
               >
                 <Small color="#D14343">
-                  * Password must be 8 characters long
+                  * Password must be 12 characters long
                 </Small>
               </Text>
               {showPassword ? (
