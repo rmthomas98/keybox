@@ -1,42 +1,42 @@
 import prisma from "../../../lib/prisma";
-import {getToken} from "next-auth/jwt";
+import { getToken } from "next-auth/jwt";
 
 const aes256 = require("aes256");
 const generator = require("generate-password");
-import {decryptCredentials} from "../../../helpers/credentials/decryptCredentials";
-import {getDecryptedKey} from "../../../helpers/keys/getDecryptedKey";
+import { decryptCredentials } from "../../../helpers/credentials/decryptCredentials";
+import { getDecryptedKey } from "../../../helpers/keys/getDecryptedKey";
 
 const handler = async (req, res) => {
   try {
     // authenticate user
-    const token = await getToken({req});
+    const token = await getToken({ req });
     if (!token) {
-      return res.json({error: true, message: "Not authorized"});
+      return res.json({ error: true, message: "Not authorized" });
     }
 
-    const {id, name, account, password, generatePassword, website} =
+    const { id, name, account, password, generatePassword, website } =
       req.body.options;
     let generatedPassword;
 
     // check auth token against user id
     if (token.id !== id) {
-      res.json({error: true, message: "Not authorized"});
+      res.json({ error: true, message: "Not authorized" });
       return;
     }
 
     // get user from db along with existing credentials
     const user = await prisma.user.findUnique({
-      where: {id},
-      include: {credentials: true},
+      where: { id },
+      include: { credentials: true },
     });
 
     if (!user) {
-      res.json({error: true, message: "User not found"});
+      res.json({ error: true, message: "User not found" });
       return;
     }
 
     if (!name.trim()) {
-      res.json({error: true, message: "Name is required"});
+      res.json({ error: true, message: "Name is required" });
       return;
     }
 
@@ -68,7 +68,7 @@ const handler = async (req, res) => {
     let key = await getDecryptedKey(user.key);
 
     if (!key) {
-      res.json({error: true, message: "Key not found"});
+      res.json({ error: true, message: "Key not found" });
       return;
     }
 
@@ -83,7 +83,6 @@ const handler = async (req, res) => {
     }
 
     // encrypt other data
-    const encryptedName = aes256.encrypt(key, name.trim());
     const encryptedAccount = account
       ? aes256.encrypt(key, account.trim())
       : null;
@@ -96,7 +95,7 @@ const handler = async (req, res) => {
     // insert new credentials into db
     await prisma.credential.create({
       data: {
-        name: encryptedName,
+        name: name.trim(),
         account: encryptedAccount,
         password: encryptedPassword || null,
         website: encryptedWebsite,
@@ -106,12 +105,15 @@ const handler = async (req, res) => {
 
     // get updated credentials
     let updatedUser = await prisma.user.findUnique({
-      where: {id},
-      include: {credentials: true},
-    })
+      where: { id },
+      include: { credentials: true },
+    });
 
     // get updated credentials
-    const updatedCredentials = await decryptCredentials(user.key, updatedUser.credentials);
+    const updatedCredentials = await decryptCredentials(
+      user.key,
+      updatedUser.credentials
+    );
 
     // return success to front end
     res.json({
@@ -121,7 +123,7 @@ const handler = async (req, res) => {
     });
   } catch (err) {
     console.log(err);
-    res.json({error: true, message: "Something went wrong"});
+    res.json({ error: true, message: "Something went wrong" });
   }
 };
 

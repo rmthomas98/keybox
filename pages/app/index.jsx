@@ -45,7 +45,7 @@ const AppHome = ({ stringifiedCreds, status, ask2FA }) => {
           onClick={() => setNewPasswordShow(true)}
           iconBefore={PlusIcon}
         >
-          Add credentials
+          New
         </Button>
       </div>
       {credentials?.length === 0 && (
