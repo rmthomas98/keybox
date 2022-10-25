@@ -171,7 +171,7 @@ export const getServerSideProps = async (ctx) => {
   }
 
   let { cards } = user;
-  cards = decryptCards(cards);
+  cards = await decryptCards(user.key, cards);
 
   return { props: { stringifiedCards: JSON.stringify(cards) } };
 };

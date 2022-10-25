@@ -1,12 +1,14 @@
-import {getDecryptedKey} from "../keys/getDecryptedKey";
+import { decryptKey } from "../keys/decryptKey";
 
 const aes256 = require("aes256");
 
 export const decryptCredential = async (encryptedKey, encryptedCred) => {
-  let key = await getDecryptedKey(encryptedKey);
-  if (!key || !encryptedCred) return null;
+  if (!encryptedKey || !encryptedCred) return {};
 
-  const {id, createdAt, name, account, website, password} = encryptedCred;
+  let key = await decryptKey(encryptedKey);
+  if (!key) return {};
+
+  const { id, createdAt, name, account, website, password } = encryptedCred;
 
   const decryptedAccount = account ? aes256.decrypt(key, account) : null;
   const decryptedWebsite = website ? aes256.decrypt(key, website) : null;

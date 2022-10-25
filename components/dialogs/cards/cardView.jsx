@@ -132,8 +132,6 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
         setIsConfirmDisabled(false);
       } else if (type !== card.type) {
         setIsConfirmDisabled(false);
-      } else if (brand !== card.brand) {
-        setIsConfirmDisabled(false);
       } else if (currExp !== newExp) {
         setIsConfirmDisabled(false);
       } else {
@@ -144,7 +142,7 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
     }
 
     return () => setIsConfirmDisabled(true);
-  }, [identifier, name, number, cvc, zip, type, brand, month, year]);
+  }, [identifier, name, number, cvc, zip, type, month, year]);
 
   // Reset from cancel editing
   const handleReset = () => {
@@ -478,23 +476,23 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
             onClick={handleCopyNumber}
           />
         </Tooltip>
-        <div>
-          <Heading size={400} marginBottom={8}>
-            Brand
-          </Heading>
-          <SelectMenu
-            options={brands}
-            onSelect={(brand) => setBrand(brand.value)}
-            selected={brand}
-            hasFilter={false}
-            title="Card Brand"
-            position={Position.BOTTOM_RIGHT}
-          >
-            <Button disabled={!isEditing} iconAfter={CaretDownIcon}>
-              {brand ? brand : "Card Brand"}
-            </Button>
-          </SelectMenu>
-        </div>
+        {/*<div>*/}
+        {/*  <Heading size={400} marginBottom={8}>*/}
+        {/*    Brand*/}
+        {/*  </Heading>*/}
+        {/*  <SelectMenu*/}
+        {/*    options={brands}*/}
+        {/*    onSelect={(brand) => setBrand(brand.value)}*/}
+        {/*    selected={brand}*/}
+        {/*    hasFilter={false}*/}
+        {/*    title="Card Brand"*/}
+        {/*    position={Position.BOTTOM_RIGHT}*/}
+        {/*  >*/}
+        {/*    <Button disabled={!isEditing} iconAfter={CaretDownIcon}>*/}
+        {/*      {brand ? brand : "Card Brand"}*/}
+        {/*    </Button>*/}
+        {/*  </SelectMenu>*/}
+        {/*</div>*/}
       </div>
       <div style={{ display: "flex" }}>
         <div style={{ marginRight: 14 }}>
