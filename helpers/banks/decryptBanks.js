@@ -1,19 +1,26 @@
-import prisma from "../../lib/prisma";
-
 const aes256 = require("aes256");
+import { decryptKey } from "../keys/decryptKey";
 
-export const decryptBanks = (banks) => {
-  const key = process.env.ENCRYPTION_KEY;
+export const decryptBanks = async (encryptedKey, encryptedBanks) => {
+  if (!encryptedKey || !encryptedBanks) return [];
+  let key = await decryptKey(encryptedKey);
+  if (!key) return [];
 
-  const decryptedBanks = banks.map((bank) => {
-    const { name, account, routing } = bank;
+  const decryptedBanks = encryptedBanks.map((bank) => {
+    const { id, identifier, type, ownership, name, account, routing } = bank;
 
-    bank.name = name ? aes256.decrypt(key, name) : null;
-    bank.account = account ? aes256.decrypt(key, account) : null;
-    bank.routing = routing ? aes256.decrypt(key, routing) : null;
-
-    return bank;
+    return {
+      id,
+      identifier,
+      type,
+      ownership,
+      name: name ? aes256.decrypt(key, name) : null,
+      account: account ? aes256.decrypt(key, account) : null,
+      routing: routing ? aes256.decrypt(key, routing) : null,
+    };
   });
+
+  key = null;
 
   return decryptedBanks;
 };

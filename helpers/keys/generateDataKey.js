@@ -30,5 +30,5 @@ export const generateDataKey = async () => {
   // erase ciphertext blob from memory
   CiphertextBlob.fill(0);
 
-  return key;
+  return key ? key : null;
 };

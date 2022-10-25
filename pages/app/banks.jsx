@@ -170,7 +170,7 @@ export const getServerSideProps = async (ctx) => {
   }
 
   const { banks: encryptedBanks } = user;
-  const banks = decryptBanks(encryptedBanks);
+  const banks = await decryptBanks(user.key, encryptedBanks);
 
   return {
     props: { stringifiedBanks: JSON.stringify(banks) },

@@ -1,7 +1,7 @@
 import prisma from "../../../lib/prisma";
 import {getToken} from "next-auth/jwt";
-import {getUserData} from "../../../helpers/getUserData";
 import {decryptBanks} from "../../../helpers/banks/decryptBanks";
+import {decryptKey} from "../../../helpers/keys/decryptKey";
 
 const aes256 = require("aes256");
 
@@ -22,8 +22,16 @@ const handler = async (req, res) => {
       return;
     }
 
+    if (!userId || !identifier) {
+      res.json({error: true, message: "invalid request"});
+      return;
+    }
+
     // check user
-    const user = await prisma.user.findUnique({where: {id: userId}});
+    const user = await prisma.user.findUnique({
+      where: {id: userId},
+      include: {banks: true},
+    });
 
     // check if user exists
     if (!user) {
@@ -31,8 +39,7 @@ const handler = async (req, res) => {
       return;
     }
 
-    // get user from db along with existing banks
-    const {banks} = await getUserData(userId, {banks: true});
+    const {banks} = user;
 
     // check if identifier is already taken
     const isIdentityTaken = banks.filter(
@@ -47,31 +54,41 @@ const handler = async (req, res) => {
     }
 
     // encrypt bank details
-    const key = process.env.ENCRYPTION_KEY;
-    name = name ? aes256.encrypt(key, name) : null;
-    account = account ? aes256.encrypt(key, account) : null;
-    routing = routing ? aes256.encrypt(key, routing) : null;
+    let key = await decryptKey(user.key);
+
+    if (!key) {
+      res.json({error: true, message: "Invalid key"});
+      return;
+    }
+
+    const bankDetails = {
+      identifier: identifier.trim(),
+      type: type || null,
+      ownership: ownership || null,
+      name: name ? aes256.encrypt(key, name.trim()) : null,
+      account: account ? aes256.encrypt(key, account.trim()) : null,
+      routing: routing ? aes256.encrypt(key, routing.trim()) : null,
+      userId,
+    };
+
+    // erase key from memory
+    key = null;
 
     // insert into db
     await prisma.bank.create({
-      data: {
-        identifier: identifier.trim(),
-        type: type ? type : null,
-        ownership: ownership ? ownership : null,
-        name,
-        account,
-        routing,
-        userId,
-      },
+      data: {...bankDetails},
     });
 
-    // get updated banks
-    const {banks: updatedBanks} = await getUserData(userId, {banks: true});
-    const banksWithDecryptedDetails = decryptBanks(updatedBanks);
+    // get updated banks and decrypt
+    const {banks: updatedBanks} = await prisma.user.findUnique({
+      where: {id: userId},
+      include: {banks: true},
+    });
+    const decryptedBanks = await decryptBanks(user.key, updatedBanks);
 
     res.json({
       error: false,
-      banks: banksWithDecryptedDetails,
+      banks: decryptedBanks,
       message: "Bank added successfully!",
     });
   } catch {

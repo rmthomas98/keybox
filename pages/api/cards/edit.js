@@ -22,6 +22,11 @@ const handler = async (req, res) => {
       return;
     }
 
+    if (!cardId || !userId) {
+      res.json({error: true, message: 'Invalid request'});
+      return;
+    }
+
     // check user
     const user = await prisma.user.findUnique({where: {id: userId}});
 
@@ -67,7 +72,7 @@ const handler = async (req, res) => {
       return;
     }
 
-    // encrypt all card details other than identifier
+    // encrypt all card details other than identifier and type
     const cardDetails = {
       identifier: identifier.trim(),
       name: name ? aes256.encrypt(key, name.trim()) : null,
@@ -89,17 +94,21 @@ const handler = async (req, res) => {
 
     // get updated card and decrypt
     const updatedCard = await prisma.card.findUnique({where: {id: cardId}});
-    const decryptedCard = await decryptCard(user.key, updatedCard)
+    const decryptedCard = await decryptCard(user.key, updatedCard);
 
     // get updated cards and decrypt
-
+    const {cards: updatedCards} = await prisma.user.findUnique({
+      where: {id: userId},
+      include: {cards: true},
+    });
+    const decryptedCards = await decryptCards(user.key, updatedCards);
 
     // send card and success back to frontend
     res.json({
       error: false,
       message: "Card updated successfully",
-      card: updatedCard,
-      cards: updatedCards,
+      card: decryptedCard,
+      cards: decryptedCards,
     });
   } catch {
     res.json({error: true, message: "Something went wrong"});

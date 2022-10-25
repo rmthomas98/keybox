@@ -22,6 +22,11 @@ const handler = async (req, res) => {
       return;
     }
 
+    if (!id) {
+      res.json({ error: true, message: "Invalid request" });
+      return;
+    }
+
     // check user
     const user = await prisma.user.findUnique({ where: { id } });
 
@@ -57,7 +62,7 @@ const handler = async (req, res) => {
       });
     }
 
-    // encrypt all card details other than identifier
+    // encrypt all card details other than identifier and type
     let key = await decryptKey(user.key);
 
     if (!key) {

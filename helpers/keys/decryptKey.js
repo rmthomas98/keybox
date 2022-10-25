@@ -1,8 +1,8 @@
-import {KMSClient, DecryptCommand} from "@aws-sdk/client-kms";
+import { KMSClient, DecryptCommand } from "@aws-sdk/client-kms";
 
 export const decryptKey = async (key) => {
   if (!key) return null;
-  const client = new KMSClient({region: process.env.AWS_REGION});
+  const client = new KMSClient({ region: process.env.AWS_REGION });
   const KeyId = process.env.AWS_KMS_KEY_ID;
   const CiphertextBlob = Buffer.from(key, "base64");
 
@@ -18,7 +18,7 @@ export const decryptKey = async (key) => {
     EncryptionContext,
   });
 
-  const {Plaintext} = await client.send(command);
+  const { Plaintext } = await client.send(command);
 
   if (!Plaintext) return null;
 
@@ -27,5 +27,5 @@ export const decryptKey = async (key) => {
   // erase plaintext from memory
   Plaintext.fill(0);
 
-  return decryptedKey;
+  return decryptedKey ? decryptedKey : null;
 };
