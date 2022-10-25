@@ -1,16 +1,30 @@
 const aes256 = require("aes256");
+import { decryptKey } from "../keys/decryptKey";
 
-export const decryptCards = (cards) => {
-  const key = process.env.ENCRYPTION_KEY;
+export const decryptCards = async (encryptedKey, encryptedCards) => {
+  if (!encryptedKey || !encryptedCards) return [];
+  let key = await decryptKey(encryptedKey);
+  if (!key) return [];
 
-  const updatedCards = cards.map((card) => {
-    card.name = card.name ? aes256.decrypt(key, card.name) : null;
-    card.number = card.number ? aes256.decrypt(key, card.number) : null;
-    card.exp = card.exp ? aes256.decrypt(key, card.exp) : null;
-    card.cvc = card.cvc ? aes256.decrypt(key, card.cvc) : null;
-    card.zip = card.zip ? aes256.decrypt(key, card.zip) : null;
-    return card;
+  const cards = encryptedCards.map((card) => {
+    const { id, createdAt, identifier, type, name, number, exp, cvc, zip } =
+      card;
+    // decrypt all card details other than identifier
+    return {
+      id,
+      createdAt,
+      identifier,
+      type,
+      name: name ? aes256.decrypt(key, name) : null,
+      number: number ? aes256.decrypt(key, number) : null,
+      exp: exp ? aes256.decrypt(key, exp) : null,
+      cvc: cvc ? aes256.decrypt(key, cvc) : null,
+      zip: zip ? aes256.decrypt(key, zip) : null,
+    };
   });
 
-  return updatedCards;
+  // erase key from memory
+  key = null;
+
+  return cards;
 };

@@ -129,7 +129,6 @@ export const NewCard = ({ isShown, setIsShown, setCards }) => {
       cvc,
       zip,
       type,
-      brand,
     };
 
     const res = await axios.post("/api/cards/new", { options });
@@ -224,27 +223,27 @@ export const NewCard = ({ isShown, setIsShown, setCards }) => {
               value={value}
               onBlur={onBlur}
               width="100%"
-              marginRight={14}
+              // marginRight={14}
             />
           )}
         />
-        <div>
-          <Heading size={400} marginBottom={8}>
-            Brand
-          </Heading>
-          <SelectMenu
-            title="Card Brand"
-            hasFilter={false}
-            position={Position.BOTTOM_RIGHT}
-            options={brands}
-            selected={brand}
-            onSelect={(item) => setBrand(item.value)}
-          >
-            <Button iconAfter={CaretDownIcon}>
-              {brand ? brand : "Card Brand"}
-            </Button>
-          </SelectMenu>
-        </div>
+        {/*<div>*/}
+        {/*  <Heading size={400} marginBottom={8}>*/}
+        {/*    Brand*/}
+        {/*  </Heading>*/}
+        {/*  <SelectMenu*/}
+        {/*    title="Card Brand"*/}
+        {/*    hasFilter={false}*/}
+        {/*    position={Position.BOTTOM_RIGHT}*/}
+        {/*    options={brands}*/}
+        {/*    selected={brand}*/}
+        {/*    onSelect={(item) => setBrand(item.value)}*/}
+        {/*  >*/}
+        {/*    <Button iconAfter={CaretDownIcon}>*/}
+        {/*      {brand ? brand : "Card Brand"}*/}
+        {/*    </Button>*/}
+        {/*  </SelectMenu>*/}
+        {/*</div>*/}
       </div>
       <div style={{ display: "flex" }}>
         <div style={{ marginRight: 14 }}>

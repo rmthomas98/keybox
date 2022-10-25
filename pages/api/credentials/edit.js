@@ -4,7 +4,7 @@ import { getToken } from "next-auth/jwt";
 const aes256 = require("aes256");
 import { decryptCredentials } from "../../../helpers/credentials/decryptCredentials";
 import { decryptCredential } from "../../../helpers/credentials/decryptCredential";
-import { getDecryptedKey } from "../../../helpers/keys/getDecryptedKey";
+import { decryptKey } from "../../../helpers/keys/decryptKey";
 
 const handler = async (req, res) => {
   try {
@@ -53,7 +53,12 @@ const handler = async (req, res) => {
     }
 
     // get decrypted user encryption key
-    let key = await getDecryptedKey(user.key);
+    let key = await decryptKey(user.key);
+
+    if (!key) {
+      res.json({ error: true, message: "Could not decrypt key" });
+      return;
+    }
 
     // encrypt password
     let encryptedPassword;

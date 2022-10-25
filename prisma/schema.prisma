@@ -83,7 +83,6 @@ model Card {
   updatedAt  DateTime   @updatedAt
   identifier String?
   type       CardType?
-  brand      CardBrand?
   name       String?
   number     String?
   exp        String?

@@ -1,6 +1,6 @@
 import { KMSClient, DecryptCommand } from "@aws-sdk/client-kms";
 
-export const getDecryptedKey = async (key) => {
+export const decryptKey = async (key) => {
   if (!key) return null;
   const client = new KMSClient({ region: process.env.AWS_REGION });
   const KeyId = process.env.AWS_KMS_KEY_ID;

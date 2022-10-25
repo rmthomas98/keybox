@@ -1,14 +1,4 @@
 const aes256 = require("aes256");
+import { decryptKey } from "../keys/decryptKey";
 
-export const decryptCard = (card) => {
-  const key = process.env.ENCRYPTION_KEY;
-  const { name, number, exp, cvc, zip } = card;
-
-  card.name = name ? aes256.decrypt(key, name) : null;
-  card.number = number ? aes256.decrypt(key, number) : null;
-  card.exp = exp ? aes256.decrypt(key, exp) : null;
-  card.cvc = cvc ? aes256.decrypt(key, cvc) : null;
-  card.zip = zip ? aes256.decrypt(key, zip) : null;
-
-  return card;
-};
+export const decryptCard = async (encryptedKey, encryptedCard) => {};

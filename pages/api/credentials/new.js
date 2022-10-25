@@ -4,7 +4,7 @@ import { getToken } from "next-auth/jwt";
 const aes256 = require("aes256");
 const generator = require("generate-password");
 import { decryptCredentials } from "../../../helpers/credentials/decryptCredentials";
-import { getDecryptedKey } from "../../../helpers/keys/getDecryptedKey";
+import { decryptKey } from "../../../helpers/keys/decryptKey";
 
 const handler = async (req, res) => {
   try {
@@ -35,7 +35,7 @@ const handler = async (req, res) => {
       return;
     }
 
-    if (!name.trim()) {
+    if (!name?.trim()) {
       res.json({ error: true, message: "Name is required" });
       return;
     }
@@ -65,7 +65,7 @@ const handler = async (req, res) => {
     }
 
     // get users decryption key
-    let key = await getDecryptedKey(user.key);
+    let key = await decryptKey(user.key);
 
     if (!key) {
       res.json({ error: true, message: "Key not found" });

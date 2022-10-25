@@ -36,8 +36,8 @@ const handler = async (req, res) => {
     });
 
     // get updated credentials from db
-    const { credentials, key } = updatedUser;
-    const updatedCredentials = await decryptCredentials(key, credentials);
+    const { credentials } = updatedUser;
+    const updatedCredentials = await decryptCredentials(user.key, credentials);
 
     // return success to front end
     res.json({

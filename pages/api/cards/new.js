@@ -1,40 +1,47 @@
 import prisma from "../../../lib/prisma";
-import {getToken} from "next-auth/jwt";
-import {decryptCards} from "../../../helpers/cards/decryptCards";
+import { getToken } from "next-auth/jwt";
+import { decryptCards } from "../../../helpers/cards/decryptCards";
+import { decryptKey } from "../../../helpers/keys/decryptKey";
 
 const aes256 = require("aes256");
 
 const handler = async (req, res) => {
   try {
     // authenticate user
-    const token = await getToken({req});
+    const token = await getToken({ req });
     if (!token) {
-      return res.json({error: true, message: "Not authorized"});
+      return res.json({ error: true, message: "Not authorized" });
     }
 
-    const {id, identifier, type, brand} = req.body.options;
-    let {name, number, exp, cvc, zip} = req.body.options;
+    const { id, identifier, type } = req.body.options;
+    let { name, number, exp, cvc, zip } = req.body.options;
 
     // check user id against token
     if (id !== token.id) {
-      res.json({error: true, message: "Not authorized"});
+      res.json({ error: true, message: "Not authorized" });
       return;
     }
 
     // check user
-    const user = await prisma.user.findUnique({where: {id}});
+    const user = await prisma.user.findUnique({ where: { id } });
 
     // check if user exists
     if (!user) {
-      res.json({error: true, message: "User not found"});
+      res.json({ error: true, message: "User not found" });
       return;
     }
 
     // get user from db along with existing cards
-    const {cards} = await prisma.user.findUnique({
-      where: {id},
-      include: {cards: true},
+    const { cards } = await prisma.user.findUnique({
+      where: { id },
+      include: { cards: true },
     });
+
+    // check for identifier
+    if (!identifier?.trim()) {
+      res.json({ error: true, message: "Identifier required" });
+      return;
+    }
 
     // check if identifier is already taken
     const isIdentifierTaken = cards.filter(
@@ -50,45 +57,51 @@ const handler = async (req, res) => {
       });
     }
 
-    // encrypt card details
-    const key = process.env.ENCRYPTION_KEY;
-    name = name ? aes256.encrypt(key, name) : null;
-    number = number ? aes256.encrypt(key, number) : null;
-    exp = exp ? aes256.encrypt(key, exp) : null;
-    cvc = cvc ? aes256.encrypt(key, cvc) : null;
-    zip = zip ? aes256.encrypt(key, zip) : null;
+    // encrypt all card details other than identifier
+    let key = await decryptKey(user.key);
+
+    if (!key) {
+      res.json({ error: true, message: "Key not found" });
+      return;
+    }
+
+    const cardDetails = {
+      identifier: identifier.trim(),
+      name: name ? aes256.encrypt(key, name.trim()) : null,
+      number: number ? aes256.encrypt(key, number.trim()) : null,
+      exp: exp ? aes256.encrypt(key, exp.trim()) : null,
+      cvc: cvc ? aes256.encrypt(key, cvc.trim()) : null,
+      zip: zip ? aes256.encrypt(key, zip.trim()) : null,
+      type: type || null,
+      userId: id,
+    };
+
+    // clear key from memory
+    key = null;
 
     // insert into db
     await prisma.card.create({
       data: {
-        identifier: identifier.trim(),
-        type: type ? type : null,
-        brand: brand ? brand : null,
-        name,
-        number,
-        exp,
-        cvc,
-        zip,
-        userId: id,
+        ...cardDetails,
       },
     });
 
-    // get updated cards
-    let {cards: updatedCards} = await prisma.user.findUnique({
-      where: {id: id},
-      include: {cards: true},
+    // get updated cards and decrypt
+    const { cards: updatedCards } = await prisma.user.findUnique({
+      where: { id },
+      include: { cards: true },
     });
 
-    // decrypt card details
-    updatedCards = decryptCards(updatedCards);
+    const decryptedCards = await decryptCards(user.key, updatedCards);
 
     res.json({
       error: false,
       message: "Card added successfully",
-      cards: updatedCards,
+      cards: decryptedCards,
     });
-  } catch {
-    res.json({error: true, message: "Something went wrong"});
+  } catch (err) {
+    console.log(err);
+    res.json({ error: true, message: "Something went wrong" });
   }
 };
 
