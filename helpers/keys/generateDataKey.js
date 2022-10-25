@@ -25,5 +25,10 @@ export const generateDataKey = async () => {
 
   if (!CiphertextBlob) return null;
 
-  return Buffer.from(CiphertextBlob).toString("base64");
+  const key = Buffer.from(CiphertextBlob).toString("base64");
+
+  // erase ciphertext blob from memory
+  CiphertextBlob.fill(0);
+
+  return key;
 };
