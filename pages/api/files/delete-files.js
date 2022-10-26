@@ -1,35 +1,41 @@
 import prisma from "../../../lib/prisma";
-import {getToken} from "next-auth/jwt";
+import { getToken } from "next-auth/jwt";
 
 const aws = require("aws-sdk");
 
 const handler = async (req, res) => {
   try {
-    const token = await getToken({req});
+    const token = await getToken({ req });
     if (!token) {
-      res.json({error: true, message: "Not authorized"});
+      res.json({ error: true, message: "Not authorized" });
       return;
     }
 
-    const {userId, files, folderId, folderSize} = req.body;
+    const { userId, files, folderId, folderSize, apiKey } = req.body;
 
     // check userId against token id
     if (userId !== token.id) {
-      res.json({error: true, message: "Not authorized"});
+      res.json({ error: true, message: "Not authorized" });
       return;
     }
 
     // check data
     if (!userId || !files || !folderId || !folderSize) {
-      res.json({error: true, message: "No files to delete"});
+      res.json({ error: true, message: "Invalid request" });
       return;
     }
 
     // check user
-    const user = await prisma.user.findUnique({where: {id: userId}});
+    const user = await prisma.user.findUnique({ where: { id: userId } });
 
     if (!user) {
-      res.json({error: true, message: "User not found"});
+      res.json({ error: true, message: "User not found" });
+      return;
+    }
+
+    // check api key
+    if (apiKey !== user.apiKey) {
+      res.json({ error: true, message: "Invalid request" });
       return;
     }
 
@@ -42,7 +48,7 @@ const handler = async (req, res) => {
 
     // delete files from database
     for (let i = 0; i < files.length; i++) {
-      const {id, key} = files[i];
+      const { id, key } = files[i];
 
       // delete file from s3
       const params = {
@@ -52,7 +58,7 @@ const handler = async (req, res) => {
 
       // delete file from s3 and database
       await s3.deleteObject(params).promise();
-      await prisma.file.delete({where: {id}});
+      await prisma.file.delete({ where: { id } });
     }
 
     // get total size of files deleted
@@ -60,7 +66,7 @@ const handler = async (req, res) => {
 
     // update folder size
     await prisma.folder.update({
-      where: {id: folderId},
+      where: { id: folderId },
       data: {
         size: folderSize - totalSize,
       },
@@ -68,14 +74,14 @@ const handler = async (req, res) => {
 
     // get updated folder
     const folder = await prisma.folder.findUnique({
-      where: {id: folderId},
-      include: {files: true},
+      where: { id: folderId },
+      include: { files: true },
     });
 
     // get updated folders
     const folders = await prisma.folder.findMany({
-      where: {userId},
-      include: {files: true},
+      where: { userId },
+      include: { files: true },
     });
 
     res.json({
@@ -86,7 +92,7 @@ const handler = async (req, res) => {
     });
   } catch (err) {
     console.log(err);
-    res.json({error: true, message: "Error deleting files"});
+    res.json({ error: true, message: "Error deleting files" });
   }
 };
 

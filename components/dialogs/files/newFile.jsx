@@ -59,9 +59,10 @@ export const NewFile = ({ show, setShow, setAllFolders }) => {
     toaster.closeAll();
     setIsLoading(true);
     const session = await getSession();
-    const { id } = session;
+    const { id, apiKey } = session;
     const formData = new FormData();
     formData.append("userId", id);
+    formData.append("apiKey", apiKey);
     formData.append("name", name);
     files.forEach((file) => formData.append(file.name, file));
     const { data } = await axios.post("/api/files/new", formData);

@@ -11,8 +11,8 @@ export const Trial = ({ isOpen, setIsOpen }) => {
   const handleConfirm = async () => {
     setIsLoading(true);
     const session = await getSession();
-    const { id } = session;
-    const res = await axios.post("/api/subscribe/trial", { id });
+    const { id, apiKey } = session;
+    const res = await axios.post("/api/subscribe/trial", { id, apiKey });
 
     if (res.data.error) {
       setIsLoading(false);

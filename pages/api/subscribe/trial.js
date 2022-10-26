@@ -9,8 +9,14 @@ const handler = async (req, res) => {
     if (!token) {
       return res.json({error: true, message: "Not authorized"});
     }
-    const {id} = req.body;
+    const {id, apiKey} = req.body;
     const priceId = "price_1LldZsIjvIl5h3pN1j3cMKH3";
+
+    // check params
+    if (!id || !apiKey) {
+      res.json({error: true, message: "Invalid request"});
+      return;
+    }
 
     // check user id against token id
     if (token.id !== id) {
@@ -22,6 +28,12 @@ const handler = async (req, res) => {
 
     // check user
     if (!user) {
+      res.json({error: true, message: "Not authorized"});
+      return;
+    }
+
+    // check user api key
+    if (user.apiKey !== apiKey) {
       res.json({error: true, message: "Not authorized"});
       return;
     }

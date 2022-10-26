@@ -10,7 +10,7 @@ const handler = async (req, res) => {
       return;
     }
 
-    const { userId } = req.body;
+    const { userId, apiKey } = req.body;
 
     // check user id against token
     if (userId !== token.id) {
@@ -18,9 +18,22 @@ const handler = async (req, res) => {
       return;
     }
 
+    // check user and api key
+    if (!userId || !apiKey) {
+      res.json({ error: true, message: "Invalid request" });
+      return;
+    }
+
     const user = await prisma.user.findUnique({ where: { id: userId } });
+
     if (!user) {
       res.json({ error: true, message: "User not found" });
+      return;
+    }
+
+    // check if api key is valid
+    if (user.apiKey !== apiKey) {
+      res.json({ error: true, message: "Invalid request" });
       return;
     }
 

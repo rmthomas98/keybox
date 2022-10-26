@@ -28,12 +28,14 @@ export default NextAuth({
     jwt: ({ token, user }) => {
       if (user) {
         token.id = user.id;
+        token.apiKey = user.apiKey;
       }
       return token;
     },
     session: ({ token, session }) => {
       if (token) {
         session.id = token.id;
+        session.apiKey = token.apiKey;
       }
       return session;
     },

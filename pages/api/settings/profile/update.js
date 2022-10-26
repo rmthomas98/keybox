@@ -2,8 +2,6 @@ import prisma from "../../../../lib/prisma";
 import { getToken } from "next-auth/jwt";
 import crypto from "crypto";
 
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-
 const nodemailer = require("nodemailer");
 
 const handler = async (req, res) => {

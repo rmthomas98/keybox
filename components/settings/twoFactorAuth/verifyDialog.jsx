@@ -29,11 +29,12 @@ export const VerifyDialog = ({ show, setShow, phone }) => {
 
     setIsLoading(true);
     const session = await getSession();
-    const { id } = session;
+    const { id, apiKey } = session;
     const { data } = await axios.post("/api/two-factor-auth/verify", {
       userId: id,
       code,
       phone,
+      apiKey,
     });
 
     if (data.error) {

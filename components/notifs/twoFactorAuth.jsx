@@ -6,11 +6,11 @@ import {
   TextInputField,
   toaster,
 } from "evergreen-ui";
-import {useEffect, useState} from "react";
-import {getSession} from "next-auth/react";
+import { useEffect, useState } from "react";
+import { getSession } from "next-auth/react";
 import axios from "axios";
 
-export const TwoFactorAuth = ({ask, status}) => {
+export const TwoFactorAuth = ({ ask, status }) => {
   const [show, setShow] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -50,10 +50,11 @@ export const TwoFactorAuth = ({ask, status}) => {
     }
     setIsLoading(true);
     const session = await getSession();
-    const {id} = session;
-    const {data} = await axios.post("api/two-factor-auth/setup", {
+    const { id, apiKey } = session;
+    const { data } = await axios.post("api/two-factor-auth/setup", {
       userId: id,
       phone,
+      apiKey,
     });
 
     if (data.error) {
@@ -81,11 +82,12 @@ export const TwoFactorAuth = ({ask, status}) => {
 
     setIsLoading(true);
     const session = await getSession();
-    const {id} = session;
-    const {data} = await axios.post("/api/two-factor-auth/verify", {
+    const { id, apiKey } = session;
+    const { data } = await axios.post("/api/two-factor-auth/verify", {
       userId: id,
       code,
       phone,
+      apiKey,
     });
 
     if (data.error) {
@@ -104,10 +106,11 @@ export const TwoFactorAuth = ({ask, status}) => {
     setShowDialog(false);
 
     const session = await getSession();
-    const {id} = session;
+    const { id, apiKey } = session;
 
-    const {data} = await axios.post("/api/two-factor-auth/disable-message", {
+    const { data } = await axios.post("/api/two-factor-auth/disable-message", {
       userId: id,
+      apiKey,
     });
   };
 

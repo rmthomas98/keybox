@@ -13,12 +13,17 @@ const handler = async (req, res) => {
       return;
     }
 
-    const { userId, code, phone } = req.body;
+    const { userId, code, phone, apiKey } = req.body;
 
     // check user id against token
     if (userId !== token.id) {
       res.json({ error: true, message: "Unauthorized" });
       return;
+    }
+
+    // check for required fields
+    if (!code || !phone || !userId || !apiKey) {
+      return res.json({ error: true, message: "Invalid request" });
     }
 
     // get user from db
@@ -27,6 +32,12 @@ const handler = async (req, res) => {
     // check if user exists
     if (!user) {
       res.json({ error: true, message: "User not found" });
+      return;
+    }
+
+    // check if api key is valid
+    if (user.apiKey !== apiKey) {
+      res.json({ error: true, message: "Invalid request" });
       return;
     }
 

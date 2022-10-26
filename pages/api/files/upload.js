@@ -28,7 +28,7 @@ const handler = async (req, res) => {
     });
 
     const {fields, files} = data;
-    const {userId, folderId} = fields;
+    const {userId, folderId, apiKey} = fields;
     const maxSize = 15000000000; // 15 GB
     const maxFileSize = 50 * 1024 ** 2; // 50 MB
 
@@ -37,7 +37,7 @@ const handler = async (req, res) => {
       return;
     }
 
-    if (!userId || !folderId || !files) {
+    if (!userId || !folderId || !files || !apiKey) {
       res.json({error: true, message: "Invalid request"});
       return;
     }
@@ -48,6 +48,12 @@ const handler = async (req, res) => {
     })
 
     if (!user || user.status !== 'SUBSCRIPTION_ACTIVE') {
+      res.json({error: true, message: "Unauthorized"});
+      return;
+    }
+
+    // check api key against user
+    if (apiKey !== user.apiKey) {
       res.json({error: true, message: "Unauthorized"});
       return;
     }

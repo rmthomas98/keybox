@@ -13,10 +13,16 @@ const handler = async (req, res) => {
     }
 
     // get feedback and user id
-    const {feedback, userId} = req.body;
+    const {feedback, userId, apiKey} = req.body;
 
-    if (!userId || !feedback) {
+    if (!userId || !apiKey) {
       res.json({error: true, message: "Invalid request"});
+      return;
+    }
+
+    // check user id against token id
+    if (userId !== token.id) {
+      res.json({error: true, message: "Unauthorized"});
       return;
     }
 
@@ -26,6 +32,18 @@ const handler = async (req, res) => {
     // check user
     if (!user) {
       res.json({error: true, message: "Invalid user"});
+      return;
+    }
+
+    // verify api key
+    if (user.apiKey !== apiKey) {
+      res.json({error: true, message: 'Invalid api key'});
+      return;
+    }
+
+    // check feedback
+    if (!feedback) {
+      res.json({error: true, message: 'Please enter feedback'});
       return;
     }
 

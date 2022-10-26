@@ -145,10 +145,11 @@ export const FolderView = ({
     await toaster.closeAll();
     setIsDeleting(true);
     const session = await getSession();
-    const { id } = session;
+    const { id, apiKey } = session;
     const { data } = await axios.post("/api/files/delete", {
       userId: id,
       folderId: folder.id,
+      apiKey,
     });
 
     if (data.error) {
@@ -166,7 +167,7 @@ export const FolderView = ({
     if (deletedFiles.length === 0) return toaster.danger("No files selected");
     await toaster.closeAll();
     const session = await getSession();
-    const { id } = session;
+    const { id, apiKey } = session;
 
     setIsLoading(true);
     const { data } = await axios.post("/api/files/delete-files", {
@@ -174,6 +175,7 @@ export const FolderView = ({
       folderId: folder.id,
       folderSize: folder.size,
       userId: id,
+      apiKey,
     });
 
     if (data.error) {
@@ -193,10 +195,11 @@ export const FolderView = ({
     if (newFiles.length === 0) return toaster.danger("No files selected");
     setIsLoading(true);
     const session = await getSession();
-    const { id } = session;
+    const { id, apiKey } = session;
     const formData = new FormData();
     formData.append("folderId", folder.id);
     formData.append("userId", id);
+    formData.append("apiKey", apiKey);
     newFiles.forEach((file) => formData.append(file.name, file));
 
     const { data } = await axios.post("/api/files/upload", formData);
@@ -220,11 +223,12 @@ export const FolderView = ({
 
     setIsEditingName(true);
     const session = await getSession();
-    const { id } = session;
+    const { id, apiKey } = session;
     const { data } = await axios.post("/api/files/edit-name", {
       userId: id,
       folderId: folder.id,
       name,
+      apiKey,
     });
 
     if (data.error) {
@@ -254,12 +258,13 @@ export const FolderView = ({
     if (!file) return toaster.danger("No file selected");
 
     const session = await getSession();
-    const { id } = session;
+    const { id, apiKey } = session;
     const { data } = await axios.post("/api/files/download", {
       userId: id,
       fileId: file.id,
       folderId: folder.id,
       key: file.key,
+      apiKey,
     });
 
     if (data.error) {

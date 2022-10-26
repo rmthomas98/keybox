@@ -1,6 +1,8 @@
 import prisma from "../../../lib/prisma";
 import {getToken} from "next-auth/jwt";
 import {decryptWallets} from "../../../helpers/crypto/decryptWallets";
+import {decryptWallet} from "../../../helpers/crypto/decryptWallet";
+import {decryptKey} from "../../../helpers/keys/decryptKey";
 
 const aes256 = require("aes256");
 
@@ -39,7 +41,7 @@ const handler = async (req, res) => {
       where: {id: walletId},
     });
 
-    if (!wallet || !wallet.userId !== userId) {
+    if (!wallet || wallet.userId !== userId) {
       res.json({error: true, message: "Invalid request"});
       return;
     }
@@ -59,13 +61,22 @@ const handler = async (req, res) => {
     }
 
     // grab encryption key and encrypt data
-    let encryptionKey = await decryptWallets(user.key);
+    let encryptionKey = await decryptKey(user.key);
+
+    if (!encryptionKey) {
+      res.json({error: true, message: "Error editing wallet"});
+      return;
+    }
 
     const walletDetails = {
       name: name.trim(),
       address: address ? aes256.encrypt(encryptionKey, address.trim()) : null,
       privateKey: key ? aes256.encrypt(encryptionKey, key.trim()) : null,
-      phrase: phrase ? aes256.encrypt(encryptionKey, phrase.join(",")) : null,
+      phrase:
+        phrase.length !== 0
+          ? aes256.encrypt(encryptionKey, phrase.join(","))
+          : null,
+      userId,
     };
 
     // erase key from memory
@@ -78,15 +89,20 @@ const handler = async (req, res) => {
     });
 
     // get updated wallet and decrypt
+    const decryptedWallet = await decryptWallet(user.key, updatedWallet);
 
     // get all wallets and decrypt
-
+    const {cryptoWallets: encryptedWallets} = await prisma.user.findUnique({
+      where: {id: userId},
+      include: {cryptoWallets: true},
+    });
+    const decryptedWallets = await decryptWallets(user.key, encryptedWallets);
 
     res.json({
       error: false,
       message: "Wallet updated",
-      wallet: updatedWallet,
-      wallets: updatedWallets,
+      wallet: decryptedWallet,
+      wallets: decryptedWallets,
     });
   } catch (err) {
     console.log(err);

@@ -12,9 +12,10 @@ export const Cancel = ({ show, setShow, paymentStatus }) => {
     await toaster.closeAll();
     setIsLoading(true);
     const session = await getSession();
-    const { id } = session;
+    const { id, apiKey } = session;
     const { data } = await axios.post("/api/subscription/cancel", {
       userId: id,
+      apiKey,
     });
 
     if (data.error) {

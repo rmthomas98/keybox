@@ -61,7 +61,8 @@ const handler = async (req, res) => {
       name: name.trim(),
       address: address ? aes256.encrypt(key, address.trim()) : null,
       privateKey: privateKey ? aes256.encrypt(key, privateKey.trim()) : null,
-      phrase: phrase ? aes256.encrypt(key, phrase.join(",")) : null,
+      phrase:
+        phrase.length !== 0 ? aes256.encrypt(key, phrase.join(",")) : null,
       userId,
     };
 

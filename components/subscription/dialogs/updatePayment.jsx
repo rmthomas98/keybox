@@ -16,24 +16,28 @@ const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
 );
 
-const getClientSecret = async () => {
-  const { data } = await axios.get("/api/subscribe/setup-intent");
+const getClientSecret = async (apiKey, id) => {
+  const { data } = await axios.post("/api/subscribe/setup-intent", {
+    userId: id,
+    apiKey,
+  });
   return data.clientSecret || null;
 };
 
 // payment element provider
 export const UpdatePayment = ({ show, setShow, upgradeToPro }) => {
   const [clientSecret, setClientSecret] = useState(null);
-  console.log(clientSecret);
 
   const fetchClientSecret = async () => {
-    const secret = await getClientSecret();
+    const session = await getSession();
+    const { id, apiKey } = session;
+    const secret = await getClientSecret(apiKey, id);
     if (secret) {
       setClientSecret(secret);
       return;
     }
 
-    toaster.danger("Unable to update payment method");
+    toaster.danger("Darkpine was unable to load stripe");
   };
 
   useEffect(() => {
@@ -121,11 +125,12 @@ export const UpdatePaymentDialog = ({
 
     // make call to backend to update payment method
     const session = await getSession();
-    const { id } = session;
+    const { id, apiKey } = session;
     const { data } = await axios.post("/api/payment-method/update", {
       userId: id,
       setupIntent,
       upgradeToPro,
+      apiKey,
     });
 
     if (data.error) {

@@ -10,7 +10,13 @@ const handler = async (req, res) => {
     if (!token) {
       return res.json({error: true, message: "Not authorized"});
     }
-    const {id, setupIntent} = req.body;
+    const {id, setupIntent, apiKey} = req.body;
+
+    // check params
+    if (!id || !setupIntent || !apiKey) {
+      res.json({error: true, message: 'Invalid request'});
+      return;
+    }
 
     // check user id against token id
     if (token.id !== id) {
@@ -26,6 +32,11 @@ const handler = async (req, res) => {
     if (!user) {
       res.json({error: true, message: "User not found"});
       return;
+    }
+
+    // verify api key
+    if (apiKey !== user.apiKey) {
+      res.json({error: true, message: 'Not authorized'})
     }
 
     const {stripeId} = user;

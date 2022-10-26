@@ -1,32 +1,38 @@
 import prisma from "../../../lib/prisma";
-import { getToken } from "next-auth/jwt";
+import {getToken} from "next-auth/jwt";
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 const handler = async (req, res) => {
   try {
-    const token = await getToken({ req });
+    const token = await getToken({req});
     if (!token) {
-      res.json({ error: true, message: "Unauthorized" });
+      res.json({error: true, message: "Unauthorized"});
       return;
     }
 
-    const { userId } = req.body;
+    const {userId, apiKey} = req.body;
 
-    if (!userId) {
-      res.json({ error: true, message: "Invalid request" });
+    if (!userId || !apiKey) {
+      res.json({error: true, message: "Invalid request"});
       return;
     }
 
     if (userId !== token.id) {
-      res.json({ error: true, message: "Unauthorized" });
+      res.json({error: true, message: "Unauthorized"});
       return;
     }
 
-    const user = await prisma.user.findUnique({ where: { id: userId } });
+    const user = await prisma.user.findUnique({where: {id: userId}});
 
     if (!user) {
-      res.json({ error: true, message: "User not found" });
+      res.json({error: true, message: "User not found"});
+      return;
+    }
+
+    // check if api key is valid
+    if (user.apiKey !== apiKey) {
+      res.json({error: true, message: "Invalid request"});
       return;
     }
 
@@ -39,7 +45,7 @@ const handler = async (req, res) => {
     const subscriptionId = plan?.data[0]?.id || null;
 
     if (!subscriptionId) {
-      res.json({ error: true, message: "Subscription not found" });
+      res.json({error: true, message: "Subscription not found"});
       return;
     }
 
@@ -49,12 +55,12 @@ const handler = async (req, res) => {
 
       // clear user subscription in db
       await prisma.user.update({
-        where: { id: userId },
-        data: { status: "SUBSCRIPTION_CANCELED", paymentStatus: "PAID" },
+        where: {id: userId},
+        data: {status: "SUBSCRIPTION_CANCELED", paymentStatus: "PAID"},
       });
 
       // return success message
-      res.json({ error: false, message: "Subscription canceled" });
+      res.json({error: false, message: "Subscription canceled"});
       return;
     }
 
@@ -63,9 +69,9 @@ const handler = async (req, res) => {
       cancel_at_period_end: true,
     });
 
-    res.json({ error: false, message: "Subscription cancelled" });
+    res.json({error: false, message: "Subscription cancelled"});
   } catch {
-    res.json({ error: true, message: "Something went wrong" });
+    res.json({error: true, message: "Something went wrong"});
   }
 };
 

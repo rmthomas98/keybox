@@ -19,10 +19,9 @@ export const Main = () => {
             secure your data
           </Heading>
           <Heading size={800} fontWeight={700}>
-            Never forget your passwords again with our zero-knowledge data
-            manager
+            Never forget your passwords again
           </Heading>
-          <Paragraph marginTop={20} marginBottom={24}>
+          <Paragraph marginTop={12} marginBottom={24}>
             Store all of your passwords, credit cards, bank accounts, secret
             files, and crypto wallets in one secure place.
           </Paragraph>

@@ -1,4 +1,4 @@
-import { Dialog, Paragraph, Small, toaster } from "evergreen-ui";
+import { Dialog, Paragraph, toaster } from "evergreen-ui";
 import { useState } from "react";
 import { getSession } from "next-auth/react";
 import axios from "axios";
@@ -11,9 +11,10 @@ export const DisableDialog = ({ show, setShow, setPhone }) => {
   const handleConfirm = async () => {
     setIsLoading(true);
     const session = await getSession();
-    const { id } = session;
+    const { id, apiKey } = session;
     const { data } = await axios.post("/api/two-factor-auth/disable", {
       userId: id,
+      apiKey,
     });
     if (data.error) {
       toaster.danger(data.message);

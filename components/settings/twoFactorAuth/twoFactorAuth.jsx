@@ -55,10 +55,11 @@ export const TwoFactorAuth = ({ twoFactor, currentPhone, status }) => {
 
     setIsLoading(true);
     const session = await getSession();
-    const { id } = session;
+    const { id, apiKey } = session;
     const { data } = await axios.post("/api/two-factor-auth/setup", {
       userId: id,
       phone,
+      apiKey,
     });
 
     if (data.error) {

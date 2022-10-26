@@ -27,10 +27,11 @@ export const Feedback = ({ show, setShow }) => {
 
     setIsLoading(true);
     const session = await getSession();
-    const { id } = session;
+    const { id, apiKey } = session;
     const { data } = await axios.post("/api/feedback", {
       userId: id,
       feedback,
+      apiKey,
     });
 
     if (data.error) {

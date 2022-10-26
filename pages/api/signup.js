@@ -1,6 +1,7 @@
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 import prisma from "../../lib/prisma";
 import {generateDataKey} from "../../helpers/keys/generateDataKey";
+import {generateRandom} from "../../helpers/keys/generateRandom";
 
 const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
@@ -45,6 +46,20 @@ const handler = async (req, res) => {
     // this key will be used to encrypt and decrypt the users data
     let key = await generateDataKey();
 
+    if (!key) {
+      res.json({error: true, message: "Failed to create account"});
+      return;
+    }
+
+    // generate api key
+    // this key will be used to authenticate the user when making requests to the api
+    let apiKey = await generateRandom();
+
+    if (!apiKey) {
+      res.json({error: true, message: "Failed to create account"});
+      return;
+    }
+
     // check if key is valid
     if (!key) {
       res.json({error: true, message: "Error creating account"});
@@ -67,6 +82,7 @@ const handler = async (req, res) => {
         password: hashedPassword,
         emailToken,
         key,
+        apiKey,
       },
     });
 
