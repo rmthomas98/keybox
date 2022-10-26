@@ -27,5 +27,5 @@ export const decryptKey = async (key) => {
   // erase plaintext from memory
   Plaintext.fill(0);
 
-  return decryptedKey ? decryptedKey : null;
+  return decryptedKey || null;
 };

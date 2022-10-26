@@ -47,7 +47,7 @@ model User {
   banks         Bank[]
   folders       Folder[]
   files         File[]
-  cryptoWallets CryptoWallet[]
+  cryptoWallets Wallet[]
 }
 
 model Credential {
@@ -144,7 +144,7 @@ model File {
   userId    String?
 }
 
-model CryptoWallet {
+model Wallet {
   id         String   @id @default(cuid())
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt

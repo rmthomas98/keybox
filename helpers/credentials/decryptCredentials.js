@@ -4,6 +4,7 @@ const aes256 = require("aes256");
 
 export const decryptCredentials = async (encryptedKey, encryptedCreds) => {
   if (!encryptedKey || !encryptedCreds) return [];
+  if (encryptedCreds.length === 0) return [];
   let key = await decryptKey(encryptedKey);
   if (!key) return [];
 

@@ -3,6 +3,7 @@ import { decryptKey } from "../keys/decryptKey";
 
 export const decryptBanks = async (encryptedKey, encryptedBanks) => {
   if (!encryptedKey || !encryptedBanks) return [];
+  if (encryptedBanks.length === 0) return [];
   let key = await decryptKey(encryptedKey);
   if (!key) return [];
 

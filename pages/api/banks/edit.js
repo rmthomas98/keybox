@@ -59,6 +59,11 @@ const handler = async (req, res) => {
     // get decrypted key
     let key = await decryptKey(user.key);
 
+    if (!key) {
+      res.json({ error: true, message: "Invalid key" });
+      return;
+    }
+
     // encrypt bank name, account number, and routing number
     const bankDetails = {
       identifier: identifier.trim(),

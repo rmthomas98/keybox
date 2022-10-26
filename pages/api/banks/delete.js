@@ -1,6 +1,5 @@
 import prisma from "../../../lib/prisma";
 import { getToken } from "next-auth/jwt";
-import { getUserData } from "../../../helpers/getUserData";
 import { decryptBanks } from "../../../helpers/banks/decryptBanks";
 
 const handler = async (req, res) => {
@@ -19,6 +18,11 @@ const handler = async (req, res) => {
       return;
     }
 
+    if (!userId || !bankId) {
+      res.json({ error: true, message: "Invalid request" });
+      return;
+    }
+
     // check user
     const user = await prisma.user.findUnique({ where: { id: userId } });
 
@@ -31,13 +35,18 @@ const handler = async (req, res) => {
     // delete bank from db
     await prisma.bank.delete({ where: { id: bankId } });
 
-    // get updated banks
-    let { banks } = await getUserData(userId, { banks: true });
+    // get updated banks and decrypt
+    const { banks: encryptedBanks } = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { banks: true },
+    });
+    const decryptedBanks = await decryptBanks(user.key, encryptedBanks);
 
-    // decrypt bank details
-    banks = decryptBanks(banks);
-
-    res.json({ error: false, message: "Bank deleted successfully!", banks });
+    res.json({
+      error: false,
+      message: "Bank deleted successfully!",
+      banks: decryptedBanks,
+    });
   } catch {
     res.json({ error: true, message: "Something went wrong" });
   }

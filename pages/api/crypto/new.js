@@ -1,6 +1,7 @@
 import prisma from "../../../lib/prisma";
 import { getToken } from "next-auth/jwt";
 import { decryptWallets } from "../../../helpers/crypto/decryptWallets";
+import { decryptKey } from "../../../helpers/keys/decryptKey";
 
 const aes256 = require("aes256");
 
@@ -13,7 +14,7 @@ const handler = async (req, res) => {
       return;
     }
 
-    const { userId, name, address, key, phrase } = req.body;
+    const { userId, name, address, privateKey, phrase } = req.body;
 
     // check user id against token id
     if (userId !== token.id) {
@@ -48,33 +49,36 @@ const handler = async (req, res) => {
       return;
     }
 
-    // encrypt address, key, and phrase
-    const encryptionKey = process.env.ENCRYPTION_KEY;
-    const encryptedAddress = address
-      ? aes256.encrypt(encryptionKey, address.trim())
-      : null;
-    const encryptedKey = key ? aes256.encrypt(encryptionKey, key.trim()) : null;
-    const encryptedPhrase =
-      phrase.length > 0
-        ? aes256.encrypt(encryptionKey, phrase.join(","))
-        : null;
+    // grab encryption key and encrypt data
+    let key = await decryptKey(user.key);
+
+    if (!key) {
+      res.json({ error: true, message: "Key not found" });
+      return;
+    }
+
+    const walletDetails = {
+      name: name.trim(),
+      address: address ? aes256.encrypt(key, address.trim()) : null,
+      privateKey: privateKey ? aes256.encrypt(key, privateKey.trim()) : null,
+      phrase: phrase ? aes256.encrypt(key, phrase.join(",")) : null,
+      userId,
+    };
+
+    // erase key from memory
+    key = null;
 
     // create wallet in db
-    await prisma.cryptoWallet.create({
-      data: {
-        name: name.trim(),
-        address: encryptedAddress,
-        privateKey: encryptedKey,
-        phrase: encryptedPhrase,
-        userId,
-      },
+    await prisma.wallet.create({
+      data: { ...walletDetails },
     });
 
-    // get all wallets for user
-    const wallets = await prisma.cryptoWallet.findMany({ where: { userId } });
-
-    // get updated wallets and decrypt data
-    const decryptedWallets = decryptWallets(wallets);
+    // get updated wallets and decrypt
+    const { cryptoWallets: encryptedWallets } = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { cryptoWallets: true },
+    });
+    const decryptedWallets = await decryptWallets(user.key, encryptedWallets);
 
     //return updated wallets
     res.json({

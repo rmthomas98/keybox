@@ -19,7 +19,7 @@ import axios from "axios";
 export const NewCryptoWallet = ({ show, setShow, setWallets }) => {
   const [address, setAddress] = useState("");
   const [name, setName] = useState("");
-  const [key, setKey] = useState("");
+  const [privateKey, setPrivateKey] = useState("");
   const [showKey, setShowKey] = useState(false);
   const [phrase, setPhrase] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -28,7 +28,7 @@ export const NewCryptoWallet = ({ show, setShow, setWallets }) => {
     setShow(false);
     setAddress("");
     setName("");
-    setKey("");
+    setPrivateKey("");
     setPhrase([]);
     setShowKey(false);
     setIsLoading(false);
@@ -40,11 +40,11 @@ export const NewCryptoWallet = ({ show, setShow, setWallets }) => {
     setIsLoading(true);
     const session = await getSession();
     const { id } = session;
-    const { data } = await axios.post("/api/crypto/new-wallet", {
+    const { data } = await axios.post("/api/crypto/new", {
       userId: id,
       name,
       address,
-      key,
+      privateKey,
       phrase,
     });
 
@@ -87,8 +87,8 @@ export const NewCryptoWallet = ({ show, setShow, setWallets }) => {
           label="Private Key"
           placeholder="Wallet private key"
           type={showKey ? "text" : "password"}
-          value={key}
-          onChange={(e) => setKey(e.target.value)}
+          value={privateKey}
+          onChange={(e) => setPrivateKey(e.target.value)}
           autocomplete="off"
         />
         {showKey && (

@@ -32,6 +32,8 @@ const Crypto = ({ stringifiedWallets }) => {
     setWalletView(true);
   };
 
+  console.log(wallets);
+
   return (
     <div>
       <div className={styles.navContainer}>
@@ -165,7 +167,7 @@ export const getServerSideProps = async (ctx) => {
   }
 
   // get the users crypto data
-  const wallets = decryptWallets(user.cryptoWallets);
+  const wallets = await decryptWallets(user.key, user.cryptoWallets);
 
   return { props: { stringifiedWallets: JSON.stringify(wallets) } };
 };

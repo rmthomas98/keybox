@@ -22,7 +22,7 @@ const handler = async (req, res) => {
     }
 
     if (!name || !userId || !walletId) {
-      res.json({error: true, message: "Wallet name is required"});
+      res.json({error: true, message: "invalid request"});
       return;
     }
 
@@ -35,18 +35,18 @@ const handler = async (req, res) => {
     }
 
     // make sure user owns wallet
-    const wallet = await prisma.cryptoWallet.findUnique({
+    const wallet = await prisma.wallet.findUnique({
       where: {id: walletId},
     });
 
-    if (wallet?.userId !== userId) {
-      res.json({error: true, message: "Unauthorized"});
+    if (!wallet || !wallet.userId !== userId) {
+      res.json({error: true, message: "Invalid request"});
       return;
     }
 
     // check if wallet name is already taken
     if (nameChange) {
-      const userWallets = await prisma.cryptoWallet.findMany({
+      const userWallets = await prisma.wallet.findMany({
         where: {userId},
       });
       const isWalletNameTaken = userWallets.some((wallet) => {
@@ -58,38 +58,29 @@ const handler = async (req, res) => {
       }
     }
 
-    // encrypt name, address, key, and phrase
-    const encryptionKey = process.env.ENCRYPTION_KEY;
-    const encryptedAddress = address
-      ? aes256.encrypt(encryptionKey, address)
-      : null;
-    const encryptedKey = key ? aes256.encrypt(encryptionKey, key) : null;
-    const encryptedPhrase =
-      phrase.length > 0
-        ? aes256.encrypt(encryptionKey, phrase.join(","))
-        : null;
+    // grab encryption key and encrypt data
+    let encryptionKey = await decryptWallets(user.key);
+
+    const walletDetails = {
+      name: name.trim(),
+      address: address ? aes256.encrypt(encryptionKey, address.trim()) : null,
+      privateKey: key ? aes256.encrypt(encryptionKey, key.trim()) : null,
+      phrase: phrase ? aes256.encrypt(encryptionKey, phrase.join(",")) : null,
+    };
+
+    // erase key from memory
+    encryptionKey = null;
 
     // update wallet
-    let updatedWallet = await prisma.cryptoWallet.update({
+    let updatedWallet = await prisma.wallet.update({
       where: {id: walletId},
-      data: {
-        name: name.trim(),
-        address: encryptedAddress,
-        privateKey: encryptedKey,
-        phrase: encryptedPhrase,
-        userId,
-      },
+      data: {...walletDetails},
     });
 
-    // decrypt updated wallet
-    updatedWallet = decryptWallets([updatedWallet])[0];
+    // get updated wallet and decrypt
 
-    // get all wallets for user
-    let {cryptoWallets: updatedWallets} = await prisma.user.findUnique({
-      where: {id: userId},
-      include: {cryptoWallets: true},
-    });
-    updatedWallets = decryptWallets(updatedWallets);
+    // get all wallets and decrypt
+
 
     res.json({
       error: false,
