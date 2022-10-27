@@ -39,13 +39,14 @@ export const NewCryptoWallet = ({ show, setShow, setWallets }) => {
     if (!name) return toaster.danger("Please enter a name for your wallet");
     setIsLoading(true);
     const session = await getSession();
-    const { id } = session;
+    const { id, apiKey } = session;
     const { data } = await axios.post("/api/crypto/new", {
       userId: id,
       name,
       address,
       privateKey,
       phrase,
+      apiKey,
     });
 
     if (data.error) {

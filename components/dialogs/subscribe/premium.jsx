@@ -8,7 +8,6 @@ import { loadStripe } from "@stripe/stripe-js";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { toaster, Dialog, Button } from "evergreen-ui";
-import { set } from "react-hook-form";
 import { getSession } from "next-auth/react";
 import { useRouter } from "next/router";
 
@@ -16,8 +15,11 @@ const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
 );
 
-const getClientSecret = async () => {
-  const res = await axios.get("/api/subscribe/setup-intent");
+const getClientSecret = async (userId, apiKey) => {
+  const res = await axios.post("/api/subscribe/setup-intent", {
+    userId,
+    apiKey,
+  });
   return res.data.clientSecret;
 };
 
@@ -26,7 +28,9 @@ export const Premium = ({ isOpen, setIsOpen }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchClientSecret = async () => {
-    const secret = await getClientSecret();
+    const session = await getSession();
+    const { id, apiKey } = session;
+    const secret = await getClientSecret(id, apiKey);
     setClientSecret(secret);
     setIsLoading(false);
   };
@@ -95,8 +99,12 @@ export const PaymentForm = ({ isOpen, setIsOpen }) => {
     }
 
     const session = await getSession();
-    const { id } = session;
-    const res = await axios.post("/api/subscribe/premium", { id, setupIntent });
+    const { id, apiKey } = session;
+    const res = await axios.post("/api/subscribe/premium", {
+      id,
+      setupIntent,
+      apiKey,
+    });
 
     if (res.data.error) {
       toaster.danger("Something went wrong");

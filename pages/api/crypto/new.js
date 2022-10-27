@@ -14,7 +14,7 @@ const handler = async (req, res) => {
       return;
     }
 
-    const { userId, name, address, privateKey, phrase } = req.body;
+    const { userId, name, address, privateKey, phrase, apiKey } = req.body;
 
     // check user id against token id
     if (userId !== token.id) {
@@ -23,7 +23,7 @@ const handler = async (req, res) => {
     }
 
     // check data
-    if (!userId || !name) {
+    if (!userId || !name || !apiKey) {
       res.json({ error: true, message: "Invalid data" });
       return;
     }
@@ -36,6 +36,12 @@ const handler = async (req, res) => {
 
     if (!user) {
       res.json({ error: true, message: "Invalid user" });
+      return;
+    }
+
+    // check api key
+    if (user.apiKey !== apiKey) {
+      res.json({ error: true, message: "Invalid request" });
       return;
     }
 

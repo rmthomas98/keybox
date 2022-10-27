@@ -16,7 +16,7 @@ const handler = async (req, res) => {
     const { userId, apiKey } = req.body;
 
     // make sure user id was passed in
-    if (!userId || apiKey) {
+    if (!userId || !apiKey) {
       res.json({ error: true, message: "Invalid request" });
       return;
     }

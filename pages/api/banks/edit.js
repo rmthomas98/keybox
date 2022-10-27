@@ -1,48 +1,54 @@
 import prisma from "../../../lib/prisma";
 
 const aes256 = require("aes256");
-import { getToken } from "next-auth/jwt";
-import { decryptBanks } from "../../../helpers/banks/decryptBanks";
-import { decryptBank } from "../../../helpers/banks/decryptBank";
-import { decryptKey } from "../../../helpers/keys/decryptKey";
+import {getToken} from "next-auth/jwt";
+import {decryptBanks} from "../../../helpers/banks/decryptBanks";
+import {decryptBank} from "../../../helpers/banks/decryptBank";
+import {decryptKey} from "../../../helpers/keys/decryptKey";
 
 const handler = async (req, res) => {
   try {
     // authenticate user
-    const token = await getToken({ req });
+    const token = await getToken({req});
     if (!token) {
-      return res.json({ error: true, message: "Not authorized" });
+      return res.json({error: true, message: "Not authorized"});
     }
 
-    const { userId, bankId, identifier, type, ownership, isIdentityChange } =
+    const {userId, bankId, identifier, type, ownership, isIdentityChange, apiKey} =
       req.body;
-    let { name, account, routing } = req.body;
+    let {name, account, routing} = req.body;
 
     // check user id against token
     if (userId !== token.id) {
-      res.json({ error: true, message: "Not authorized" });
+      res.json({error: true, message: "Not authorized"});
       return;
     }
 
-    if (!userId || !bankId || !identifier) {
-      res.json({ error: true, message: "Invalid request" });
+    if (!userId || !bankId || !identifier || !apiKey) {
+      res.json({error: true, message: "Invalid request"});
       return;
     }
 
     // check user
     const user = await prisma.user.findUnique({
-      where: { id: userId },
-      include: { banks: true },
+      where: {id: userId},
+      include: {banks: true},
     });
 
     // check if user exists
     if (!user) {
-      res.json({ error: true, message: "User not found" });
+      res.json({error: true, message: "User not found"});
+      return;
+    }
+
+    // check api key against user
+    if (apiKey !== user.apiKey) {
+      res.json({error: true, message: 'Invalid request'});
       return;
     }
 
     // check if identifier is changed and if it is already taken
-    const { banks } = user;
+    const {banks} = user;
     if (isIdentityChange) {
       const isIdentityTaken = banks.filter(
         (bank) =>
@@ -60,7 +66,7 @@ const handler = async (req, res) => {
     let key = await decryptKey(user.key);
 
     if (!key) {
-      res.json({ error: true, message: "Invalid key" });
+      res.json({error: true, message: "Invalid key"});
       return;
     }
 
@@ -78,14 +84,14 @@ const handler = async (req, res) => {
 
     // update bank in db
     const updatedBank = await prisma.bank.update({
-      where: { id: bankId },
-      data: { ...bankDetails },
+      where: {id: bankId},
+      data: {...bankDetails},
     });
 
     // get updated banks
-    const { banks: updatedBanks } = await prisma.user.findUnique({
-      where: { id: userId },
-      include: { banks: true },
+    const {banks: updatedBanks} = await prisma.user.findUnique({
+      where: {id: userId},
+      include: {banks: true},
     });
 
     // decrypt bank details
@@ -101,7 +107,7 @@ const handler = async (req, res) => {
     });
   } catch (err) {
     console.log(err);
-    res.json({ error: true, message: "Something went wrong" });
+    res.json({error: true, message: "Something went wrong"});
   }
 };
 

@@ -118,7 +118,7 @@ export const NewCard = ({ isShown, setIsShown, setCards }) => {
       data.exp = null;
     }
 
-    const { id } = session;
+    const { id, apiKey } = session;
     const { identifier, name, number, cvc, zip, exp } = data;
     const options = {
       id,
@@ -129,6 +129,7 @@ export const NewCard = ({ isShown, setIsShown, setCards }) => {
       cvc,
       zip,
       type,
+      apiKey,
     };
 
     const res = await axios.post("/api/cards/new", { options });

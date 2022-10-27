@@ -1,54 +1,60 @@
 import prisma from "../../../lib/prisma";
-import { getToken } from "next-auth/jwt";
-import { decryptWallets } from "../../../helpers/crypto/decryptWallets";
-import { decryptKey } from "../../../helpers/keys/decryptKey";
+import {getToken} from "next-auth/jwt";
+import {decryptWallets} from "../../../helpers/crypto/decryptWallets";
+import {decryptKey} from "../../../helpers/keys/decryptKey";
 
 const handler = async (req, res) => {
   try {
     // authenticate user
-    const token = await getToken({ req });
+    const token = await getToken({req});
     if (!token) {
-      res.json({ error: true, message: "Unauthorized" });
+      res.json({error: true, message: "Unauthorized"});
       return;
     }
 
-    const { userId, walletId } = req.body;
+    const {userId, walletId, apiKey} = req.body;
 
     // check user id against token
     if (userId !== token.id) {
-      res.json({ error: true, message: "Unauthorized" });
+      res.json({error: true, message: "Unauthorized"});
       return;
     }
 
-    if (!userId || !walletId) {
-      res.json({ error: true, message: "Invalid request" });
+    if (!userId || !walletId || !apiKey) {
+      res.json({error: true, message: "Invalid request"});
       return;
     }
 
     // check user
-    const user = await prisma.user.findUnique({ where: { id: userId } });
+    const user = await prisma.user.findUnique({where: {id: userId}});
 
     if (!user) {
-      res.json({ error: true, message: "User not found" });
+      res.json({error: true, message: "User not found"});
+      return;
+    }
+
+    // check api key
+    if (user.apiKey !== apiKey) {
+      res.json({error: true, message: "Invalid request"});
       return;
     }
 
     // make sure user owns wallet
     const wallet = await prisma.wallet.findUnique({
-      where: { id: walletId },
+      where: {id: walletId},
     });
 
     if (!wallet || wallet.userId !== userId) {
-      res.json({ error: true, message: "Unauthorized" });
+      res.json({error: true, message: "Unauthorized"});
       return;
     }
 
     // delete wallet
-    await prisma.wallet.delete({ where: { id: walletId } });
+    await prisma.wallet.delete({where: {id: walletId}});
 
     // get user wallets
     const encryptedWallets = await prisma.wallet.findMany({
-      where: { userId },
+      where: {userId},
     });
     const decryptedWallets = await decryptWallets(user.key, encryptedWallets);
 
@@ -59,7 +65,7 @@ const handler = async (req, res) => {
     });
   } catch (err) {
     console.log(err);
-    res.json({ error: true, message: "Error deleting crypto wallet" });
+    res.json({error: true, message: "Error deleting crypto wallet"});
   }
 };
 

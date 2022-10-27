@@ -141,10 +141,11 @@ export const BankView = ({ show, setShow, setBanks, bank, setBank }) => {
     await toaster.closeAll();
     setIsDeleting(true);
     const session = await getSession();
-    const { id } = session;
+    const { id, apiKey } = session;
     const { data } = await axios.post("/api/banks/delete", {
       userId: id,
       bankId: bank.id,
+      apiKey,
     });
     if (data.error) {
       toaster.danger(data.message);
@@ -163,7 +164,7 @@ export const BankView = ({ show, setShow, setBanks, bank, setBank }) => {
     setIsLoading(true);
 
     const session = await getSession();
-    const { id } = session;
+    const { id, apiKey } = session;
 
     const { data } = await axios.post("/api/banks/edit", {
       userId: id,
@@ -174,6 +175,7 @@ export const BankView = ({ show, setShow, setBanks, bank, setBank }) => {
       name,
       account,
       routing,
+      apiKey,
     });
 
     if (data.error) {

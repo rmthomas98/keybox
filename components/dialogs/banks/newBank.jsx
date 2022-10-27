@@ -82,7 +82,7 @@ export const NewBank = ({ show, setShow, setBanks }) => {
     if (!identifier) return setIsFormValid(false);
     setIsLoading(true);
     const session = await getSession();
-    const { id: userId } = session;
+    const { id: userId, apiKey } = session;
     const { data } = await axios.post("/api/banks/new", {
       userId,
       identifier,
@@ -91,6 +91,7 @@ export const NewBank = ({ show, setShow, setBanks }) => {
       name,
       account,
       routing,
+      apiKey,
     });
 
     if (data.error) {

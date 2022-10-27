@@ -1,40 +1,57 @@
 import prisma from "../../../lib/prisma";
-import { getToken } from "next-auth/jwt";
+import {getToken} from "next-auth/jwt";
 
 const aes256 = require("aes256");
-import { decryptCredentials } from "../../../helpers/credentials/decryptCredentials";
-import { decryptCredential } from "../../../helpers/credentials/decryptCredential";
-import { decryptKey } from "../../../helpers/keys/decryptKey";
+import {decryptCredentials} from "../../../helpers/credentials/decryptCredentials";
+import {decryptCredential} from "../../../helpers/credentials/decryptCredential";
+import {decryptKey} from "../../../helpers/keys/decryptKey";
 
 const handler = async (req, res) => {
   try {
     // authenticate user
-    const token = await getToken({ req });
+    const token = await getToken({req});
     if (!token) {
-      return res.json({ error: true, message: "Not authorized" });
+      return res.json({error: true, message: "Not authorized"});
     }
 
-    const { id, userId, name, nameChange, account, website, password } =
+    const {id, userId, name, nameChange, account, website, password, apiKey} =
       req.body.options;
 
     // check user id against token
     if (userId !== token.id) {
-      res.json({ error: true, message: "Not authorized" });
+      res.json({error: true, message: "Not authorized"});
+      return;
+    }
+
+    // check params
+    if (!id || !userId || !apiKey) {
+      res.json({error: true, message: 'Invalid request'});
       return;
     }
 
     // check user
-    const user = await prisma.user.findUnique({ where: { id: userId } });
+    const user = await prisma.user.findUnique({where: {id: userId}});
 
     if (!user) {
-      res.json({ error: true, message: "User not found" });
+      res.json({error: true, message: "User not found"});
+      return;
+    }
+
+    // check api key against user api key
+    if (apiKey !== user.apiKey) {
+      res.json({error: true, message: "Invalid request"});
+      return;
+    }
+
+    if (!name) {
+      res.json({error: true, message: "Name is required"});
       return;
     }
 
     // get user from db along with existing credentials
-    const { credentials } = await prisma.user.findUnique({
-      where: { id: userId },
-      include: { credentials: true },
+    const {credentials} = await prisma.user.findUnique({
+      where: {id: userId},
+      include: {credentials: true},
     });
 
     if (nameChange) {
@@ -56,7 +73,7 @@ const handler = async (req, res) => {
     let key = await decryptKey(user.key);
 
     if (!key) {
-      res.json({ error: true, message: "Could not decrypt key" });
+      res.json({error: true, message: "Could not decrypt key"});
       return;
     }
 
@@ -78,7 +95,7 @@ const handler = async (req, res) => {
 
     // update credentials
     await prisma.credential.update({
-      where: { id },
+      where: {id},
       data: {
         name: name.trim(),
         account: encryptedAccount,
@@ -88,17 +105,17 @@ const handler = async (req, res) => {
     });
 
     // get updated credential and decrypt
-    const updatedCred = await prisma.credential.findUnique({ where: { id } });
+    const updatedCred = await prisma.credential.findUnique({where: {id}});
     const decryptedCred = await decryptCredential(user.key, updatedCred);
 
     // get all credentials
     const updatedUser = await prisma.user.findUnique({
-      where: { id: userId },
-      include: { credentials: true },
+      where: {id: userId},
+      include: {credentials: true},
     });
 
     // decrypt all credentials
-    const { credentials: encryptedCreds } = updatedUser;
+    const {credentials: encryptedCreds} = updatedUser;
     const decryptedCreds = await decryptCredentials(user.key, encryptedCreds);
 
     res.json({
@@ -108,7 +125,7 @@ const handler = async (req, res) => {
       credentials: decryptedCreds,
     });
   } catch {
-    res.json({ error: true, message: "Something went wrong" });
+    res.json({error: true, message: "Something went wrong"});
   }
 };
 

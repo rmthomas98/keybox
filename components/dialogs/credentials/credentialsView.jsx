@@ -90,10 +90,11 @@ export const CredentialsView = ({
     setIsDeleting(true);
     toaster.closeAll();
     const session = await getSession();
-    const { id } = session;
+    const { id, apiKey } = session;
     const res = await axios.post("/api/credentials/delete", {
       id: credentials.id,
       userId: id,
+      apiKey,
     });
     if (res.data.error) {
       setIsDeleting(false);
@@ -135,7 +136,7 @@ export const CredentialsView = ({
     setIsLoading(true);
     await toaster.closeAll();
     const session = await getSession();
-    const { id: userId } = session;
+    const { id: userId, apiKey } = session;
     const { id } = credentials;
 
     const nameChange = name !== credentials.name;
@@ -148,6 +149,7 @@ export const CredentialsView = ({
       account,
       website,
       password,
+      apiKey,
     };
 
     const res = await axios.post("/api/credentials/edit", { options });

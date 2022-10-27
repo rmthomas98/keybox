@@ -14,13 +14,19 @@ const handler = async (req, res) => {
       return res.json({ error: true, message: "Not authorized" });
     }
 
-    const { id, name, account, password, generatePassword, website } =
+    const { id, name, account, password, generatePassword, website, apiKey } =
       req.body.options;
     let generatedPassword;
 
     // check auth token against user id
     if (token.id !== id) {
       res.json({ error: true, message: "Not authorized" });
+      return;
+    }
+
+    // check params
+    if (!id || !apiKey) {
+      res.json({ error: true, message: "Invalid request" });
       return;
     }
 
@@ -35,7 +41,13 @@ const handler = async (req, res) => {
       return;
     }
 
-    if (!name?.trim()) {
+    // check api key against user api key
+    if (apiKey !== user.apiKey) {
+      res.json({ error: true, message: "Invalid request" });
+      return;
+    }
+
+    if (!name) {
       res.json({ error: true, message: "Name is required" });
       return;
     }

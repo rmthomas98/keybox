@@ -83,10 +83,11 @@ export const CryptoWalletView = ({
     await toaster.closeAll();
     setIsDeleting(true);
     const session = await getSession();
-    const { id } = session;
+    const { id, apiKey } = session;
     const { data } = await axios.post("/api/crypto/delete", {
       userId: id,
       walletId: wallet.id,
+      apiKey,
     });
 
     if (data.error) {
@@ -109,7 +110,7 @@ export const CryptoWalletView = ({
 
     setIsLoading(true);
     const session = await getSession();
-    const { id } = session;
+    const { id, apiKey } = session;
 
     const { data } = await axios.post("/api/crypto/edit", {
       userId: id,
@@ -119,6 +120,7 @@ export const CryptoWalletView = ({
       key,
       phrase,
       nameChange: name !== wallet.name,
+      apiKey,
     });
 
     if (data.error) {

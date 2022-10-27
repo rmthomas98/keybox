@@ -61,7 +61,7 @@ export const NewCredentials = ({ show, setShow, status, setCredentials }) => {
     // }
     setIsLoading(true);
     const session = await getSession();
-    const { id } = session;
+    const { id, apiKey } = session;
 
     const options = {
       id,
@@ -70,6 +70,7 @@ export const NewCredentials = ({ show, setShow, status, setCredentials }) => {
       password: password,
       generatePassword: genPass,
       website: data.website,
+      apiKey,
     };
 
     const res = await axios.post("/api/credentials/new", { options });

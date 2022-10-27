@@ -13,7 +13,7 @@ const handler = async (req, res) => {
       return res.json({error: true, message: "Not authorized"});
     }
 
-    const {cardId, userId, identifier, identifierChange, type} = req.body;
+    const {cardId, userId, identifier, identifierChange, type, apiKey} = req.body;
     let {name, number, exp, cvc, zip} = req.body;
 
     // check user id against token
@@ -22,7 +22,7 @@ const handler = async (req, res) => {
       return;
     }
 
-    if (!cardId || !userId) {
+    if (!cardId || !userId || !apiKey) {
       res.json({error: true, message: 'Invalid request'});
       return;
     }
@@ -32,6 +32,12 @@ const handler = async (req, res) => {
 
     if (!user) {
       res.json({error: true, message: "User not found"});
+      return;
+    }
+
+    // check api against user api
+    if (apiKey !== user.apiKey) {
+      res.json({error: true, message: "Invalid request"});
       return;
     }
 

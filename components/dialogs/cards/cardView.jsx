@@ -214,11 +214,12 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
     setIsDeleting(true);
     toaster.closeAll();
     const session = await getSession();
-    const { id } = session;
+    const { id, apiKey } = session;
 
     const res = await axios.post("/api/cards/delete", {
       id: card.id,
       userId: id,
+      apiKey,
     });
 
     if (res.data.error) {
@@ -239,7 +240,7 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
     setIsLoading(true);
     await toaster.closeAll();
     const session = await getSession();
-    const { id } = session;
+    const { id, apiKey } = session;
 
     const data = {
       userId: id,
@@ -251,6 +252,7 @@ export const CardView = ({ isShown, setIsShown, card, setCard, setCards }) => {
       number,
       cvc,
       zip,
+      apiKey,
     };
 
     if (month && year) {
