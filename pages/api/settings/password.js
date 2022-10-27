@@ -12,11 +12,27 @@ const handler = async (req, res) => {
       return;
     }
 
-    const {userId, password, confirmPassword} = req.body;
+    const {userId, password, confirmPassword, apiKey} = req.body;
 
     // check user id against token
     if (userId !== token.id) {
       res.json({error: true, message: "Not authorized"});
+      return;
+    }
+
+    // check params
+    if (!userId || !apiKey) {
+      res.json({error: true, message: "Invalid request"});
+      return;
+    }
+
+    if (!password) {
+      res.json({error: true, message: "Password is required"});
+      return;
+    }
+
+    if (!confirmPassword) {
+      res.json({error: true, message: "Confirm password is required"});
       return;
     }
 
@@ -29,15 +45,24 @@ const handler = async (req, res) => {
       return;
     }
 
-    // check if passwords match
-    if (password !== confirmPassword) {
-      res.json({error: true, message: "Passwords do not match"});
+    // check if api key is correct
+    if (apiKey !== user.apiKey) {
+      res.json({error: true, message: "Invalid request"});
       return;
     }
 
     // make sure password is at least 8 characters
-    if (password.length < 8) {
-      res.json({error: true, message: "Password must be at least 8 characters"});
+    if (password.length < 12) {
+      res.json({
+        error: true,
+        message: "Password must be at least 12 characters",
+      });
+      return;
+    }
+
+    // check if passwords match
+    if (password !== confirmPassword) {
+      res.json({error: true, message: "Passwords do not match"});
       return;
     }
 
@@ -50,7 +75,7 @@ const handler = async (req, res) => {
       data: {password: hashedPassword},
     });
 
-    res.json({error: false, message: 'Password updated successfully'});
+    res.json({error: false, message: "Password updated successfully"});
   } catch {
     res.json({error: true, message: "Something went wrong"});
   }

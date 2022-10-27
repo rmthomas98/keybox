@@ -43,11 +43,12 @@ export const Profile = ({ userEmail }) => {
 
     setIsLoading(true);
     const session = await getSession();
-    const { id } = session;
+    const { id, apiKey } = session;
     const { data } = await axios.post("/api/settings/profile/update", {
       userId: id,
       name,
       email,
+      apiKey,
     });
 
     if (data.error) {

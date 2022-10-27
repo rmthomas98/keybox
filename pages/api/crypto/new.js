@@ -1,57 +1,62 @@
 import prisma from "../../../lib/prisma";
-import { getToken } from "next-auth/jwt";
-import { decryptWallets } from "../../../helpers/crypto/decryptWallets";
-import { decryptKey } from "../../../helpers/keys/decryptKey";
+import {getToken} from "next-auth/jwt";
+import {decryptWallets} from "../../../helpers/crypto/decryptWallets";
+import {decryptKey} from "../../../helpers/keys/decryptKey";
 
 const aes256 = require("aes256");
 
 const handler = async (req, res) => {
   try {
     // authenticate user
-    const token = await getToken({ req });
+    const token = await getToken({req});
     if (!token) {
-      res.json({ error: true, message: "Not authorized" });
+      res.json({error: true, message: "Not authorized"});
       return;
     }
 
-    const { userId, name, address, privateKey, phrase, apiKey } = req.body;
+    const {userId, name, address, privateKey, phrase, apiKey} = req.body;
 
     // check user id against token id
     if (userId !== token.id) {
-      res.json({ error: true, message: "Not authorized" });
+      res.json({error: true, message: "Not authorized"});
       return;
     }
 
     // check data
-    if (!userId || !name || !apiKey) {
-      res.json({ error: true, message: "Invalid data" });
+    if (!userId || !apiKey) {
+      res.json({error: true, message: "Invalid request"});
+      return;
+    }
+
+    if (!name) {
+      res.json({error: true, message: 'Please enter a name for your wallet'});
       return;
     }
 
     // make sure user user id is valid
     const user = await prisma.user.findUnique({
-      where: { id: userId },
-      include: { cryptoWallets: true },
+      where: {id: userId},
+      include: {cryptoWallets: true},
     });
 
     if (!user) {
-      res.json({ error: true, message: "Invalid user" });
+      res.json({error: true, message: "Invalid user"});
       return;
     }
 
     // check api key
     if (user.apiKey !== apiKey) {
-      res.json({ error: true, message: "Invalid request" });
+      res.json({error: true, message: "Invalid request"});
       return;
     }
 
     // check if wallet name is already taken
-    const { cryptoWallets: userWallets } = user;
+    const {cryptoWallets: userWallets} = user;
     const isWalletNameTaken = userWallets.some(
       (wallet) => wallet.name.toLowerCase() === name.toLowerCase().trim()
     );
     if (isWalletNameTaken) {
-      res.json({ error: true, message: "Wallet name already exists" });
+      res.json({error: true, message: "Wallet name already exists"});
       return;
     }
 
@@ -59,7 +64,7 @@ const handler = async (req, res) => {
     let key = await decryptKey(user.key);
 
     if (!key) {
-      res.json({ error: true, message: "Key not found" });
+      res.json({error: true, message: "Key not found"});
       return;
     }
 
@@ -77,13 +82,13 @@ const handler = async (req, res) => {
 
     // create wallet in db
     await prisma.wallet.create({
-      data: { ...walletDetails },
+      data: {...walletDetails},
     });
 
     // get updated wallets and decrypt
-    const { cryptoWallets: encryptedWallets } = await prisma.user.findUnique({
-      where: { id: userId },
-      include: { cryptoWallets: true },
+    const {cryptoWallets: encryptedWallets} = await prisma.user.findUnique({
+      where: {id: userId},
+      include: {cryptoWallets: true},
     });
     const decryptedWallets = await decryptWallets(user.key, encryptedWallets);
 
@@ -95,7 +100,7 @@ const handler = async (req, res) => {
     });
   } catch (err) {
     console.log(err);
-    res.json({ error: true, message: "Something went wrong" });
+    res.json({error: true, message: "Something went wrong"});
   }
 };
 

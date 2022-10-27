@@ -7,9 +7,9 @@ import {
   EyeOffIcon,
   EyeOpenIcon,
 } from "evergreen-ui";
-import {useState, useEffect} from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
-import {getSession} from "next-auth/react";
+import { getSession } from "next-auth/react";
 
 export const Password = () => {
   const [password, setPassword] = useState("");
@@ -37,14 +37,15 @@ export const Password = () => {
       return;
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
     const session = await getSession();
-    const {id} = session;
-    const {data} = await axios.post('/api/settings/password', {
+    const { id, apiKey } = session;
+    const { data } = await axios.post("/api/settings/password", {
       userId: id,
       password,
-      confirmPassword
-    })
+      confirmPassword,
+      apiKey,
+    });
     if (data.error) {
       toaster.danger(data.message);
       setIsLoading(false);
@@ -56,7 +57,7 @@ export const Password = () => {
     setIsConfirmDisabled(true);
     setPassword("");
     setConfirmPassword("");
-  }
+  };
 
   return (
     <div className={styles.container}>
@@ -64,7 +65,12 @@ export const Password = () => {
         <Heading size={400} fontWeight={700}>
           Change Password
         </Heading>
-        <Button appearance="primary" disabled={isConfirmDisabled} isLoading={isLoading} onClick={handleConfirm}>
+        <Button
+          appearance="primary"
+          disabled={isConfirmDisabled}
+          isLoading={isLoading}
+          onClick={handleConfirm}
+        >
           Update
         </Button>
       </div>

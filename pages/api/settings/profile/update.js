@@ -13,12 +13,17 @@ const handler = async (req, res) => {
       return;
     }
 
-    const { userId } = req.body;
+    const { userId, apiKey } = req.body;
     let { email } = req.body;
 
     // check user id against token
     if (userId !== token.id) {
       res.json({ error: true, message: "Not authorized" });
+      return;
+    }
+
+    if (!userId || !apiKey) {
+      res.json({ error: true, message: "Invalid request" });
       return;
     }
 
@@ -35,6 +40,12 @@ const handler = async (req, res) => {
     // check if user exists
     if (!user) {
       res.json({ error: true, message: "User not found" });
+      return;
+    }
+
+    // check if api key is correct
+    if (apiKey !== user.apiKey) {
+      res.json({ error: true, message: "Invalid request" });
       return;
     }
 

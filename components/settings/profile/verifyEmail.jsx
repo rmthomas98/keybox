@@ -24,11 +24,12 @@ export const EmailVerifyDialog = ({ show, setShow, email }) => {
 
     setIsLoading(true);
     const session = await getSession();
-    const { id } = session;
+    const { id, apiKey } = session;
     const { data } = await axios.post("/api/settings/profile/verify-email", {
       userId: id,
       code,
       email,
+      apiKey,
     });
 
     if (data.error) {
