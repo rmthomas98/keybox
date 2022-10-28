@@ -21,14 +21,11 @@ export const Main = () => {
             secure your data
           </Heading>
           <Heading size={800} fontWeight={700}>
-            Your data is your most valuable asset.
+            Never forget your passwords again
           </Heading>
           <Paragraph marginTop={12} marginBottom={24}>
-            {/*Store all of your passwords, credit cards, bank accounts, secret*/}
-            {/*files, and crypto wallets in one secure place.*/}
-            Tired of forgetting your passwords? That's a thing of the past.
-            Store all of your passwords, credit cards, bank accounts, secret
-            files, and crypto wallets in one secure place.
+            Tired of forgetting your passwords? We are too. Now you can store
+            all your passwords and other sensitive data in one secure place.
           </Paragraph>
           <div className={styles.inputContainer}>
             {/*<TextInput*/}
