@@ -5,6 +5,8 @@ import {
   Paragraph,
   TextInput,
   ArrowRightIcon,
+  Text,
+  Small,
 } from "evergreen-ui";
 import NextLink from "next/link";
 import Lottie from "lottie-react";
@@ -19,9 +21,12 @@ export const Main = () => {
             secure your data
           </Heading>
           <Heading size={800} fontWeight={700}>
-            Never forget your passwords again
+            Your data is your most valuable asset.
           </Heading>
           <Paragraph marginTop={12} marginBottom={24}>
+            {/*Store all of your passwords, credit cards, bank accounts, secret*/}
+            {/*files, and crypto wallets in one secure place.*/}
+            Tired of forgetting your passwords? That's a thing of the past.
             Store all of your passwords, credit cards, bank accounts, secret
             files, and crypto wallets in one secure place.
           </Paragraph>
