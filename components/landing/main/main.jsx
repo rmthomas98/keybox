@@ -18,14 +18,15 @@ export const Main = () => {
       <div className={styles.container}>
         <div className={styles.contentContainer}>
           <Heading size={100} fontWeight={700} marginBottom={3}>
-            secure your data
+            zero-knowledge
           </Heading>
           <Heading size={800} fontWeight={700}>
             Never forget your passwords again
           </Heading>
           <Paragraph marginTop={12} marginBottom={24}>
-            Tired of forgetting your passwords? We are too. Now you can store
-            all your passwords and other sensitive data in one secure place.
+            Tired of forgetting your passwords? We got you covered. Now you can
+            store all your passwords and other sensitive data in one secure
+            place.
           </Paragraph>
           <div className={styles.inputContainer}>
             {/*<TextInput*/}
@@ -35,7 +36,12 @@ export const Main = () => {
             {/*/>*/}
             <NextLink href="/signup" passHref>
               <a>
-                <Button appearance="primary" size={"large"} marginRight={10}>
+                <Button
+                  appearance="primary"
+                  size={"large"}
+                  marginRight={10}
+                  iconAfter={ArrowRightIcon}
+                >
                   Get started
                 </Button>
               </a>

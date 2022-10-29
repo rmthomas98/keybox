@@ -137,8 +137,13 @@ export const Nav = () => {
             <Link>
               <div className={styles.titleContainer}>
                 <Image src="/images/logo.svg" height={30} width={30} />
-                <Heading size={400} fontWeight={700} marginLeft={10}>
-                  Darkpine
+                <Heading
+                  size={100}
+                  fontWeight={700}
+                  marginLeft={10}
+                  color="#101840"
+                >
+                  DARKPINE
                 </Heading>
               </div>
             </Link>
@@ -149,8 +154,13 @@ export const Nav = () => {
             <Link>
               <div className={styles.titleContainer}>
                 <Image src="/images/logo.svg" height={30} width={30} />
-                <Heading size={400} fontWeight={700} marginLeft={10}>
-                  Darkpine
+                <Heading
+                  size={100}
+                  fontWeight={700}
+                  marginLeft={10}
+                  color="#101840"
+                >
+                  DARKPINE
                 </Heading>
               </div>
             </Link>

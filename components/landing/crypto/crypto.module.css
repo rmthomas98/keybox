@@ -1,0 +1,27 @@
+.wrapper {
+  padding: 75px 20px;
+}
+
+
+.container {
+  max-width: 1000px;
+  margin: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.imageContainer {
+  width: 100%;
+  max-width: 400px;
+  min-width: 270px;
+  border-radius: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.content {
+  margin-left: 20px;
+  max-width: 600px;
+}

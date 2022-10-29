@@ -1,0 +1,26 @@
+.wrapper {
+  padding: 50px 20px;
+  position: relative;
+  bottom: 125px;
+  background: #FAFBFF;
+  margin-bottom: -100px;
+}
+
+.container {
+  max-width: 1000px;
+  margin: auto;
+}
+
+.header {
+  margin-bottom: 50px;
+}
+
+.contentContainer {
+  display: flex;
+}
+
+.content {
+  width: 100%;
+  text-align: center;
+  margin-right: 30px;
+}
