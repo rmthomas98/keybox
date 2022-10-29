@@ -29,11 +29,6 @@ export const Main = () => {
             place.
           </Paragraph>
           <div className={styles.inputContainer}>
-            {/*<TextInput*/}
-            {/*  placeholder="Your email..."*/}
-            {/*  width="100%"*/}
-            {/*  maxWidth={300}*/}
-            {/*/>*/}
             <NextLink href="/signup" passHref>
               <a>
                 <Button
