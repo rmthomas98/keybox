@@ -34,7 +34,7 @@ export const Crypto = () => {
           <Heading size={700} marginBottom={20} fontWeight={700}>
             A solution for your crypto wallets
           </Heading>
-          <Paragraph>
+          <Paragraph color="muted">
             You can save all your crypto wallet information in one place. Don't
             worry about losing your private keys, seed phrases, or anything
             else. Let us handle it for you.

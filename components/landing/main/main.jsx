@@ -20,10 +20,10 @@ export const Main = () => {
           <Heading size={100} fontWeight={700} marginBottom={3}>
             zero-knowledge
           </Heading>
-          <Heading size={800} fontWeight={700}>
+          <Heading size={800} fontWeight={700} marginBottom={20}>
             Never forget your passwords again
           </Heading>
-          <Paragraph marginTop={12} marginBottom={24}>
+          <Paragraph marginTop={12} marginBottom={24} color="muted">
             Tired of forgetting your passwords? We got you covered. Now you can
             store all your passwords and other sensitive data in one secure
             place.

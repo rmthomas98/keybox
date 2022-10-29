@@ -25,7 +25,7 @@ export const Secure = () => {
             <Heading size={400} marginBottom={10} marginTop={6}>
               Your only password
             </Heading>
-            <Paragraph size={300}>
+            <Paragraph size={300} color="muted">
               Say goodbye to all your passwords. With one password you can
               access all your accounts.
             </Paragraph>
@@ -40,7 +40,7 @@ export const Secure = () => {
             <Heading size={400} marginBottom={10} marginTop={6}>
               Top notch security
             </Heading>
-            <Paragraph size={300}>
+            <Paragraph size={300} color="muted">
               Our software is built with a zero-knowledge model. We could never
               see your data even if we wanted to.
             </Paragraph>
@@ -55,7 +55,7 @@ export const Secure = () => {
             <Heading size={400} marginBottom={10} marginTop={6}>
               24/7 Access
             </Heading>
-            <Paragraph size={300}>
+            <Paragraph size={300} color="muted">
               Your data is always available to you. Access all of your stored
               data from any device, at any time.
             </Paragraph>
