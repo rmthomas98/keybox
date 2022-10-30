@@ -1,9 +1,9 @@
 .wrapper {
   padding: 50px 20px;
   position: relative;
-  bottom: 125px;
-  background: #FAFBFF;
-  margin-bottom: -125px;
+  /*bottom: 125px;*/
+  background: #F9FAFC; /* grey 75 */
+  /*margin-bottom: -125px;*/
 }
 
 .container {

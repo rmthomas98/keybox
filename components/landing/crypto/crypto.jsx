@@ -44,6 +44,7 @@ export const Crypto = () => {
             appearance="primary"
             iconAfter={ArrowRightIcon}
             marginTop={20}
+            intent={"success"}
           >
             Start for free
           </Button>

@@ -1,0 +1,33 @@
+.wrapper {
+  padding: 75px 20px;
+}
+
+.container {
+  margin: auto;
+  width: fit-content;
+}
+
+.priceContainer {
+  border-right: 1px solid #E6E8F0;
+  width: fit-content;
+  padding-right: 30px;
+  position: relative;
+  min-width: 150px;
+}
+
+.card {
+  display: flex;
+}
+
+.featuresContainer {
+  margin-left: 30px;
+  width: 100%;
+}
+
+.featureFlexContainer {
+  display: flex;
+}
+
+.leftListContainer {
+  margin-right: 30px;
+}

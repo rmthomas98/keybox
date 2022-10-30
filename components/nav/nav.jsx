@@ -236,33 +236,33 @@ export const Nav = () => {
               </div>
             </div>
           )}
-        {/*{!router.pathname.includes("/app") && (*/}
-        {/*  <div className={styles.navLinks}>*/}
-        {/*    <NextLink href="/features" passHref>*/}
-        {/*      <Link*/}
-        {/*        color={router.pathname === "/features" ? "primary" : "neutral"}*/}
-        {/*        marginRight={20}*/}
-        {/*      >*/}
-        {/*        Features*/}
-        {/*      </Link>*/}
-        {/*    </NextLink>*/}
-        {/*    <NextLink href="/pricing" passHref>*/}
-        {/*      <Link*/}
-        {/*        color={router.pathname === "/pricing" ? "primary" : "neutral"}*/}
-        {/*        marginRight={20}*/}
-        {/*      >*/}
-        {/*        Pricing*/}
-        {/*      </Link>*/}
-        {/*    </NextLink>*/}
-        {/*    <NextLink href="/about" passHref>*/}
-        {/*      <Link*/}
-        {/*        color={router.pathname === "/about" ? "primary" : "neutral"}*/}
-        {/*      >*/}
-        {/*        About*/}
-        {/*      </Link>*/}
-        {/*    </NextLink>*/}
-        {/*  </div>*/}
-        {/*)}*/}
+        {!router.pathname.includes("/app") && (
+          <div className={styles.navLinks}>
+            <NextLink href="/features" passHref>
+              <Link
+                color={router.pathname === "/features" ? "primary" : "neutral"}
+                marginRight={20}
+              >
+                Features
+              </Link>
+            </NextLink>
+            <NextLink href="/pricing" passHref>
+              <Link
+                color={router.pathname === "/pricing" ? "primary" : "neutral"}
+                marginRight={20}
+              >
+                Pricing
+              </Link>
+            </NextLink>
+            <NextLink href="/about" passHref>
+              <Link
+                color={router.pathname === "/about" ? "primary" : "neutral"}
+              >
+                About
+              </Link>
+            </NextLink>
+          </div>
+        )}
         {!router.pathname.includes("app") && (
           <div>
             <NextLink href="/login" passHref>
@@ -272,7 +272,9 @@ export const Nav = () => {
             </NextLink>
             <NextLink href="/signup" passHref>
               <a>
-                <Button appearance="primary">Sign up</Button>
+                <Button appearance="primary" intent={"success"}>
+                  Sign up
+                </Button>
               </a>
             </NextLink>
           </div>

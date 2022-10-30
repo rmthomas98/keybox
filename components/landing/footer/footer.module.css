@@ -1,12 +1,15 @@
 .wrapper {
   padding: 50px 20px;
-  background: #474d66;
+  background: #edeff5; /* grey 200 */
 
 }
 
 .container {
   max-width: 1000px;
   margin: auto;
+}
+
+.flexContainer {
   display: flex;
   justify-content: space-between;
 }
@@ -14,6 +17,8 @@
 .titleContainer {
   display: flex;
   align-items: center;
+  position: relative;
+  bottom: 7px;
 }
 
 .socialContainer {
@@ -21,14 +26,22 @@
   flex-direction: column;
 }
 
-
 .link {
-  color: #fff;
-  transition: 200ms;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
 }
 
-.link:hover {
-  opacity: 0.6;
-  color: #ffffff;
+.contentContainer {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  max-width: 600px;
+}
+
+.bottomContainer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 40px;
+  align-items: center;
 }

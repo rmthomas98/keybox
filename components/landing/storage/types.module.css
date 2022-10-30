@@ -1,0 +1,22 @@
+.wrapper {
+  padding: 75px 20px;
+  background: #F9FAFC; /* grey 75 */
+}
+
+.container {
+  max-width: 1000px;
+  margin: auto;
+}
+
+.contentContainer {
+  display: flex;
+}
+
+.card {
+  margin-right: 8px;
+}
+
+.secondContentContainer {
+  display: flex;
+  margin-top: 8px;
+}

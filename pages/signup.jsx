@@ -152,6 +152,7 @@ const Signup = () => {
             </div>
             <Button
               appearance="primary"
+              intent={"success"}
               width="100%"
               size="large"
               isLoading={isLoading}
@@ -164,7 +165,7 @@ const Signup = () => {
                 Already have an account?
               </Text>
               <NextLink href="/login" passHref>
-                <Link>Log in</Link>
+                <Link color="neutral">Log in</Link>
               </NextLink>
             </div>
           </form>

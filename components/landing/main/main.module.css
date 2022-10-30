@@ -9,17 +9,17 @@
   /*align-items: center;*/
   justify-content: space-between;
   align-items: center;
-  position: relative;
-  bottom: 100px;
+  /*position: relative;*/
+  /*bottom: 100px;*/
 }
 
 .lottieContainer {
-  height: 600px;
-  width: 600px;
+  height: 500px;
+  width: 500px;
   min-width: 400px;
   position: relative;
-  bottom: 50px;
-  left: 70px;
+  /*bottom: 50px;*/
+  /*left: 70px;*/
 }
 
 .contentContainer {

@@ -10,6 +10,16 @@ body {
   Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
 }
 
+body::-webkit-scrollbar {
+  width: 6px;
+  background: #E6E8F0;
+}
+
+body::-webkit-scrollbar-thumb {
+  background-color: #8f95b2;
+  border-radius: 50px;
+}
+
 a {
   text-decoration: none;
 }

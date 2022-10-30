@@ -11,6 +11,7 @@ export const Secure = () => {
           fontWeight={700}
           textAlign={"center"}
           className={styles.header}
+          color="#101840"
         >
           One Password to Replace Them All
         </Heading>
@@ -18,14 +19,14 @@ export const Secure = () => {
           <div className={styles.content}>
             <Image
               src="/images/crown.svg"
-              height={40}
-              width={40}
+              height={45}
+              width={45}
               quality={100}
             />
             <Heading size={400} marginBottom={10} marginTop={6}>
               Your only password
             </Heading>
-            <Paragraph size={300} color="muted">
+            <Paragraph size={300} color="muted" lineHeight={1.8}>
               Say goodbye to all your passwords. With one password you can
               access all your accounts.
             </Paragraph>
@@ -33,14 +34,14 @@ export const Secure = () => {
           <div className={styles.content}>
             <Image
               src="/images/lock.svg"
-              height={40}
-              width={40}
+              height={45}
+              width={45}
               quality={100}
             />
             <Heading size={400} marginBottom={10} marginTop={6}>
               Top notch security
             </Heading>
-            <Paragraph size={300} color="muted">
+            <Paragraph size={300} color="muted" lineHeight={1.8}>
               Our software is built with a zero-knowledge model. We could never
               see your data even if we wanted to.
             </Paragraph>
@@ -48,14 +49,14 @@ export const Secure = () => {
           <div className={styles.content} style={{ marginRight: 0 }}>
             <Image
               src="/images/flash.svg"
-              height={40}
-              width={40}
+              height={45}
+              width={45}
               quality={100}
             />
             <Heading size={400} marginBottom={10} marginTop={6}>
               24/7 Access
             </Heading>
-            <Paragraph size={300} color="muted">
+            <Paragraph size={300} color="muted" lineHeight={1.8}>
               Your data is always available to you. Access all of your stored
               data from any device, at any time.
             </Paragraph>

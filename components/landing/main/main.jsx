@@ -10,7 +10,7 @@ import {
 } from "evergreen-ui";
 import NextLink from "next/link";
 import Lottie from "lottie-react";
-import animationData from "../../../src/security.json";
+import animationData from "../../../src/security-one.json";
 
 export const Main = () => {
   return (
@@ -33,6 +33,7 @@ export const Main = () => {
               <a>
                 <Button
                   appearance="primary"
+                  intent="success"
                   size={"large"}
                   marginRight={10}
                   iconAfter={ArrowRightIcon}
@@ -48,11 +49,11 @@ export const Main = () => {
           animationData={animationData}
           loop={true}
           style={{
-            width: 600,
-            minWidth: 400,
-            position: "relative",
-            top: 30,
-            left: 30,
+            width: 330,
+            minWidth: 270,
+            // position: "relative",
+            // top: 30,
+            // left: 30,
           }}
         />
       </div>

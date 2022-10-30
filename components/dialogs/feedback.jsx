@@ -49,7 +49,7 @@ export const Feedback = ({ show, setShow }) => {
       isShown={show}
       title="Leave Your Feedback"
       onCloseComplete={handleClose}
-      confirmLabel="Send"
+      confirmLabel="Submit"
       onConfirm={handleSubmit}
       shouldCloseOnOverlayClick={false}
       isConfirmLoading={isLoading}

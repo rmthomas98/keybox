@@ -212,6 +212,7 @@ const Login = ({ newAccount }) => {
                 </div>
                 <Button
                   appearance="primary"
+                  intent={"success"}
                   width="100%"
                   size="large"
                   marginTop={12}
