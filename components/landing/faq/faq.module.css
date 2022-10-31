@@ -1,0 +1,35 @@
+.wrapper {
+  padding: 75px 20px;
+  background: #F9FAFC; /* grey 75 */
+}
+
+.container {
+  max-width: 1000px;
+  margin: auto;
+  display: flex;
+  justify-content: space-between;
+}
+
+.contentContainer {
+  min-width: 300px;
+  max-width: 420px;
+  width: 100%;
+}
+
+.questionContainer {
+  width: 100%;
+  margin-left: 60px;
+  overflow: hidden;
+}
+
+.question {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.answer {
+  padding: 10px 20px 20px 20px;
+}

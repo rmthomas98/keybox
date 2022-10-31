@@ -18,7 +18,7 @@ export default NextAuth({
         });
         if (!user) throw new Error("No user found found with that email");
         const isValid = await bcrypt.compare(password, user.password);
-        if (!isValid) throw new Error("Invalid password");
+        if (!isValid) throw new Error("Incorrect password");
         return user;
       },
     }),

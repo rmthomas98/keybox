@@ -7,6 +7,7 @@ import {
   ArrowRightIcon,
   Text,
   Small,
+  Badge,
 } from "evergreen-ui";
 import NextLink from "next/link";
 import Lottie from "lottie-react";
@@ -18,7 +19,7 @@ export const Main = () => {
       <div className={styles.container}>
         <div className={styles.contentContainer}>
           <Heading size={100} fontWeight={700} marginBottom={3}>
-            zero-knowledge
+            zero-knowledge & Zero-Trust Protocol
           </Heading>
           <Heading size={800} fontWeight={700} marginBottom={20}>
             Never forget your passwords again
@@ -42,7 +43,7 @@ export const Main = () => {
                 </Button>
               </a>
             </NextLink>
-            <Button size={"large"}>Learn more</Button>
+            <Button size={"large"}>View pricing</Button>
           </div>
         </div>
         <Lottie

@@ -36,7 +36,12 @@ export const Types = () => {
             <Heading size={400} marginTop={6} marginBottom={10}>
               Login Credentials
             </Heading>
-            <Paragraph size={300} textAlign={"center"} lineHeight={1.8}>
+            <Paragraph
+              size={300}
+              textAlign={"center"}
+              lineHeight={1.8}
+              color={"muted"}
+            >
               Login information for all your accounts. No more forgetting your
               passwords or having to reset them. One password to rule them all.
             </Paragraph>
@@ -59,7 +64,12 @@ export const Types = () => {
             <Heading size={400} marginTop={6} marginBottom={10}>
               Credit Cards
             </Heading>
-            <Paragraph size={300} textAlign={"center"} lineHeight={1.8}>
+            <Paragraph
+              size={300}
+              textAlign={"center"}
+              lineHeight={1.8}
+              color={"muted"}
+            >
               Store all your credit card information. The days of running to the
               other room or searching through your wallet or purse for your card
               are over.
@@ -83,7 +93,12 @@ export const Types = () => {
             <Heading size={400} marginTop={6} marginBottom={10}>
               Bank Accounts
             </Heading>
-            <Paragraph size={300} textAlign={"center"} lineHeight={1.8}>
+            <Paragraph
+              size={300}
+              textAlign={"center"}
+              lineHeight={1.8}
+              color={"muted"}
+            >
               Bank account details are stored securely. Need to find your bank
               account or routing number? Not a problem with our software.
             </Paragraph>
@@ -108,7 +123,12 @@ export const Types = () => {
             <Heading size={400} marginTop={6} marginBottom={10}>
               File Storage
             </Heading>
-            <Paragraph size={300} textAlign={"center"} lineHeight={1.8}>
+            <Paragraph
+              size={300}
+              textAlign={"center"}
+              lineHeight={1.8}
+              color={"muted"}
+            >
               Create folders and store your most sensitive files. You can store
               any type of file you want. 15 GB of storage is included with your
               account.
@@ -132,7 +152,12 @@ export const Types = () => {
             <Heading size={400} marginTop={6} marginBottom={10}>
               Crypto Wallets
             </Heading>
-            <Paragraph size={300} textAlign={"center"} lineHeight={1.8}>
+            <Paragraph
+              size={300}
+              textAlign={"center"}
+              lineHeight={1.8}
+              color={"muted"}
+            >
               Keep track of all your crypto wallet details in one place. Need a
               place to store your private keys and seed phrases? Look no
               further.
@@ -156,7 +181,12 @@ export const Types = () => {
             <Heading size={400} marginTop={6} marginBottom={10}>
               Browser Extension
             </Heading>
-            <Paragraph size={300} textAlign={"center"} lineHeight={1.8}>
+            <Paragraph
+              size={300}
+              textAlign={"center"}
+              lineHeight={1.8}
+              color={"muted"}
+            >
               Our soon to be released browser extension will allow you to
               autofill your login credentials and credit card information in
               seconds.

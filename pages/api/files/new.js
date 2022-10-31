@@ -4,6 +4,7 @@ import { getToken } from "next-auth/jwt";
 const fs = require("fs");
 const aws = require("aws-sdk");
 const formidable = require("formidable");
+const aes256 = require("aes256");
 
 export const config = {
   api: {

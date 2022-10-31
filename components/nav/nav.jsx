@@ -243,7 +243,7 @@ export const Nav = () => {
                 color={router.pathname === "/features" ? "primary" : "neutral"}
                 marginRight={20}
               >
-                Features
+                Benefits
               </Link>
             </NextLink>
             <NextLink href="/pricing" passHref>
@@ -258,7 +258,7 @@ export const Nav = () => {
               <Link
                 color={router.pathname === "/about" ? "primary" : "neutral"}
               >
-                About
+                Faq
               </Link>
             </NextLink>
           </div>
